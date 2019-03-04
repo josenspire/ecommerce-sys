@@ -49,5 +49,5 @@ func (user *User) Register() (*User, error) {
 	if err == nil {
 		return nil, err
 	}
-	return e user, nil
+	return user, nil
 }
