@@ -13,6 +13,24 @@ import (
 var port string
 
 func init() {
+	mysqlDBInitialize()
+
+	// 日志：会保存手动输出的日志和系统异常日志
+	// 如： logs.Error和panic
+	// level 日志保存的时候的级别，默认是 Trace 级别，level值越高，记录的日志范围越广
+	logs.Async()
+
+	// perm 日志文件权限
+	// filename 保存的文件名
+	// maxlines 每个文件保存的最大行数，默认值 1000000
+	// maxsize 每个文件保存的最大尺寸，默认值是 1 << 28, //256 MB
+	// daily 是否按照每天 logrotate，默认是 true
+	// maxdays 文件最多保存多少天，默认保存 7 天
+	// rotate 是否开启 logrotate，默认是 true
+	logs.SetLogger(logs.AdapterFile, `{"filename":"./logs/ecommerce-sys.log","level":6,"maxlines":0,"maxsize":0,"daily":true,"maxdays":30}`)
+}
+
+func mysqlDBInitialize() {
 	dbUser := beego.AppConfig.String("mysqluser")
 	dbPass := beego.AppConfig.String("mysqlpass")
 	dbURL := beego.AppConfig.String("mysqlurls")
@@ -44,20 +62,6 @@ func init() {
 	orm.RunSyncdb("default", false, true)
 	// 设置为 UTC 时间(default：本地时区)
 	orm.DefaultTimeLoc = time.UTC
-
-	// 日志：会保存手动输出的日志和系统异常日志
-	// 如： logs.Error和panic
-	// level 日志保存的时候的级别，默认是 Trace 级别，level值越高，记录的日志范围越广
-	logs.Async()
-
-	// perm 日志文件权限
-	// filename 保存的文件名
-	// maxlines 每个文件保存的最大行数，默认值 1000000
-	// maxsize 每个文件保存的最大尺寸，默认值是 1 << 28, //256 MB
-	// daily 是否按照每天 logrotate，默认是 true
-	// maxdays 文件最多保存多少天，默认保存 7 天
-	// rotate 是否开启 logrotate，默认是 true
-	logs.SetLogger(logs.AdapterFile, `{"filename":"./logs/ecommerce-sys.log","level":6,"maxlines":0,"maxsize":0,"daily":true,"maxdays":30}`)
 }
 
 func main() {

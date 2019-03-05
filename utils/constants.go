@@ -1,0 +1,15 @@
+package utils
+
+const (
+	// 200*
+	REQUEST_SUCCESS  uint = 200000
+	PARAMS_MISSING   uint = 200400
+	TOKEN_IS_EXPIRED uint = 200401
+
+	// 400*
+	REQUEST_FAIL uint = 400000
+
+	// 500*
+	SERVER_UNKNOW_ERROR   uint = 500000
+	SERVER_REJECT_REQUEST uint = 500003
+)
