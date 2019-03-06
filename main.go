@@ -1,7 +1,8 @@
 package main
 
 import (
-	"ecommerce-sys/models"
+	. "ecommerce-sys/controllers"
+	. "ecommerce-sys/models"
 	_ "ecommerce-sys/routers"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
@@ -9,8 +10,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"time"
 )
-
-var port string
 
 func init() {
 	mysqlDBInitialize()
@@ -27,7 +26,8 @@ func init() {
 	// daily 是否按照每天 logrotate，默认是 true
 	// maxdays 文件最多保存多少天，默认保存 7 天
 	// rotate 是否开启 logrotate，默认是 true
-	logs.SetLogger(logs.AdapterFile, `{"filename":"./logs/ecommerce-sys.log","level":6,"maxlines":0,"maxsize":0,"daily":true,"maxdays":30}`)
+	err := logs.SetLogger(logs.AdapterFile, `{"filename":"./logs/ecommerce-sys.log","level":6,"maxlines":0,"maxsize":0,"daily":true,"maxdays":30}`)
+	ErrorHandle(err)
 }
 
 func mysqlDBInitialize() {
@@ -37,7 +37,8 @@ func mysqlDBInitialize() {
 	dbName := beego.AppConfig.String("mysqldb")
 	dbPort := beego.AppConfig.String("mysqlport")
 
-	orm.RegisterDriver("mysql", orm.DRMySQL)
+	err := orm.RegisterDriver("mysql", orm.DRMySQL)
+	ErrorHandle(err)
 	// 参数4(可选)  设置最大空闲连接
 	// 参数5(可选)  设置最大数据库连接
 	maxIdle := 30
@@ -46,20 +47,23 @@ func mysqlDBInitialize() {
 	// 参数1        数据库的别名，用来在 ORM 中切换数据库使用
 	// 参数2        driverName
 	// 参数3        对应的链接字符串
-	orm.RegisterDataBase(
+	err = orm.RegisterDataBase(
 		"default",
 		"mysql",
 		dbUser+":"+dbPass+"@tcp("+dbURL+":"+dbPort+")/"+dbName+"?charset=utf8&parseTime=true",
 		maxIdle,
 		maxConn)
+	ErrorHandle(err)
 
 	// init model
-	orm.RegisterModel(new(models.User), new(models.WxSession))
+	orm.RegisterModel(new(Wuid), new(User), new(WxSession))
 
 	// 控制台打印查询语句
 	orm.Debug = true
 	// 自动建表
-	orm.RunSyncdb("default", false, true)
+	err = orm.RunSyncdb("default", false, true)
+	ErrorHandle(err)
+
 	// 设置为 UTC 时间(default：本地时区)
 	orm.DefaultTimeLoc = time.UTC
 }

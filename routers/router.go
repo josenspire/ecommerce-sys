@@ -8,19 +8,21 @@
 package routers
 
 import (
-	"ecommerce-sys/controllers"
+	. "ecommerce-sys/controllers"
 	"github.com/astaxie/beego"
 )
 
 func init() {
-	beego.Router("/", &controllers.MainController{})
+	beego.Router("/", &MainController{})
 
 	ns := beego.NewNamespace("/v1/api",
 		//	api cache checking
 		//beego.NSBefore(models.ReadApiCache),
 
 		beego.NSNamespace("/user",
-			beego.NSRouter("/login", &controllers.UserController{}, "post:Login"),
+			beego.NSRouter("/register", &UserController{}, "post:Register"),
+			// beego.NSRouter("/loginByTelephone", &UserController{}, "post:LoginByTelephone"),
+			// beego.NSRouter("/loginByWechat", &UserController{}, "post:LoginByWechat"),
 		),
 	)
 

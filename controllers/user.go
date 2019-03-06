@@ -14,41 +14,84 @@ type UserController struct {
 // @Title Register
 // @Description User register api by telephone
 // @Param	telephone	query	string	true	"Register by cellphone"
+// @Param	username	query	string	false	"User's username"
 // @Param	password	query	string	true	"User password, length need to more then 6"
 // @Param	nickname	query	string	true	"User nickname"
 // @Param	signature	query	string	false	"User signature"
-// @Param	male		query	bool	true	"Male/Female"
+// @Param	male		query	bool	false	"Male/Female"
 // @Success	200000	{object}	models.ResponseModel
 // @Failure	200400
-// @router	/login	[post]
+// @router	/register	[post]
 func (u *UserController) Register() {
-	var user User
+	var response ResponseModel
+	var user = new(User)
+
 	err := json.Unmarshal(u.Ctx.Input.RequestBody, &user.UserProfile)
 	if err != nil {
-		u.Data["json"] = HandleError(err, PARAMS_MISSING)
+		response.HandleError(err, PARAMS_MISSING)
 	} else {
 		err = user.Register()
 		if err != nil {
-			u.Data["json"] = HandleFail(REQUEST_FAIL, err.Error())
+			response.HandleFail(REQUEST_FAIL, err.Error())
 		} else {
-			u.Data["json"] = HandleSuccess(user, "Registration Successful")
+			response.HandleSuccess(user, "Registration Successful")
 		}
 	}
+	u.Data["json"] = response
 	u.ServeJSON()
 }
 
-// @Title Login
-// @Description User login api
-// @Param	phone	query	string	true	"Login by cellphone"
-// @Param	password	query	string	true	"User password, length need to more then 6"
-// @Success	200	{object}	models.ResponseModel
-// @Failure	403
-// @router	/login	[post]
-func (u *UserController) Login() {
-	// resParams := models.User{}
-	// u.Ctx.Input.Bind(&resParams.Cellphone, "cellphone")
-	// u.Ctx.Input.Bind(&resParams.Password, "password")
-
-	u.Data["json"] = "success"
-	u.ServeJSON()
-}
+// // @Title Login
+// // @Description User login api
+// // @Param	telephone	query	string	true	"Login by telephone"
+// // @Param	password	query	string	true	"User password, length need to more then 6"
+// // @Success	200000	{object}	models.ResponseModel
+// // @Failure	200400
+// // @router	/loginByTelephone	[post]
+// func (u *UserController) LoginByTelephone() {
+// 	var response *ResponseModel
+// 	var user *User
+// 	telephone := u.GetString("telephone")
+// 	password := u.GetString("password")
+//
+// 	err := user.LoginByTelephone(telephone, password)
+// 	if err != nil {
+// 		// TODO handle error
+// 		response = HandleError(err)
+// 	} else if user == nil {
+// 		response = HandleError(ErrTelOrPswInvalid, USER_TELEPHONE_PSW_INVALID)
+// 	} else {
+// 		fmt.Println("===============", *user)
+// 		response = HandleSuccess(*user)
+// 	}
+// 	u.Data["json"] = response
+// 	u.ServeJSON()
+// }
+//
+// // @Title LoginByWechat
+// // @Description User use wechat login api
+// // @Param		query	string	true	"Login by cellphone"
+// // @Param	password	query	string	true	"User password, length need to more then 6"
+// // @Success	200000	{object}	models.ResponseModel
+// // @Failure	200400
+// // @router	/loginByWechat	[post]
+// func (u *UserController) LoginByWechat() {
+// 	var response *ResponseModel
+// 	var user *User
+// 	jsCode := u.GetString("jsCode")
+// 	userInfo := u.GetString("userInfo")
+// 	invitationCode := u.GetString("invitationCode")
+//
+// 	if jsCode == "" {
+// 		response = HandleFail(REQUEST_FAIL, "Sorry, params missing")
+// 	} else {
+// 		user, err := user.LoginByWechat(jsCode, userInfo, invitationCode)
+// 		if err != nil {
+// 			// TODO handle error
+// 		} else {
+// 			response = HandleSuccess(user, "")
+// 		}
+// 	}
+// 	u.Data["json"] = response
+// 	u.ServeJSON()
+// }

@@ -12,4 +12,7 @@ const (
 	// 500*
 	SERVER_UNKNOW_ERROR   uint = 500000
 	SERVER_REJECT_REQUEST uint = 500003
+
+	// business code
+	USER_TELEPHONE_PSW_INVALID uint = 200404
 )

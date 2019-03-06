@@ -1,25 +1,27 @@
 package models
 
 import (
-	"errors"
+	. "ecommerce-sys/utils"
+	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 )
 
 // orm introduction: https://my.oschina.net/u/252343/blog/829912
 
 type User struct {
-	UserId    string     `json:"userId" orm:"column(userId);PK;unique;size(32)"`
-	Channel   string     `json:"channel" orm:"column(channel);size(12);null"`
-	WxSession *WxSession `orm:"column(openId);rel(one)"`
+	UserId uint64 `json:"userId" orm:"column(userId);PK;unique;size(64)"`
 	UserProfile
+	Role    uint16 `json:"role" orm:"column(role);default(10)"`
+	Status  string `json:"status" orm:"column(status);size(10);default(active)"`
+	Channel string `json:"channel" orm:"column(channel);size(12);null"`
 	BaseModel
 }
 
 type UserProfile struct {
+	Telephone string `json:"telephone" orm:"column(telephone);size(11)"`
 	Username  string `json:"username" orm:"column(username);size(18)"`
 	Password  string `json:"password" orm:"column(password);size(24)"`
 	Nickname  string `json:"nickname" orm:"column(nickname);size(16);"`
-	Telephone string `json:"telephone" orm:"column(telephone);size(11)"`
 	Male      bool   `json:"male" orm:"column(male);default(false)"`
 	Signature string `json:"signature" orm:";default(This guy is lazy...)"`
 }
@@ -30,7 +32,7 @@ type WxSession struct {
 	SessionKey        string `json:"session_key" orm:"column(sessionKey)"`
 	WechatUserProfile string `json:"wechatUserProfile" orm:"column(wechatUserProfile)"`
 	OpenId            string `json:"openId" orm:"column(openId);index"`
-	User              *User  `orm:"reverse(one)"`
+	User              *User  `orm:"column(userId);rel(one)"`
 }
 
 // 自定义表名
@@ -40,36 +42,73 @@ func (ws *WxSession) TableName() string {
 
 type IUserOperation interface {
 	Register() error
-	CheckIsUserExist(userId string, telephone string) bool
+	CheckIsUserExistByUserId(userId uint64) (bool, error)
+	CheckIsUserExistByTelephone(telephone string) (bool, error)
 	QueryByUserId(userId string) *User
-	LoginByTelephone(telephone string, password string) (error, *User)
+	LoginByTelephone(telephone string, password string) error
+	LoginByWechat(jsCode string, userInfo string, invitationCode string) (interface{}, error)
 }
 
 func (user *User) Register() error {
+	isExist, err := user.CheckIsUserExistByTelephone(user.Telephone)
+	if isExist == true {
+		return ErrCurrentUserIsExist
+	}
+
+	user.UserId = GetWuid()
+	user.Status = "active"
 	o := orm.NewOrm()
-	_, err := o.Insert(&user.UserProfile)
+	_, err = o.Insert(user)
+	return err
+}
+
+func (user *User) LoginByTelephone(telephone string, password string) error {
+	o := orm.NewOrm()
+	_, err := o.Raw("select * from user where telephone = ? and password = ?;", telephone, password).Exec()
 	if err != nil {
+		logs.Error(err)
 		return err
 	}
 	return nil
 }
 
-func (user *User) LoginByTelephone(telephone string, password string) (error, *User) {
+func (user *User) CheckIsUserExistByUserId(userId uint64) (bool, error) {
+	if userId == 0 {
+		logs.Warn(WarnParamsMissing.Error())
+		return false, WarnParamsMissing
+	}
 	o := orm.NewOrm()
-	result, err := o.Raw("select * from user where telephone = ? and password = ?;", telephone, password).Exec()
-	if err != nil {
-		return err, nil
+	queryUser := User{UserId: userId}
+	err := o.Read(&queryUser)
+	if err == orm.ErrNoRows {
+		return false, nil
+	} else if err == orm.ErrMissPK {
+		return false, err
 	}
-	if result == nil {
-		return errors.New("telephone or password is invalid"), nil
-	}
-	return nil, user
+	return true, nil
 }
 
-func (user *User) CheckIsUserExist(userId string, telephone string) bool {
-	panic("implement me")
+func (user *User) CheckIsUserExistByTelephone(telephone string) (bool, error) {
+	if telephone == "" {
+		logs.Warn(WarnParamsMissing.Error())
+		return false, WarnParamsMissing
+	}
+	o := orm.NewOrm()
+	queryUser := User{}
+	queryUser.Telephone = telephone
+	err := o.Read(&queryUser, "telephone")
+	if err == orm.ErrNoRows {
+		return false, nil
+	} else if err == orm.ErrMissPK {
+		return false, err
+	}
+	return true, nil
 }
 
 func (user *User) QueryByUserId(userId string) *User {
+	panic("implement me")
+}
+
+func (user *User) LoginByWechat(jsCode string, userInfo string, invitationCode string) (interface{}, error) {
 	panic("implement me")
 }

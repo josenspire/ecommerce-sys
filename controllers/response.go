@@ -10,28 +10,28 @@ type ResponseModel struct {
 	Message string      `json:"message"`
 }
 
-func HandleSuccess(data interface{}, message string) *ResponseModel {
-	responseModel := ResponseModel{}
-	responseModel.Code = REQUEST_SUCCESS
-	responseModel.Data = data
-	responseModel.Message = message
-	return &responseModel
+func (res *ResponseModel) HandleSuccess(data interface{}, message ...string) {
+	// responseModel := ResponseModel{}
+	res.Code = REQUEST_SUCCESS
+	res.Data = data
+	res.Message = message[0]
+	// return &responseModel
 }
 
-func HandleFail(errorCode uint, message string) *ResponseModel {
-	responseModel := ResponseModel{}
-	responseModel.Code = errorCode
-	responseModel.Message = message
-	return &responseModel
+func (res *ResponseModel) HandleFail(errorCode uint, message ...string) {
+	// responseModel := ResponseModel{}
+	res.Code = errorCode
+	res.Message = message[0]
+	// return &responseModel
 }
 
-func HandleError(err error, errorCode ...uint) *ResponseModel {
-	responseModel := ResponseModel{}
+func (res *ResponseModel) HandleError(err error, errorCode ...uint) {
+	// responseModel := ResponseModel{}
 	if len(errorCode) > 0 {
-		responseModel.Code = errorCode[0]
+		res.Code = errorCode[0]
 	} else {
-		responseModel.Code = SERVER_UNKNOW_ERROR
+		res.Code = SERVER_UNKNOW_ERROR
 	}
-	responseModel.Message = err.Error()
-	return &responseModel
+	res.Message = err.Error()
+	// return &responseModel
 }
