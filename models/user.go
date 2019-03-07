@@ -2,6 +2,7 @@ package models
 
 import (
 	. "ecommerce-sys/utils"
+	"fmt"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 )
@@ -64,10 +65,10 @@ func (user *User) Register() error {
 
 func (user *User) LoginByTelephone(telephone string, password string) error {
 	o := orm.NewOrm()
-	_, err := o.Raw("select * from user where telephone = ? and password = ?;", telephone, password).Exec()
-	if err != nil {
-		logs.Error(err)
-		return err
+	fmt.Println("telephone, password", telephone, password)
+	err := o.Raw("SELECT * FROM user WHERE telephone = ? and password = ?;", telephone, password).QueryRow(user)
+	if err == orm.ErrNoRows {
+		return ErrTelOrPswInvalid
 	}
 	return nil
 }
@@ -94,15 +95,15 @@ func (user *User) CheckIsUserExistByTelephone(telephone string) (bool, error) {
 		return false, WarnParamsMissing
 	}
 	o := orm.NewOrm()
-	queryUser := User{}
-	queryUser.Telephone = telephone
-	err := o.Read(&queryUser, "telephone")
-	if err == orm.ErrNoRows {
-		return false, nil
-	} else if err == orm.ErrMissPK {
+	var total uint64
+	err := o.Raw("SELECT COUNT(*) FROM user").QueryRow(&total)
+	if err != nil {
 		return false, err
 	}
-	return true, nil
+	if total > 0 {
+		return true, nil
+	}
+	return false, nil
 }
 
 func (user *User) QueryByUserId(userId string) *User {

@@ -41,33 +41,33 @@ func (u *UserController) Register() {
 	u.ServeJSON()
 }
 
-// // @Title Login
-// // @Description User login api
-// // @Param	telephone	query	string	true	"Login by telephone"
-// // @Param	password	query	string	true	"User password, length need to more then 6"
-// // @Success	200000	{object}	models.ResponseModel
-// // @Failure	200400
-// // @router	/loginByTelephone	[post]
-// func (u *UserController) LoginByTelephone() {
-// 	var response *ResponseModel
-// 	var user *User
-// 	telephone := u.GetString("telephone")
-// 	password := u.GetString("password")
-//
-// 	err := user.LoginByTelephone(telephone, password)
-// 	if err != nil {
-// 		// TODO handle error
-// 		response = HandleError(err)
-// 	} else if user == nil {
-// 		response = HandleError(ErrTelOrPswInvalid, USER_TELEPHONE_PSW_INVALID)
-// 	} else {
-// 		fmt.Println("===============", *user)
-// 		response = HandleSuccess(*user)
-// 	}
-// 	u.Data["json"] = response
-// 	u.ServeJSON()
-// }
-//
+// @Title Login
+// @Description User login api
+// @Param	telephone	query	string	true	"Login by telephone"
+// @Param	password	query	string	true	"User password, length need to more then 6"
+// @Success	200000	{object}	models.ResponseModel
+// @Failure	200400
+// @router	/loginByTelephone	[post]
+func (u *UserController) LoginByTelephone() {
+	var response ResponseModel
+	reqParams := make(map[string]interface{})
+	json.Unmarshal(u.Ctx.Input.RequestBody, &reqParams)
+	telephone := reqParams["telephone"].(string)
+	password := reqParams["password"].(string)
+
+	user := new(User)
+	err := user.LoginByTelephone(telephone, password)
+	if err != nil {
+		response.HandleError(err)
+	} else if user == nil {
+		response.HandleError(ErrTelOrPswInvalid, USER_TELEPHONE_PSW_INVALID)
+	} else {
+		response.HandleSuccess(user)
+	}
+	u.Data["json"] = response
+	u.ServeJSON()
+}
+
 // // @Title LoginByWechat
 // // @Description User use wechat login api
 // // @Param		query	string	true	"Login by cellphone"
