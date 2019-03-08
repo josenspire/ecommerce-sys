@@ -51,47 +51,56 @@ func (u *UserController) Register() {
 func (u *UserController) LoginByTelephone() {
 	var response ResponseModel
 	reqParams := make(map[string]interface{})
-	json.Unmarshal(u.Ctx.Input.RequestBody, &reqParams)
-	telephone := reqParams["telephone"].(string)
-	password := reqParams["password"].(string)
-
-	user := new(User)
-	err := user.LoginByTelephone(telephone, password)
+	err := json.Unmarshal(u.Ctx.Input.RequestBody, &reqParams)
 	if err != nil {
 		response.HandleError(err)
-	} else if user == nil {
-		response.HandleError(ErrTelOrPswInvalid, USER_TELEPHONE_PSW_INVALID)
 	} else {
-		response.HandleSuccess(user)
+		telephone := reqParams["telephone"].(string)
+		password := reqParams["password"].(string)
+
+		user := new(User)
+		err = user.LoginByTelephone(telephone, password)
+		if err != nil {
+			response.HandleError(err)
+		} else if user == nil {
+			response.HandleError(ErrTelOrPswInvalid, USER_TELEPHONE_PSW_INVALID)
+		} else {
+			response.HandleSuccess(user)
+		}
 	}
 	u.Data["json"] = response
 	u.ServeJSON()
 }
 
-// // @Title LoginByWechat
-// // @Description User use wechat login api
-// // @Param		query	string	true	"Login by cellphone"
-// // @Param	password	query	string	true	"User password, length need to more then 6"
-// // @Success	200000	{object}	models.ResponseModel
-// // @Failure	200400
-// // @router	/loginByWechat	[post]
-// func (u *UserController) LoginByWechat() {
-// 	var response *ResponseModel
-// 	var user *User
-// 	jsCode := u.GetString("jsCode")
-// 	userInfo := u.GetString("userInfo")
-// 	invitationCode := u.GetString("invitationCode")
-//
-// 	if jsCode == "" {
-// 		response = HandleFail(REQUEST_FAIL, "Sorry, params missing")
-// 	} else {
-// 		user, err := user.LoginByWechat(jsCode, userInfo, invitationCode)
-// 		if err != nil {
-// 			// TODO handle error
-// 		} else {
-// 			response = HandleSuccess(user, "")
-// 		}
-// 	}
-// 	u.Data["json"] = response
-// 	u.ServeJSON()
-// }
+// @Title LoginByWechat
+// @Description User use wechat login api
+// @Param		query	string	true	"Login by cellphone"
+// @Param	password	query	string	true	"User password, length need to more then 6"
+// @Success	200000	{object}	models.ResponseModel
+// @Failure	200400
+// @router	/loginByWechat	[post]
+func (u *UserController) LoginByWechat() {
+	var response ResponseModel
+	user := new(User)
+	reqParams := make(map[string]string)
+	err := json.Unmarshal(u.Ctx.Input.RequestBody, &reqParams)
+	if err != nil {
+		response.HandleError(err)
+	} else {
+		jsCode := reqParams["jsCode"]
+		userInfo := reqParams["userInfo"]
+		invitationCode := reqParams["invitationCode"]
+		if jsCode == "" {
+			response.HandleError(ErrParamsMissing)
+		} else {
+			user, err := user.LoginByWechat(jsCode, userInfo, invitationCode)
+			if err != nil {
+				response.HandleError(err)
+			} else {
+				response.HandleSuccess(user, "")
+			}
+		}
+	}
+	u.Data["json"] = response
+	u.ServeJSON()
+}

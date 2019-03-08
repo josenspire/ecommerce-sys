@@ -111,5 +111,6 @@ func (user *User) QueryByUserId(userId string) *User {
 }
 
 func (user *User) LoginByWechat(jsCode string, userInfo string, invitationCode string) (interface{}, error) {
-	panic("implement me")
+	// 	TODO  request wechat session by jsCode
+	return nil, nil
 }
