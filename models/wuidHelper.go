@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/orm"
 	"github.com/edwingeng/wuid/mysql"
 )
 
@@ -13,6 +14,8 @@ type Wuid struct {
 var g *wuid.WUID
 
 func init() {
+	orm.RegisterModel(new(Wuid))
+
 	wuid.WithSection(10)
 	g = wuid.NewWUID("default", nil)
 }

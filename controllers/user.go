@@ -95,7 +95,7 @@ func (u *UserController) LoginByWechat() {
 		} else {
 			user, err := user.LoginByWechat(jsCode, userInfo, invitationCode)
 			if err != nil {
-				response.HandleError(err)
+				response.HandleError(err, REQUEST_FAIL)
 			} else {
 				response.HandleSuccess(user, "")
 			}

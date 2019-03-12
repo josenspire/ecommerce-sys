@@ -1,10 +1,12 @@
 package models
 
 import (
+	"crypto/sha1"
 	. "ecommerce-sys/utils"
 	"fmt"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
+	"io"
 )
 
 // orm introduction: https://my.oschina.net/u/252343/blog/829912
@@ -12,9 +14,11 @@ import (
 type User struct {
 	UserId uint64 `json:"userId" orm:"column(userId);PK;unique;size(64)"`
 	UserProfile
-	Role    uint16 `json:"role" orm:"column(role);default(10)"`
-	Status  string `json:"status" orm:"column(status);size(10);default(active)"`
-	Channel string `json:"channel" orm:"column(channel);size(12);null"`
+	Role      uint16     `json:"role" orm:"column(role);default(10)"`
+	Status    string     `json:"status" orm:"column(status);size(10);default(active)"`
+	Channel   string     `json:"channel" orm:"column(channel);size(12);null"`
+	WxSession *WxSession `json:"wxSession" orm:"column(sessionId);rel(one);on_delete(cascade);null"`
+	Address   []*Address `orm:"column(addressId);rel(fk);on_delete(cascade)"`
 	BaseModel
 }
 
@@ -24,7 +28,7 @@ type UserProfile struct {
 	Password  string `json:"password" orm:"column(password);size(24)"`
 	Nickname  string `json:"nickname" orm:"column(nickname);size(16);"`
 	Male      bool   `json:"male" orm:"column(male);default(false)"`
-	Signature string `json:"signature" orm:";default(This guy is lazy...)"`
+	Signature string `json:"signature" orm:"default(This guy is lazy...)"`
 }
 
 type WxSession struct {
@@ -33,12 +37,16 @@ type WxSession struct {
 	SessionKey        string `json:"session_key" orm:"column(sessionKey)"`
 	WechatUserProfile string `json:"wechatUserProfile" orm:"column(wechatUserProfile)"`
 	OpenId            string `json:"openId" orm:"column(openId);index"`
-	User              *User  `orm:"column(userId);rel(one)"`
+	User              *User  `orm:"column(userId);reverse(one)"`
 }
 
 // 自定义表名
 func (ws *WxSession) TableName() string {
 	return "wxsession"
+}
+
+func init() {
+	orm.RegisterModel(new(User), new(WxSession))
 }
 
 type IUserOperation interface {
@@ -112,5 +120,38 @@ func (user *User) QueryByUserId(userId string) *User {
 
 func (user *User) LoginByWechat(jsCode string, userInfo string, invitationCode string) (interface{}, error) {
 	// 	TODO  request wechat session by jsCode
+	openId, sessionKey, err := JsCode2Session(jsCode)
+	if err != nil {
+		return nil, err
+	}
+
+	h := sha1.New()
+	io.WriteString(h, sessionKey)
+	sKey := h.Sum(nil)
+
+	wxSession := new(WxSession)
+	wxSession.SessionKey = sessionKey
+	wxSession.OpenId = openId
+	wxSession.Skey = string(sKey)
+
+	// o := orm.NewOrm()
+	// transaction begin
+	// err := o.Begin()
+	//
+	// recods, err := o.InsertOrUpdate(wxSession, "openId")
+
+	isAssociated(openId)
+
+	fmt.Println(openId, sessionKey)
 	return nil, nil
+}
+
+func isAssociated(openId string) *User {
+	var user *User
+	o := orm.NewOrm()
+	err := o.Raw("SELECT * FROM user WHERE openId = %;", openId).QueryRow(user)
+	if err != nil {
+		return nil
+	}
+	return user
 }

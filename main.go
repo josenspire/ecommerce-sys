@@ -2,7 +2,6 @@ package main
 
 import (
 	. "ecommerce-sys/controllers"
-	. "ecommerce-sys/models"
 	_ "ecommerce-sys/routers"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
@@ -56,7 +55,7 @@ func mysqlDBInitialize() {
 	ErrorHandle(err)
 
 	// init model
-	orm.RegisterModel(new(Wuid), new(User), new(WxSession))
+	// orm.RegisterModel(new(Wuid), new(User), new(WxSession), new(Address))
 
 	// 控制台打印查询语句
 	orm.Debug = true
