@@ -18,7 +18,8 @@ type User struct {
 	Status    string     `json:"status" orm:"column(status);size(10);default(active)"`
 	Channel   string     `json:"channel" orm:"column(channel);size(12);null"`
 	WxSession *WxSession `json:"wxSession" orm:"column(sessionId);rel(one);on_delete(cascade);null"`
-	Address   []*Address `orm:"column(addressId);rel(fk);on_delete(cascade)"`
+	Address   []*Address `orm:"reverse(many)"`
+	Team      *Team      `json:"teamId" orm:"column(teamId);rel(one)"`
 	BaseModel
 }
 
@@ -40,13 +41,39 @@ type WxSession struct {
 	User              *User  `orm:"column(userId);reverse(one)"`
 }
 
+type Address struct {
+	AddressId uint64 `json:"addressId" orm:"column(addressId);PK;unique;size(64)"`
+	Contact   string `json:"contact" orm:"column(contact);size(32)"`
+	Telephone string `json:"telephone" orm:"column(telephone);size(15)"`
+
+	IsDefault bool `json:"isDefault" orm:"column(isDefault);default(false)"`
+
+	Country      string `json:"country" orm:"column(country);null"`
+	ProvinceCity string `json:"city" orm:"column(city)"`
+
+	Status string `json:"status" orm:"column(status);size(10);default(inactive);on_delete(set_default)"`
+	User   *User  `json:"user" orm:"column(userId);rel(fk)"`
+	BaseModel
+}
+
+type Team struct {
+	TeamId         uint64 `json:"teamId" orm:"column(teamId);PK;unique;size(64)"`
+	TopLevelAgent  uint64 `json:"topLevelAgent" orm:"column(topLevelAgent)"`
+	SuperiorAgent  uint64 `json:"superiorAgent" orm:"column(superiorAgent)"`
+	Status         string `json:"status" orm:"column(status);default(inactive);on_delete(set_default);"`
+	Channel        string `json:"channel" orm:"column(channel);default(Wechat);description(The channel which is user use)"`
+	InvitationCode string `json:"invitationCode" orm:"column(invitationCode);unique;size(6);description(This is de unique code about team invitation code)"`
+	User           *User  `json:"userId" orm:"column(userId);reverse(one)"`
+	BaseModel
+}
+
 // 自定义表名
 func (ws *WxSession) TableName() string {
 	return "wxsession"
 }
 
 func init() {
-	orm.RegisterModel(new(User), new(WxSession))
+	orm.RegisterModel(new(Address), new(Team), new(User), new(WxSession))
 }
 
 type IUserOperation interface {

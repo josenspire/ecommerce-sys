@@ -55,7 +55,7 @@ func mysqlDBInitialize() {
 	ErrorHandle(err)
 
 	// init model
-	// orm.RegisterModel(new(Wuid), new(User), new(WxSession), new(Address))
+	// orm.RegisterModel(new(WxSession), new(User), new(Address))
 
 	// 控制台打印查询语句
 	orm.Debug = true

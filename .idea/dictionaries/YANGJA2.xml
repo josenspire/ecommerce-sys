@@ -13,8 +13,10 @@
       <w>mysqlport</w>
       <w>mysqlurls</w>
       <w>mysqluser</w>
+      <w>orderform</w>
       <w>runmode</w>
       <w>skey</w>
+      <w>thum</w>
       <w>wechat</w>
       <w>wuid</w>
       <w>wxsession</w>
