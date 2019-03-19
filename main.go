@@ -2,16 +2,21 @@ package main
 
 import (
 	. "ecommerce-sys/controllers"
+	"ecommerce-sys/db"
+	"ecommerce-sys/models"
 	_ "ecommerce-sys/routers"
+	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
+	"log"
+	"os"
 	"time"
 )
 
 func init() {
-	mysqlDBInitialize()
+	// mysqlDBInitialize()
 
 	// 日志：会保存手动输出的日志和系统异常日志
 	// 如： logs.Error和panic
@@ -27,6 +32,26 @@ func init() {
 	// rotate 是否开启 logrotate，默认是 true
 	err := logs.SetLogger(logs.AdapterFile, `{"filename":"./logs/ecommerce-sys.log","level":6,"maxlines":0,"maxsize":0,"daily":true,"maxdays":30}`)
 	ErrorHandle(err)
+
+	connectResult := db.GetMySqlConnection().InitConnectionPool()
+	if !connectResult {
+		log.Println("Init database pool failure...")
+		os.Exit(1)
+	} else {
+		log.Println("Mysql database pool init succeeded...")
+	}
+
+	initialDBTable()
+}
+
+func initialDBTable() {
+	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
+	if !mysqlDB.HasTable(&models.User{}) {
+		err := mysqlDB.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8").CreateTable(&models.User{}, &models.WxSession{}).Error
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 }
 
 func mysqlDBInitialize() {
@@ -74,4 +99,6 @@ func main() {
 	}
 	beego.SetStaticPath("/image", "./static/img") // default will setup static folder, need to setup static second directory
 	beego.Run()
+
+	fmt.Println("ssssssssssss")
 }

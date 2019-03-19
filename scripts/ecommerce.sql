@@ -1,41 +1,41 @@
-USE wxMall;
+USE ecommercesys;
 
-SELECT * FROM wxMall.user;
-SELECT * FROM wxMall.wxSession;
-SELECT * FROM wxMall.product;
-SELECT * FROM wxMall.stock;
-SELECT * FROM wxMall.address;
-SELECT * FROM wxMall.advert;
-SELECT * FROM wxMall.team;
-SELECT * FROM wxMall.order;
+SELECT * FROM ecommercesys.user;
+SELECT * FROM ecommercesys.wxSession;
+SELECT * FROM ecommercesys.product;
+SELECT * FROM ecommercesys.stock;
+SELECT * FROM ecommercesys.address;
+SELECT * FROM ecommercesys.advert;
+SELECT * FROM ecommercesys.team;
+SELECT * FROM ecommercesys.order;
 
-INSERT INTO wxMall.team(`teamId`, `userId`, `topAgent`, `superiorAgent`, `invitationCode`, `createdAt`, `updatedAt`) value('888888888', '2688b319-08af-4890-9b0c-1c53f2db38f4', 'admin', 'admin', '7CF59QA', now(), now());
-INSERT INTO wxMall.wxSession(`sessionId`, `openId`, `skey`, `sessionKey`, `userInfo`, `createdAt`, `updatedAt`) value('0123456', '567x9dvadsd', 'aa', 'bb', 'asdf', now(), now());
-INSERT INTO wxMall.user(`userId`, `openId`, `createdAt`, `updatedAt`) value('0123456', '567x9dvadsd' ,now(), now());
+INSERT INTO ecommercesys.team(`teamId`, `userId`, `topAgent`, `superiorAgent`, `invitationCode`, `createdAt`, `updatedAt`) value('888888888', '2688b319-08af-4890-9b0c-1c53f2db38f4', 'admin', 'admin', '7CF59QA', now(), now());
+INSERT INTO ecommercesys.wxSession(`sessionId`, `openId`, `skey`, `sessionKey`, `userInfo`, `createdAt`, `updatedAt`) value('0123456', '567x9dvadsd', 'aa', 'bb', 'asdf', now(), now());
+INSERT INTO ecommercesys.user(`userId`, `openId`, `createdAt`, `updatedAt`) value('0123456', '567x9dvadsd' ,now(), now());
 
-SELECT * FROM wxMall.team WHERE invitationCode = '7CF59QA';
+SELECT * FROM ecommercesys.team WHERE invitationCode = '7CF59QA';
 
-DELETE FROM wxMall.user;
-DELETE FROM wxMall.wxSession;
-DELETE FROM wxMall.team;
-DELETE FROM wxMall.product;
-DELETE FROM wxMall.advert;
-DELETE FROM wxMall.order;
-DELETE FROM wxMall.outbound;
-DELETE FROM wxMall.stock;
-DELETE FROM wxMall.classify;
-DELETE FROM wxMall.category;
-DELETE FROM wxMall.address;
+DELETE FROM ecommercesys.user;
+DELETE FROM ecommercesys.wxSession;
+DELETE FROM ecommercesys.team;
+DELETE FROM ecommercesys.product;
+DELETE FROM ecommercesys.advert;
+DELETE FROM ecommercesys.order;
+DELETE FROM ecommercesys.outbound;
+DELETE FROM ecommercesys.stock;
+DELETE FROM ecommercesys.classify;
+DELETE FROM ecommercesys.category;
+DELETE FROM ecommercesys.address;
 
 SET SQL_SAFE_UPDATES=0;
 
-SELECT * FROM wxMall.order WHERE userId = "71cd618f-6e4a-4d80-ad61-a94bc1596f96";
+SELECT * FROM ecommercesys.order WHERE userId = "71cd618f-6e4a-4d80-ad61-a94bc1596f96";
 
-UPDATE wxMall.order SET status = 4 WHERE orderId = "8f09d2c0-7b3c-11e8-ae92-47c8cb21caab";
+UPDATE ecommercesys.order SET status = 4 WHERE orderId = "8f09d2c0-7b3c-11e8-ae92-47c8cb21caab";
 
-UPDATE wxMall.stock SET commission = "0%" WHERE commission = '10%';
+UPDATE ecommercesys.stock SET commission = "0%" WHERE commission = '10%';
 
-update wxmall.user set nickname = 'James。' where userId = '71cd618f-6e4a-4d80-ad61-a94bc1596f96';
+update ecommercesys.user set nickname = 'James。' where userId = '71cd618f-6e4a-4d80-ad61-a94bc1596f96';
 
 INSERT INTO `wxSession` VALUES ('eb30c2d9-8594-47c0-89c9-6d2e9423e453','o_0uP4rQCdGrft8viYxO5rbkkLWg','22f9bdd3ef94606266b16d98574003f9e7990e1b','Brl72SuU26UT52cUQVgm7w==','{\"nickName\":\"James。\",\"gender\":1,\"language\":\"zh_CN\",\"city\":\"\",\"province\":\"Dubai\",\"country\":\"United Arab Emirates\",\"avatarUrl\":\"https://wx.qlogo.cn/mmopen/vi_32/T3p8Re3ESVIb9pbW476yoOHszic3nvZHVrPmPO4gvQdX13WfEvG58lthicib6Bo7yCymLP7IVgFkP3BZj3iaO3wqag/132\"}','2018-06-10 06:15:11','2018-07-11 13:53:54'),('9bf276a6-4272-40de-92c1-c0c76d812c13','o_0uP4sArHWp50_VFHLu2lJ7VJTg','4de87356b7447f74ec6128fde40684a0312fb596','nOkgB27lkyzvVQ2y9iIk2g==','{\"nickName\":\"阿文.\",\"gender\":1,\"language\":\"zh_CN\",\"city\":\"Shenzhen\",\"province\":\"Guangdong\",\"country\":\"China\",\"avatarUrl\":\"https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTI6xVtv6RUCicyak1jNDavsWxoZibuctzAoZPxMDEl6xLTIVia0WQLxvy3m5cWxEcM7UunyG9FPiaLyLg/132\"}','2018-07-04 07:13:41','2018-07-04 07:13:41');
 INSERT INTO `user` VALUES ('71cd618f-6e4a-4d80-ad61-a94bc1596f96','',NULL,'',NULL,1,0,'Wechat','2018-06-10 06:15:11','2018-06-10 06:15:11','o_0uP4rQCdGrft8viYxO5rbkkLWg'),('ad0328f6-7844-4eb2-b378-32dba1c7b903','',NULL,'',NULL,1,0,'Wechat','2018-07-04 07:13:41','2018-07-04 07:13:41','o_0uP4sArHWp50_VFHLu2lJ7VJTg');

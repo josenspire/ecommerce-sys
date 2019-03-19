@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	"github.com/edwingeng/wuid/mysql"
 )
@@ -27,6 +28,10 @@ func GetWuid() uint64 {
 	dbName := beego.AppConfig.String("mysqldb")
 	dbPort := beego.AppConfig.String("mysqlport")
 
-	g.LoadH24FromMysql(dbURL+":"+dbPort, dbUser, dbPass, dbName, "wuid")
+	err := g.LoadH24FromMysql(dbURL+":"+dbPort, dbUser, dbPass, dbName, "wuid")
+	if err != nil {
+		logs.Error(err)
+		return 0
+	}
 	return g.Next()
 }

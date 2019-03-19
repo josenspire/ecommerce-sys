@@ -7,7 +7,11 @@
       <w>ecommerce</w>
       <w>ecommercesys</w>
       <w>errcode</w>
+      <w>errmsg</w>
+      <w>foreignkey</w>
+      <w>gorm</w>
       <w>httpport</w>
+      <w>inno</w>
       <w>mysqldb</w>
       <w>mysqlpass</w>
       <w>mysqlport</w>

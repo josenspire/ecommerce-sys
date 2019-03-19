@@ -3,6 +3,7 @@ package models
 import "time"
 
 type BaseModel struct {
-	CreatedAt time.Time `json:"createdAt" orm:"column(createdAt);auto_now_add;type(datetime)"`
-	UpdatedAt time.Time `json:"updatedAt" orm:"column(updatedAt);auto_now;type(datetime)"`
+	CreatedAt time.Time  `gorm:"column:createdAt"`
+	UpdatedAt time.Time  `gorm:"column:updatedAt"`
+	DeletedAt *time.Time `gorm:"column:deletedAt" sql:"index"`
 }

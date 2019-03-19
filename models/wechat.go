@@ -39,7 +39,6 @@ func init() {
 
 func JsCode2Session(jsCode string) (string, string, error) {
 	req := httplib.NewBeegoRequest(UrlJsCode2Session, http.MethodGet).SetTimeout(ConnectTimeOut, ReadWriteTimeOut).SetEnableCookie(true)
-	// paramsBody := "appid=" + WechatAppId + "&secret=" + WechatSecret + "&js_code=" + jsCode + "&grant_type=" + WechatGrantType;
 	paramsBody := fmt.Sprintf("appid=%s&secret=%s&js_code=%s&grant_type=%s", WechatAppId, WechatSecret, jsCode, WechatGrantType)
 	req.Body(paramsBody)
 
