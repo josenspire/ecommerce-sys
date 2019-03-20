@@ -1,22 +1,19 @@
-package utils
+package models
 
 import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
-	"github.com/astaxie/beego/orm"
 	"github.com/edwingeng/wuid/mysql"
 )
 
 type Wuid struct {
-	X uint8 `json:"x" orm:"column(x);default(0)"`
-	H uint  `json:"h" orm:"column(h);auto;size(10)"`
+	H uint  `gorm:"primary_key; AUTO_INCREMENT; not null;"`
+	X uint8 `gorm:"unique_index; default: '0'; not null;"`
 }
 
 var g *wuid.WUID
 
 func init() {
-	orm.RegisterModel(new(Wuid))
-
 	wuid.WithSection(10)
 	g = wuid.NewWUID("default", nil)
 }
@@ -28,7 +25,7 @@ func GetWuid() uint64 {
 	dbName := beego.AppConfig.String("mysqldb")
 	dbPort := beego.AppConfig.String("mysqlport")
 
-	err := g.LoadH24FromMysql(dbURL+":"+dbPort, dbUser, dbPass, dbName, "wuid")
+	err := g.LoadH24FromMysql(dbURL+":"+dbPort, dbUser, dbPass, dbName, "wuids")
 	if err != nil {
 		logs.Error(err)
 		return 0

@@ -16,8 +16,8 @@ func init() {
 	beego.Router("/", &MainController{})
 
 	ns := beego.NewNamespace("/v1/api",
-		//	api cache checking
-		//beego.NSBefore(models.ReadApiCache),
+		// 	api cache checking
+		// beego.NSBefore(models.ReadApiCache),
 
 		beego.NSNamespace("/user",
 			beego.NSRouter("/register", &UserController{}, "post:Register"),

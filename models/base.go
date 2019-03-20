@@ -3,7 +3,7 @@ package models
 import "time"
 
 type BaseModel struct {
-	CreatedAt time.Time  `gorm:"column:createdAt;type:dateTime"`
-	UpdatedAt time.Time  `gorm:"column:updatedAt;type:dateTime"`
-	DeletedAt *time.Time `gorm:"column:deletedAt;type:dateTime" sql:"index"`
+	CreatedAt time.Time  `json:"createdAt" gorm:"column:createdAt;type:dateTime"`
+	UpdatedAt time.Time  `json:"updatedAt" gorm:"column:updatedAt;type:dateTime"`
+	DeletedAt *time.Time `json:"deletedAt" gorm:"column:deletedAt;type:dateTime" sql:"index"`
 }

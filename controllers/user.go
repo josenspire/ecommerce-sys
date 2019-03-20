@@ -24,19 +24,19 @@ type UserController struct {
 // @router	/register	[post]
 func (u *UserController) Register() {
 	var response ResponseModel
-	// var user = new(User)
-	//
-	// err := json.Unmarshal(u.Ctx.Input.RequestBody, &user.UserProfile)
-	// if err != nil {
-	// 	response.HandleError(err, PARAMS_MISSING)
-	// } else {
-	// 	err = user.Register()
-	// 	if err != nil {
-	// 		response.HandleFail(REQUEST_FAIL, err.Error())
-	// 	} else {
-	// 		response.HandleSuccess(user, "Registration Successful")
-	// 	}
-	// }
+	var user = new(User)
+
+	err := json.Unmarshal(u.Ctx.Input.RequestBody, &user.UserProfile)
+	if err != nil {
+		response.HandleError(err, PARAMS_MISSING)
+	} else {
+		err = user.Register()
+		if err != nil {
+			response.HandleFail(REQUEST_FAIL, err.Error())
+		} else {
+			response.HandleSuccess(user, "Registration Successful")
+		}
+	}
 	u.Data["json"] = response
 	u.ServeJSON()
 }

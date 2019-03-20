@@ -47,6 +47,17 @@ func init() {
 func initialDBTable() {
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
 
+	if !mysqlDB.HasTable(&models.Wuid{}) {
+		err := mysqlDB.Set(
+			"gorm:table_options",
+			"ENGINE=InnoDB DEFAULT CHARSET=utf8",
+		).CreateTable(
+			&models.Wuid{},
+		).Error
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 	if !mysqlDB.HasTable(&models.Advert{}) {
 		err := mysqlDB.Set(
 			"gorm:table_options",

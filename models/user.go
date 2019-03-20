@@ -1,10 +1,12 @@
 package models
 
 import (
+	"ecommerce-sys/db"
 	. "ecommerce-sys/utils"
 	"fmt"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
+	"github.com/jinzhu/gorm"
 )
 
 type User struct {
@@ -73,27 +75,29 @@ type IUserOperation interface {
 }
 
 func (user *User) Register() error {
-	// isExist, err := user.CheckIsUserExistByTelephone(user.Telephone)
-	// if isExist == true {
-	// 	return ErrCurrentUserIsExist
-	// }
-	//
-	// user.UserId = GetWuid()
-	// user.Status = "active"
-	// o := orm.NewOrm()
-	// _, err = o.Insert(user)
-	// if err != nil {
-	// 	logs.Error(err)
-	// }
-	// return err
-	return nil
+	isExist, err := user.CheckIsUserExistByTelephone(user.Telephone)
+	if err != nil {
+		return err
+	}
+	if isExist == true {
+		return ErrCurrentUserIsExist
+	}
+	user.UserId = GetWuid()
+	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
+	err = mysqlDB.Create(&user).Error
+	if err != nil {
+		logs.Error(err)
+	}
+	return err
 }
 
 func (user *User) LoginByTelephone(telephone string, password string) error {
-	o := orm.NewOrm()
+	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
 	fmt.Println("telephone, password", telephone, password)
-	err := o.Raw("SELECT * FROM user WHERE user.telephone = ? and user.password = ?;", telephone, password).QueryRow(user)
-	if err == orm.ErrNoRows {
+	// TODO should verify db table design and search logic
+	// err := o.Raw("SELECT * FROM user WHERE user.telephone = ? and user.password = ?;", telephone, password).QueryRow(user)
+	err := mysqlDB.Where("telephone = ? and password = ?", telephone, password).Find(&user).Association("Address").Error
+	if err == gorm.ErrRecordNotFound {
 		return ErrTelOrPswInvalid
 	}
 	return nil
@@ -120,16 +124,17 @@ func (user *User) CheckIsUserExistByTelephone(telephone string) (bool, error) {
 		logs.Warn(WarnParamsMissing.Error())
 		return false, WarnParamsMissing
 	}
-	o := orm.NewOrm()
-	var total uint64
-	err := o.Raw("SELECT COUNT(1) FROM user WHERE telephone = ?", telephone).QueryRow(&total)
+	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
+
+	// err := mysqlDB.Find(&user, "telephone = ?", telephone).Count(&total).Error
+	err := mysqlDB.Where("telephone = ?", telephone).Find(&user).Error
+	if err == gorm.ErrRecordNotFound {
+		return false, nil
+	}
 	if err != nil {
 		return false, err
 	}
-	if total > 0 {
-		return true, nil
-	}
-	return false, nil
+	return true, nil
 }
 
 func (user *User) QueryByUserId(userId string) *User {
