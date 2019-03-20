@@ -1,3 +1,5 @@
+# userscateGoryIdCREATE DATABASE ecommercesys;
+
 USE ecommercesys;
 
 SELECT * FROM ecommercesys.user;
@@ -10,8 +12,9 @@ SELECT * FROM ecommercesys.team;
 SELECT * FROM ecommercesys.order;
 
 INSERT INTO ecommercesys.team(`teamId`, `userId`, `topAgent`, `superiorAgent`, `invitationCode`, `createdAt`, `updatedAt`) value('888888888', '2688b319-08af-4890-9b0c-1c53f2db38f4', 'admin', 'admin', '7CF59QA', now(), now());
-INSERT INTO ecommercesys.wxSession(`sessionId`, `openId`, `skey`, `sessionKey`, `userInfo`, `createdAt`, `updatedAt`) value('0123456', '567x9dvadsd', 'aa', 'bb', 'asdf', now(), now());
+INSERT INTO ecommercesys.wxSession(`sessionId`, `openId`, `skey`, `sessionKey`, `wechatUserProfile`, `createdAt`, `updatedAt`) value('0123456', '567x9dvadsd', 'aa', 'bb', 'asdf', now(), now());
 INSERT INTO ecommercesys.user(`userId`, `openId`, `createdAt`, `updatedAt`) value('0123456', '567x9dvadsd' ,now(), now());
+
 
 SELECT * FROM ecommercesys.team WHERE invitationCode = '7CF59QA';
 
@@ -53,4 +56,5 @@ INSERT INTO `outbound` VALUES ('0a7d9f55-f6fc-4368-a490-ff08dbf2a0eb','aef76ec7-
 
 INSERT INTO `advert` VALUES ('943cac81-4418-4a53-88b5-7e701e124f80','http://p7mget50x.bkt.clouddn.com/swipe_pic1.jpg','5d6db841-7de3-11e8-97fc-f5bab62e1243','','2018-07-02 10:33:31','2018-07-02 10:33:31'),('a2c2104d-700d-4b45-80bb-b2b495f60974','http://p7mget50x.bkt.clouddn.com/swipe_pic2.jpg','5d6db840-7de3-11e8-97fc-f5bab62e1243','','2018-07-02 10:33:31','2018-07-02 10:33:31'),('eb27dc20-254f-4b16-8681-91805bf8aa44','http://p7mget50x.bkt.clouddn.com/swipe_pic3.jpg','5d6d9130-7de3-11e8-97fc-f5bab62e1243','','2018-07-02 10:33:31','2018-07-02 10:33:31');
 
+SELECT COUNT(1) FROM user WHERE telephone = '13641052046'
 

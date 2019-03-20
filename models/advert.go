@@ -1,15 +1,9 @@
 package models
 
-import "github.com/astaxie/beego/orm"
-
 type Advert struct {
-	AdvertId   uint64 `json:"advertId" orm:"column(advertId);PK;unique;size(64)"`
-	AdvertUrl  string `json:"advertUrl" orm:"column(advertUrl)"`
-	RelativeId uint64 `json:"relativeId" orm:"column(relativeId)"`
-	Remark     string `json:"remark" orm:"column(remark)"`
+	AdvertId   uint64 `json:"advertId" gorm:"column:advertId; primary_key; not null;"`
+	AdvertUrl  string `json:"advertUrl" gorm:"column:advertUrl; not null;"`
+	RelativeId uint64 `json:"relativeId" gorm:"column:relativeId; not null;"`
+	Remark     string `json:"remark" gorm:"column:remark; not null;"`
 	BaseModel
-}
-
-func init() {
-	orm.RegisterModel(new(Advert))
 }

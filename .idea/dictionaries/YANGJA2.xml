@@ -3,6 +3,7 @@
     <words>
       <w>appname</w>
       <w>autorender</w>
+      <w>classifys</w>
       <w>copyrequestbody</w>
       <w>ecommerce</w>
       <w>ecommercesys</w>
@@ -18,12 +19,14 @@
       <w>mysqlurls</w>
       <w>mysqluser</w>
       <w>orderform</w>
+      <w>orderforms</w>
       <w>runmode</w>
       <w>skey</w>
       <w>thum</w>
       <w>wechat</w>
       <w>wuid</w>
       <w>wxsession</w>
+      <w>wxsessions</w>
     </words>
   </dictionary>
 </component>

@@ -46,8 +46,83 @@ func init() {
 
 func initialDBTable() {
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
+
+	if !mysqlDB.HasTable(&models.Advert{}) {
+		err := mysqlDB.Set(
+			"gorm:table_options",
+			"ENGINE=InnoDB DEFAULT CHARSET=utf8",
+		).CreateTable(
+			&models.Advert{},
+		).Error
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 	if !mysqlDB.HasTable(&models.User{}) {
-		err := mysqlDB.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8").CreateTable(&models.User{}, &models.WxSession{}).Error
+		err := mysqlDB.Set(
+			"gorm:table_options",
+			"ENGINE=InnoDB DEFAULT CHARSET=utf8",
+		).CreateTable(
+			&models.User{},
+			&models.WxSession{},
+			&models.Team{},
+			&models.Address{},
+		).Error
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = mysqlDB.Model(&models.WxSession{}).AddForeignKey("userId", "users(userId)", "CASCADE", "CASCADE").Error
+		err = mysqlDB.Model(&models.Team{}).AddForeignKey("userId", "users(userId)", "CASCADE", "CASCADE").Error
+		err = mysqlDB.Model(&models.Address{}).AddForeignKey("userId", "users(userId)", "CASCADE", "CASCADE").Error
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	if !mysqlDB.HasTable(&models.Classify{}) {
+		err := mysqlDB.Set(
+			"gorm:table_options",
+			"ENGINE=InnoDB DEFAULT CHARSET=utf8",
+		).CreateTable(
+			&models.Classify{},
+			&models.Category{},
+		).Error
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = mysqlDB.Model(&models.Category{}).AddForeignKey("classifyId", "classifies(classifyId)", "CASCADE", "CASCADE").Error
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	if !mysqlDB.HasTable(&models.OrderForm{}) {
+		err := mysqlDB.Set(
+			"gorm:table_options",
+			"ENGINE=InnoDB DEFAULT CHARSET=utf8",
+		).CreateTable(
+			&models.OrderForm{},
+			&models.Outbound{},
+		).Error
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = mysqlDB.Model(&models.Outbound{}).AddForeignKey("orderId", "orderforms(orderId)", "CASCADE", "CASCADE").Error
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	if !mysqlDB.HasTable(&models.Inventory{}) {
+		err := mysqlDB.Set(
+			"gorm:table_options",
+			"ENGINE=InnoDB DEFAULT CHARSET=utf8",
+		).CreateTable(
+			&models.Inventory{},
+			&models.Product{},
+			&models.Picture{},
+		).Error
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = mysqlDB.Model(&models.Product{}).AddForeignKey("inventoryId", "Inventories(inventoryId)", "CASCADE", "CASCADE").Error
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -1,27 +1,20 @@
 package models
 
-import "github.com/astaxie/beego/orm"
-
 type Classify struct {
-	ClassifyId   uint64      `json:"classifyId" orm:"column(classifyId);PK;unique;size(64)"`
-	ClassifyName string      `json:"classifyName" orm:"column(classifyName);size(10)"`
-	ClassifyIcon string      `json:"classifyIcon" orm:"column(classifyIcon)"`
-	Priority     uint8       `json:"priority" orm:"column(priority);default(0)"`
-	Status       string      `json:"status" orm:"column(status);default(inactive);on_delete(set_default)"`
-	Category     []*Category `orm:"reverse(many)"`
+	ClassifyId   uint64 `json:"classifyId" gorm:"column:classifyId; not null; primary_key;"`
+	ClassifyName string `json:"classifyName" gorm:"column:classifyName; type: varchar(10); not null;"`
+	ClassifyIcon string `json:"classifyIcon" gorm:"column:classifyIcon; not null;"`
+	Priority     uint8  `json:"priority" gorm:"column:priority; default:0; not null;"`
+	Status       string `json:"status" gorm:"column:status; not null; default:'active';"`
 	BaseModel
 }
 
 type Category struct {
-	CateGoryId   uint64    `json:"categoryId" orm:"column(cateGoryId);PK;unique;size(64)"`
-	CategoryName string    `json:"categoryName" orm:"column(categoryName);size(10)"`
-	CategoryIcon string    `json:"categoryIcon" orm:"column(categoryIcon)"`
-	Priority     uint8     `json:"priority" orm:"column(priority);default(0)"`
-	Status       string    `json:"status" orm:"column(status);default(inactive);on_delete(set_default)"`
-	Classify     *Classify `json:"classify" orm:"column(classifyId);rel(fk)"`
+	CateGoryId   uint64 `json:"categoryId" gorm:"column:cateGoryId; primary_key; not null;"`
+	CategoryName string `json:"categoryName" gorm:"column:categoryName; not null; type:varchar(10);"`
+	CategoryIcon string `json:"categoryIcon" gorm:"column:categoryIcon; not null;"`
+	Priority     uint8  `json:"priority" gorm:"column:priority; not null; default:0;"`
+	Status       string `json:"status" gorm:"column:status; not null; default:'active';"`
+	ClassifyId   uint64 `json:"classifyId" gorm:"column:classifyId; not null;"`
 	BaseModel
-}
-
-func init() {
-	orm.RegisterModel(new(Classify), new(Category))
 }

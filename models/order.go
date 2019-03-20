@@ -1,44 +1,35 @@
 package models
 
-import (
-	"github.com/astaxie/beego/orm"
-)
-
 // 订货单
 type OrderForm struct {
-	OrderId     uint64      `json:"orderId" orm:"column(orderId);PK;unique"`
-	OrderNumber uint        `json:"orderNumber" orm:"column(orderNumber)"`
-	Amount      float64     `json:"amount" orm:"column(amount);digits(10);decimals(2);default(1.01)"`
-	Discount    float64     `json:"discount" orm:"column(discount);digits(10);decimals(2);default(0.00)"`
-	Remark      string      `json:"remark" orm:"column(remark)"`
-	Invoice     string      `json:"invoice" orm:"column(invoice);default(PAGER);description(Include 'PAPER', 'ELECTRONIC', 'NONE')"`
-	Status      string      `json:"status" orm:"column(status);default(inactive);on_delete(set_default);size(10)"`
-	OutTradeNo  uint64      `json:"outTradeNo" orm:"column(outTradeNo);description(Order payment out trade No)"`
-	UserId      uint64      `json:"userId" orm:"column(userId)"`
-	AddressId   uint64      `json:"addressId" orm:"column(addressId)"`
-	Outbound    []*Outbound `json:"outbound" orm:"reverse(many)"`
+	OrderId     uint64  `json:"orderId" gorm:"column:orderId; primary_key; not null;"`
+	OrderNumber uint    `json:"orderNumber" gorm:"column:orderNumber; not null;"`
+	Amount      float64 `json:"amount" gorm:"column:amount; type: decimal(10, 2); default: 1.00; not null;"`
+	Discount    float64 `json:"discount" gorm:"column:discount; type: decimal(10, 2); default: 0.00; not null;"`
+	Remark      string  `json:"remark" gorm:"column:remark; not null;"`
+	Invoice     string  `json:"invoice" gorm:"column:invoice; type: ENUM('PAPER', 'ELECTRONIC', 'NONE'); default:'PAPER'; not null;"`
+	Status      string  `json:"status" gorm:"column:status; default: 'active'; type: varchar(10); not null;"`
+	OutTradeNo  uint64  `json:"outTradeNo" gorm:"column:outTradeNo; not null;"`
+	UserId      uint64  `json:"userId" gorm:"column:userId; not null;"`
+	AddressId   uint64  `json:"addressId" gorm:"column:addressId; not null;"`
 	BaseModel
 }
 
 type Outbound struct {
-	OutboundId       uint64     `json:"outboundId" orm:"column(outboundId);PK;unique"`
-	ProductId        uint64     `json:"productId" orm:"column(productId)"`
-	ProductName      string     `json:"productName" orm:"column(productName)"`
-	ProductPic       string     `json:"productPic" orm:"column(productPic)"`
-	ProductThum      string     `json:"productThum" orm:"column(productThum)"`
-	ProductUnitPrice float64    `json:"productUnitPrice" orm:"column(productUnitPrice);digits(10);decimals(2)"`
-	Discount         float64    `json:"discount" orm:"column(discount);digits(10);decimals(2)"`
-	Count            uint8      `json:"count" orm:"default(1)"`
-	Amount           float64    `json:"amount" orm:"digits(10);decimals(2);default(0.00)"`
-	Status           string     `json:"status" orm:"column(status);default(inactive);on_delete(set_default);size(10)"`
-	OrderForm        *OrderForm `json:"orderForm" orm:"column(orderId);rel(fk)"`
+	OutboundId       uint64  `json:"outboundId" gorm:"column:outboundId; primary_key; not null;"`
+	ProductId        uint64  `json:"productId" gorm:"column:productId not null;"`
+	ProductName      string  `json:"productName" gorm:"column:productName not null;"`
+	ProductPic       string  `json:"productPic" gorm:"column:productPic not null;"`
+	ProductThum      string  `json:"productThum" gorm:"column:productThum; not null;"`
+	ProductUnitPrice float64 `json:"productUnitPrice" gorm:"column:productUnitPrice; type: decimal(10, 2); not null;"`
+	Discount         float64 `json:"discount" gorm:"column:discount; type: decimal(10, 2); not null;"`
+	Count            uint8   `json:"count" gorm:"default:1; not null;"`
+	Amount           float64 `json:"amount" gorm:"type: decimal(10, 2); default: 0.00; not null;"`
+	Status           string  `json:"status" gorm:"column:status; default: 'active'; not null;"`
+	OrderId          uint64  `json:"orderId" gorm:"column:orderId; not null;"`
 	BaseModel
 }
 
 func (of *OrderForm) TableName() string {
-	return "orderform"
-}
-
-func init() {
-	orm.RegisterModel(new(OrderForm), new(Outbound))
+	return "orderforms"
 }

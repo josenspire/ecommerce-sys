@@ -40,6 +40,8 @@ func (m *MysqlConnectionPool) InitConnectionPool() bool {
 	db.DB().SetMaxIdleConns(10)
 	db.DB().SetMaxOpenConns(30)
 
+	db.LogMode(true)
+
 	// 关闭数据库，db会被多个goroutine共享，可以不调用
 	// defer db.Close()
 	return true

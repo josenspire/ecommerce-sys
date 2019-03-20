@@ -7,18 +7,12 @@ import (
 	"github.com/astaxie/beego/orm"
 )
 
-// orm introduction: https://my.oschina.net/u/252343/blog/829912
-
 type User struct {
 	UserId uint64 `json:"userId" gorm:"column:userId;primary_key;not null"`
 	UserProfile
-	Role    uint16 `json:"role" gorm:"column:role;default:10"`
-	Status  string `json:"status" gorm:"column:status;type:varchar(10);default:'active';"`
-	Channel string `json:"channel" gorm:"column:channel;type:varchar(12)"`
-	// `json:"wxSession" gorm:"column:sessionId"`
-	// WxSession WxSession
-	// Address   []*Address `orm:"reverse(many)"`
-	// Team      *Team      `json:"teamId" gorm:"column:teamId;reverse(one)"`
+	Role    uint16 `json:"role" gorm:"column:role; default:10; not null;"`
+	Status  string `json:"status" gorm:"column:status; type:varchar(10); default:'active'; not null;"`
+	Channel string `json:"channel" gorm:"column:channel; type:varchar(12); not null;"`
 	BaseModel
 }
 
@@ -27,50 +21,46 @@ type UserProfile struct {
 	Username  string `json:"username" gorm:"column:username; type:varchar(18);not null"`
 	Password  string `json:"password" gorm:"column:password; type:varchar(24);not null"`
 	Nickname  string `json:"nickname" gorm:"column:nickname; type:varchar(16);not null;"`
-	Male      bool   `json:"male" gorm:"column:male; default:false;"`
+	Male      bool   `json:"male" gorm:"column:male; not null; default:false;"`
 	Signature string `json:"signature" gorm:"not null; default:'This guy is lazy...'"`
 }
 
 type WxSession struct {
-	SessionId         uint64 `json:"sessionId" gorm:"column:sessionId; primary_key;"`
-	Skey              string `json:"skey" gorm:"column:skey"`
-	SessionKey        string `json:"session_key" gorm:"column:sessionKey" `
-	WechatUserProfile string `json:"wechatUserProfile" gorm:"column:wechatUserProfile"`
-	OpenId            string `json:"openId" gorm:"column:openId; index"`
-	User              User   `gorm:"foreignkey:userId"`
+	SessionId         uint64 `json:"sessionId" gorm:"column:sessionId; not null; primary_key;"`
+	Skey              string `json:"skey" gorm:"column:skey; not null;"`
+	SessionKey        string `json:"session_key" gorm:"column:sessionKey; not null;" `
+	WechatUserProfile string `json:"wechatUserProfile" gorm:"column:wechatUserProfile; not null;"`
+	OpenId            string `json:"openId" gorm:"column:openId; index; not null;"`
+	UserId            uint64 `json:"userId" gorm:"column:userId; not null;"`
 	BaseModel
 }
 
 type Address struct {
-	AddressId    uint64 `json:"addressId" orm:"column(addressId);PK;unique;size(64)"`
-	Contact      string `json:"contact" orm:"column(contact);size(32)"`
-	Telephone    string `json:"telephone" orm:"column(telephone);size(15)"`
-	IsDefault    bool   `json:"isDefault" orm:"column(isDefault);default(false)"`
-	Country      string `json:"country" orm:"column(country);null"`
-	ProvinceCity string `json:"city" orm:"column(city)"`
-	Status       string `json:"status" orm:"column(status);size(10);default(inactive);on_delete(set_default)"`
-	User         *User  `json:"user" orm:"column(userId);rel(fk)"`
+	AddressId    uint64 `json:"addressId" gorm:"column:addressId; primary_key; not null;"`
+	Contact      string `json:"contact" gorm:"column:contact; type:varchar(32); not null;"`
+	Telephone    string `json:"telephone" gorm:"column:telephone; type:varchar(15); not null;"`
+	IsDefault    bool   `json:"isDefault" gorm:"column:isDefault; default:false; not null;"`
+	Country      string `json:"country" gorm:"column:country; not null;"`
+	ProvinceCity string `json:"city" gorm:"column:city; not null;"`
+	Status       string `json:"status" gorm:"column:status; type:varchar(10); default:'inactive'; not null;"`
+	UserId       uint64 `json:"userId" gorm:"column:userId; not null;"`
 	BaseModel
 }
 
 type Team struct {
-	TeamId         uint64 `json:"teamId" orm:"column(teamId);PK;unique;size(64)"`
-	TopLevelAgent  uint64 `json:"topLevelAgent" orm:"column(topLevelAgent)"`
-	SuperiorAgent  uint64 `json:"superiorAgent" orm:"column(superiorAgent)"`
-	Status         string `json:"status" orm:"column(status);default(inactive);on_delete(set_default);"`
-	Channel        string `json:"channel" orm:"column(channel);default(Wechat);description(The channel which is user use)"`
-	InvitationCode string `json:"invitationCode" orm:"column(invitationCode);unique;size(6);description(This is de unique code about team invitation code)"`
-	User           *User  `json:"userId" orm:"column(userId);rel(one)"`
+	TeamId         uint64 `json:"teamId" gorm:"column:teamId; primary_key; not null;"`
+	TopLevelAgent  uint64 `json:"topLevelAgent" gorm:"column:topLevelAgent; not null;"`
+	SuperiorAgent  uint64 `json:"superiorAgent" gorm:"column:superiorAgent; not null;"`
+	Status         string `json:"status" gorm:"column:status; default:'active'; not null;"`
+	Channel        string `json:"channel" gorm:"column:channel; default:'Wechat'; not null;"`
+	InvitationCode string `json:"invitationCode" gorm:"column:invitationCode; unique; type:varchar(6); not null;"`
+	UserId         uint64 `json:"userId" gorm:"column:userId; not null;"`
 	BaseModel
 }
 
 // 自定义表名
 func (WxSession) TableName() string {
-	return "wxsession"
-}
-
-func init() {
-
+	return "wxsessions"
 }
 
 type IUserOperation interface {
