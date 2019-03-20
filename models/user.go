@@ -12,9 +12,10 @@ import (
 type User struct {
 	UserId uint64 `json:"userId" gorm:"column:userId;primary_key;not null"`
 	UserProfile
-	Role    uint16 `json:"role" gorm:"column:role; default:10; not null;"`
-	Status  string `json:"status" gorm:"column:status; type:varchar(10); default:'active'; not null;"`
-	Channel string `json:"channel" gorm:"column:channel; type:varchar(12); not null;"`
+	Role    uint16    `json:"role" gorm:"column:role; default:10; not null;"`
+	Status  string    `json:"status" gorm:"column:status; type:varchar(10); default:'active'; not null;"`
+	Channel string    `json:"channel" gorm:"column:channel; type:varchar(12); not null;"`
+	Address []Address `json:"address"`
 	BaseModel
 }
 
@@ -44,6 +45,7 @@ type Address struct {
 	IsDefault    bool   `json:"isDefault" gorm:"column:isDefault; default:false; not null;"`
 	Country      string `json:"country" gorm:"column:country; not null;"`
 	ProvinceCity string `json:"city" gorm:"column:city; not null;"`
+	Details      string `json:"details" gorm:"column:details; not null;"`
 	Status       string `json:"status" gorm:"column:status; type:varchar(10); default:'inactive'; not null;"`
 	UserId       uint64 `json:"userId" gorm:"column:userId; not null;"`
 	BaseModel
@@ -94,9 +96,8 @@ func (user *User) Register() error {
 func (user *User) LoginByTelephone(telephone string, password string) error {
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
 	fmt.Println("telephone, password", telephone, password)
-	// TODO should verify db table design and search logic
-	// err := o.Raw("SELECT * FROM user WHERE user.telephone = ? and user.password = ?;", telephone, password).QueryRow(user)
-	err := mysqlDB.Where("telephone = ? and password = ?", telephone, password).Find(&user).Association("Address").Error
+	mysqlDB.Where("telephone = ? and password = ?", telephone, password).First(&user)
+	err := mysqlDB.Model(&user).Related(&user.Address).Find(&user.Address).Error
 	if err == gorm.ErrRecordNotFound {
 		return ErrTelOrPswInvalid
 	}
