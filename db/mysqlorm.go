@@ -37,6 +37,7 @@ func (m *MysqlConnectionPool) InitConnectionPool() bool {
 		log.Fatal(dbErr)
 		return false
 	}
+	db.Set("gorm:table_options", "ENGINE=InnoDB")
 	db.DB().SetMaxIdleConns(10)
 	db.DB().SetMaxOpenConns(30)
 

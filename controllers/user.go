@@ -5,6 +5,7 @@ import (
 	. "ecommerce-sys/utils"
 	"encoding/json"
 	"github.com/astaxie/beego"
+	"github.com/jinzhu/gorm"
 )
 
 type UserController struct {
@@ -34,7 +35,7 @@ func (u *UserController) Register() {
 		if err != nil {
 			response.HandleFail(REQUEST_FAIL, err.Error())
 		} else {
-			response.HandleSuccess(user, "Registration Successful")
+			response.HandleSuccess(nil, "Registration Successful")
 		}
 	}
 	u.Data["json"] = response
@@ -60,10 +61,10 @@ func (u *UserController) LoginByTelephone() {
 
 		user := new(User)
 		err = user.LoginByTelephone(telephone, password)
-		if err != nil {
-			response.HandleError(err)
-		} else if user == nil {
+		if err == gorm.ErrRecordNotFound {
 			response.HandleError(ErrTelOrPswInvalid, USER_TELEPHONE_PSW_INVALID)
+		} else if err != nil {
+			response.HandleError(err)
 		} else {
 			response.HandleSuccess(user)
 		}

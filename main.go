@@ -82,9 +82,9 @@ func initialDBTable() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = mysqlDB.Model(&models.WxSession{}).AddForeignKey("userId", "users(userId)", "CASCADE", "CASCADE").Error
-		err = mysqlDB.Model(&models.Team{}).AddForeignKey("userId", "users(userId)", "CASCADE", "CASCADE").Error
-		err = mysqlDB.Model(&models.Address{}).AddForeignKey("userId", "users(userId)", "CASCADE", "CASCADE").Error
+		// err = mysqlDB.Model(&models.WxSession{}).AddForeignKey("userId", "users(userId)", "CASCADE", "CASCADE").Error
+		// err = mysqlDB.Model(&models.Team{}).AddForeignKey("userId", "users(userId)", "CASCADE", "CASCADE").Error
+		// err = mysqlDB.Model(&models.Address{}).AddForeignKey("userId", "users(userId)", "CASCADE", "CASCADE").Error
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -10,12 +10,13 @@ import (
 )
 
 type User struct {
-	UserId uint64 `json:"userId" gorm:"column:userId;primary_key;not null"`
+	ID uint64 `json:"id" gorm:"column:id;NOT NULL;PRIMARY_KEY;"`
 	UserProfile
-	Role    uint16    `json:"role" gorm:"column:role; default:10; not null;"`
-	Status  string    `json:"status" gorm:"column:status; type:varchar(10); default:'active'; not null;"`
-	Channel string    `json:"channel" gorm:"column:channel; type:varchar(12); not null;"`
-	Address []Address `json:"address"`
+	Role      uint16    `json:"role" gorm:"column:role; default:10; not null;"`
+	Status    string    `json:"status" gorm:"column:status; type:varchar(10); default:'active'; not null;"`
+	Channel   string    `json:"channel" gorm:"column:channel; type:varchar(12); not null;"`
+	Addresses []Address `json:"addresses"`
+	Team      Team      `json:"team"`
 	BaseModel
 }
 
@@ -29,17 +30,18 @@ type UserProfile struct {
 }
 
 type WxSession struct {
-	SessionId         uint64 `json:"sessionId" gorm:"column:sessionId; not null; primary_key;"`
+	// SessionId         uint64 `json:"sessionId" gorm:"column:sessionId; not null; primary_key;"`
 	Skey              string `json:"skey" gorm:"column:skey; not null;"`
 	SessionKey        string `json:"session_key" gorm:"column:sessionKey; not null;" `
 	WechatUserProfile string `json:"wechatUserProfile" gorm:"column:wechatUserProfile; not null;"`
 	OpenId            string `json:"openId" gorm:"column:openId; index; not null;"`
-	UserId            uint64 `json:"userId" gorm:"column:userId; not null;"`
+	UserId            uint64 `json:"userId" gorm:"not null;"`
 	BaseModel
 }
 
 type Address struct {
-	AddressId    uint64 `json:"addressId" gorm:"column:addressId; primary_key; not null;"`
+	// AddressId    uint64 `json:"addressId" gorm:"column:addressId; primary_key; not null;"`
+	ID           uint64 `json:"id" gorm:"column:id;NOT NULL;PRIMARY_KEY;"`
 	Contact      string `json:"contact" gorm:"column:contact; type:varchar(32); not null;"`
 	Telephone    string `json:"telephone" gorm:"column:telephone; type:varchar(15); not null;"`
 	IsDefault    bool   `json:"isDefault" gorm:"column:isDefault; default:false; not null;"`
@@ -47,18 +49,19 @@ type Address struct {
 	ProvinceCity string `json:"city" gorm:"column:city; not null;"`
 	Details      string `json:"details" gorm:"column:details; not null;"`
 	Status       string `json:"status" gorm:"column:status; type:varchar(10); default:'inactive'; not null;"`
-	UserId       uint64 `json:"userId" gorm:"column:userId; not null;"`
+	UserId       uint64 `json:"userId" gorm:"column:userId;not null;"`
 	BaseModel
 }
 
 type Team struct {
-	TeamId         uint64 `json:"teamId" gorm:"column:teamId; primary_key; not null;"`
+	// TeamId         uint64 `json:"teamId" gorm:"column:teamId; primary_key; not null;"`
+	ID             uint64 `json:"id" gorm:"column:id;NOT NULL;PRIMARY_KEY;"`
 	TopLevelAgent  uint64 `json:"topLevelAgent" gorm:"column:topLevelAgent; not null;"`
 	SuperiorAgent  uint64 `json:"superiorAgent" gorm:"column:superiorAgent; not null;"`
 	Status         string `json:"status" gorm:"column:status; default:'active'; not null;"`
 	Channel        string `json:"channel" gorm:"column:channel; default:'Wechat'; not null;"`
 	InvitationCode string `json:"invitationCode" gorm:"column:invitationCode; unique; type:varchar(6); not null;"`
-	UserId         uint64 `json:"userId" gorm:"column:userId; not null;"`
+	UserId         uint64 `json:"userId" gorm:"column:userId;not null;"`
 	BaseModel
 }
 
@@ -84,7 +87,7 @@ func (user *User) Register() error {
 	if isExist == true {
 		return ErrCurrentUserIsExist
 	}
-	user.UserId = GetWuid()
+	user.ID = GetWuid()
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
 	err = mysqlDB.Create(&user).Error
 	if err != nil {
@@ -96,12 +99,17 @@ func (user *User) Register() error {
 func (user *User) LoginByTelephone(telephone string, password string) error {
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
 	fmt.Println("telephone, password", telephone, password)
-	mysqlDB.Where("telephone = ? and password = ?", telephone, password).First(&user)
-	err := mysqlDB.Model(&user).Related(&user.Address).Find(&user.Address).Error
-	if err == gorm.ErrRecordNotFound {
-		return ErrTelOrPswInvalid
-	}
-	return nil
+	err := mysqlDB.Where("telephone = ? and password = ?", telephone, password).First(&user).Error
+	err = mysqlDB.Model(&user).Related(&user.Addresses).Error
+
+	// var team Team
+	// mysqlDB.Model(&user).Related(&team)
+	// fmt.Println(team)
+	// if err == gorm.ErrRecordNotFound {
+	// 	user.Team = team
+	// 	return err
+	// }
+	return err
 }
 
 func (user *User) CheckIsUserExistByUserId(userId uint64) (bool, error) {
@@ -110,7 +118,8 @@ func (user *User) CheckIsUserExistByUserId(userId uint64) (bool, error) {
 		return false, WarnParamsMissing
 	}
 	o := orm.NewOrm()
-	queryUser := User{UserId: userId}
+	queryUser := new(User)
+	queryUser.ID = userId
 	err := o.Read(&queryUser)
 	if err == orm.ErrNoRows {
 		return false, nil
@@ -225,7 +234,7 @@ func isAssociated(openId string) *User {
 
 func initTeamForm() (interface{}, error) {
 	var team *Team
-	team.TeamId = GetWuid()
+	team.ID = GetWuid()
 	team.Status = "active"
 	team.Channel = "Wechat"
 	return nil, nil
