@@ -1,10 +1,10 @@
-# userscateGoryIdCREATE DATABASE ecommercesys;
+CREATE DATABASE ecommercesys;
 
 USE ecommercesys;
 
-SELECT * FROM ecommercesys.user;
-SELECT * FROM ecommercesys.wxSession;
-SELECT * FROM ecommercesys.product;
+SELECT * FROM ecommercesys.users;
+SELECT * FROM ecommercesys.wxsessions;
+SELECT * FROM ecommercesys.products;
 SELECT * FROM ecommercesys.stock;
 SELECT * FROM ecommercesys.address;
 SELECT * FROM ecommercesys.advert;
@@ -60,5 +60,21 @@ INSERT INTO `outbounds` VALUES ('0a7d9f55-f6fc-4368-a490-ff08dbf2a0eb','aef76ec7
 
 INSERT INTO `adverts` VALUES ('943cac81-4418-4a53-88b5-7e701e124f80','http://p7mget50x.bkt.clouddn.com/swipe_pic1.jpg','5d6db841-7de3-11e8-97fc-f5bab62e1243','','2018-07-02 10:33:31','2018-07-02 10:33:31'),('a2c2104d-700d-4b45-80bb-b2b495f60974','http://p7mget50x.bkt.clouddn.com/swipe_pic2.jpg','5d6db840-7de3-11e8-97fc-f5bab62e1243','','2018-07-02 10:33:31','2018-07-02 10:33:31'),('eb27dc20-254f-4b16-8681-91805bf8aa44','http://p7mget50x.bkt.clouddn.com/swipe_pic3.jpg','5d6d9130-7de3-11e8-97fc-f5bab62e1243','','2018-07-02 10:33:31','2018-07-02 10:33:31');
 
-SELECT COUNT(1) FROM user WHERE telephone = '13641052046'
+SELECT COUNT(1) FROM user WHERE telephone = '13641052046';
+
+
+
+
+# news
+SELECT * FROM `users`;
+SELECT * FROM `teams`;
+SELECT * FROM `wxsessions`;
+SELECT * FROM `addresses`;
+SELECT * FROM `userwechat`;
+SELECT * FROM `userteams`;
+
+INSERT  INTO `users` (`userId`,`telephone`,`username`,`password`,`nickname`,`channel`,`createdAt`,`updatedAt`,`deletedAt`) VALUES (1099511627777,'1364105201','','123456789','JAMES001','','2019-03-25 21:15:39','2019-03-25 21:15:39',NULL);
+
+INSERT  INTO `teams` (`teamId`,`topLevelAgent`,`superiorAgent`,`invitationCode`,`userId`,`createdAt`,`updatedAt`,`deletedAt`) VALUES (2199023255553,8888888888,8888888888,'AXD8DS',1099511627777,'2019-03-25 21:15:39','2019-03-25 21:15:39',NULL);
+
 

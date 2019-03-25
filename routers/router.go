@@ -24,6 +24,10 @@ func init() {
 			beego.NSRouter("/loginByTelephone", &UserController{}, "post:LoginByTelephone"),
 			beego.NSRouter("/loginByWechat", &UserController{}, "post:LoginByWechat"),
 		),
+
+		beego.NSNamespace("/address",
+			beego.NSRouter("/create", &AddressController{}, "post:CreateAddress"),
+		),
 	)
 
 	beego.AddNamespace(ns)

@@ -4,7 +4,6 @@ import (
 	. "ecommerce-sys/models"
 	. "ecommerce-sys/utils"
 	"encoding/json"
-	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/jinzhu/gorm"
@@ -22,17 +21,15 @@ type UserController struct {
 // @Param	nickname	query	string	true	"User nickname"
 // @Param	signature	query	string	false	"User signature"
 // @Param	male		query	bool	false	"Male/Female"
+// @Param	invitationCode	query	string	true	"User's agent invitation code"
 // @Success	200000	{object}	models.ResponseModel
 // @Failure	200400
 // @router	/register	[post]invitationCode
 func (u *UserController) Register() {
 	var response ResponseModel
-	reqArgs := make(map[string]string)
-	err := json.Unmarshal(u.Ctx.Input.RequestBody, &reqArgs)
-
 	user := new(User)
 	dto := UserRegisterDTO{}
-	err = json.Unmarshal(u.Ctx.Input.RequestBody, &dto)
+	err := json.Unmarshal(u.Ctx.Input.RequestBody, &dto)
 
 	if err != nil {
 		logs.Error(err)
@@ -58,13 +55,13 @@ func (u *UserController) Register() {
 // @router	/loginByTelephone	[post]
 func (u *UserController) LoginByTelephone() {
 	var response ResponseModel
-	reqParams := make(map[string]interface{})
+	reqParams := make(map[string]string)
 	err := json.Unmarshal(u.Ctx.Input.RequestBody, &reqParams)
 	if err != nil {
 		response.HandleError(err)
 	} else {
-		telephone := reqParams["telephone"].(string)
-		password := reqParams["password"].(string)
+		telephone := reqParams["telephone"]
+		password := reqParams["password"]
 
 		user := new(User)
 		err = user.LoginByTelephone(telephone, password)
