@@ -10,13 +10,14 @@ import (
 )
 
 type User struct {
-	ID uint64 `json:"id" gorm:"column:id;NOT NULL;PRIMARY_KEY;"`
+	// ID uint64 `json:"id" gorm:"column:id;NOT NULL;PRIMARY_KEY;"`
+	UserId uint64 `json:"userId" gorm:"column:userId;primary_key;not null"`
 	UserProfile
 	Role      uint16    `json:"role" gorm:"column:role; default:10; not null;"`
 	Status    string    `json:"status" gorm:"column:status; type:varchar(10); default:'active'; not null;"`
 	Channel   string    `json:"channel" gorm:"column:channel; type:varchar(12); not null;"`
 	Addresses []Address `json:"addresses"`
-	Team      Team      `json:"team"`
+	Team      *Team     `json:"-"`
 	BaseModel
 }
 
@@ -30,18 +31,17 @@ type UserProfile struct {
 }
 
 type WxSession struct {
-	// SessionId         uint64 `json:"sessionId" gorm:"column:sessionId; not null; primary_key;"`
+	SessionId         uint64 `json:"sessionId" gorm:"column:sessionId; not null; primary_key;"`
 	Skey              string `json:"skey" gorm:"column:skey; not null;"`
 	SessionKey        string `json:"session_key" gorm:"column:sessionKey; not null;" `
 	WechatUserProfile string `json:"wechatUserProfile" gorm:"column:wechatUserProfile; not null;"`
 	OpenId            string `json:"openId" gorm:"column:openId; index; not null;"`
-	UserId            uint64 `json:"userId" gorm:"not null;"`
 	BaseModel
 }
 
 type Address struct {
-	// AddressId    uint64 `json:"addressId" gorm:"column:addressId; primary_key; not null;"`
-	ID           uint64 `json:"id" gorm:"column:id;NOT NULL;PRIMARY_KEY;"`
+	// ID           uint64 `json:"id" gorm:"column:id;NOT NULL;PRIMARY_KEY;"`
+	AddressId    uint64 `json:"addressId" gorm:"column:addressId; primary_key; not null;"`
 	Contact      string `json:"contact" gorm:"column:contact; type:varchar(32); not null;"`
 	Telephone    string `json:"telephone" gorm:"column:telephone; type:varchar(15); not null;"`
 	IsDefault    bool   `json:"isDefault" gorm:"column:isDefault; default:false; not null;"`
@@ -49,13 +49,13 @@ type Address struct {
 	ProvinceCity string `json:"city" gorm:"column:city; not null;"`
 	Details      string `json:"details" gorm:"column:details; not null;"`
 	Status       string `json:"status" gorm:"column:status; type:varchar(10); default:'inactive'; not null;"`
-	UserId       uint64 `json:"userId" gorm:"column:userId;not null;"`
+	UserId       uint64 `json:"userId" gorm:"column:userId; not null;"`
 	BaseModel
 }
 
 type Team struct {
-	// TeamId         uint64 `json:"teamId" gorm:"column:teamId; primary_key; not null;"`
-	ID             uint64 `json:"id" gorm:"column:id;NOT NULL;PRIMARY_KEY;"`
+	// ID             uint64 `json:"id" gorm:"column:id;NOT NULL;PRIMARY_KEY;"`
+	TeamId         uint64 `json:"teamId" gorm:"column:teamId; primary_key; not null;"`
 	TopLevelAgent  uint64 `json:"topLevelAgent" gorm:"column:topLevelAgent; not null;"`
 	SuperiorAgent  uint64 `json:"superiorAgent" gorm:"column:superiorAgent; not null;"`
 	Status         string `json:"status" gorm:"column:status; default:'active'; not null;"`
@@ -65,13 +65,41 @@ type Team struct {
 	BaseModel
 }
 
-// 自定义表名
+type UserWechat struct {
+	ID        uint64 `json:"id" gorm:"column:id;NOT NULL;PRIMARY_KEY;"`
+	UserId    uint64 `json:"userId" gorm:"column:userId; not null;"`
+	SessionId uint64 `json:"sessionId" gorm:"column:sessionId; not null; unique;"`
+	BaseModel
+}
+
+type UserTeam struct {
+	ID     uint64 `json:"id" gorm:"column:id;NOT NULL;PRIMARY_KEY;"`
+	UserId uint64 `json:"userId" gorm:"column:userId; not null;"`
+	TeamId uint64 `json:"teamId" gorm:"column:teamId; not null; unique;"`
+	BaseModel
+}
+
+type UserRegisterDTO struct {
+	Telephone      string `json:"telephone"`
+	Password       string `json:"password"`
+	Nickname       string `json:"nickname"`
+	InvitationCode string `json:"invitationCode"`
+}
+
 func (WxSession) TableName() string {
 	return "wxsessions"
 }
 
+func (UserWechat) TableName() string {
+	return "userwechat"
+}
+
+func (UserTeam) TableName() string {
+	return "userteams"
+}
+
 type IUserOperation interface {
-	Register() error
+	Register(dto UserRegisterDTO) error
 	CheckIsUserExistByUserId(userId uint64) (bool, error)
 	CheckIsUserExistByTelephone(telephone string) (bool, error)
 	QueryByUserId(userId string) *User
@@ -79,20 +107,56 @@ type IUserOperation interface {
 	LoginByWechat(jsCode string, userInfo string, invitationCode string) (interface{}, error)
 }
 
-func (user *User) Register() error {
-	isExist, err := user.CheckIsUserExistByTelephone(user.Telephone)
+type ITeamOperation interface {
+	QueryTeamByInvitationCode(invitationCode string) error
+}
+
+func (user *User) Register(dto UserRegisterDTO) error {
+	isExist, err := user.CheckIsUserExistByTelephone(dto.Telephone)
 	if err != nil {
 		return err
 	}
 	if isExist == true {
 		return ErrCurrentUserIsExist
 	}
-	user.ID = GetWuid()
+	user.UserId = GetWuid()
+	user.Telephone = dto.Telephone
+	user.Password = dto.Password
+	user.Nickname = dto.Nickname
+
+	var agentTeam Team
+	team := Team{}
+	team.UserId = user.UserId
+	team.TeamId = GetWuid()
+	team.InvitationCode = GenerateRandString(6)
+
+	err = agentTeam.QueryTeamByInvitationCode(dto.InvitationCode)
+
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			// TOP ADMIN
+			team.TopLevelAgent = 8888888888
+			team.SuperiorAgent = 8888888888
+		} else {
+			logs.Error(err)
+			return err
+		}
+	} else {
+		team.TopLevelAgent = agentTeam.SuperiorAgent
+		team.SuperiorAgent = agentTeam.UserId
+	}
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
-	err = mysqlDB.Create(&user).Error
+
+	ts := mysqlDB.Begin()
+	err = ts.Create(&user).Error
+	err = ts.Create(&team).Error
 	if err != nil {
 		logs.Error(err)
+		ts.Rollback()
+	} else {
+		ts.Commit()
 	}
+
 	return err
 }
 
@@ -119,7 +183,7 @@ func (user *User) CheckIsUserExistByUserId(userId uint64) (bool, error) {
 	}
 	o := orm.NewOrm()
 	queryUser := new(User)
-	queryUser.ID = userId
+	queryUser.UserId = userId
 	err := o.Read(&queryUser)
 	if err == orm.ErrNoRows {
 		return false, nil
@@ -136,7 +200,6 @@ func (user *User) CheckIsUserExistByTelephone(telephone string) (bool, error) {
 	}
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
 
-	// err := mysqlDB.Find(&user, "telephone = ?", telephone).Count(&total).Error
 	err := mysqlDB.Where("telephone = ?", telephone).Find(&user).Error
 	if err == gorm.ErrRecordNotFound {
 		return false, nil
@@ -160,6 +223,12 @@ func (user *User) LoginByWechat(jsCode string, wechatUserProfile string, invitat
 	// userId := wxSession.SessionId
 	// if invitationCode
 	return wxSession, nil
+}
+
+func (team *Team) QueryTeamByInvitationCode(invitationCode string) error {
+	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
+	err := mysqlDB.Where("invitationCode = ?", invitationCode).First(&team).Error
+	return err
 }
 
 func authorization(jsCode string, wechatUserProfile string) (*WxSession, error) {
@@ -234,7 +303,7 @@ func isAssociated(openId string) *User {
 
 func initTeamForm() (interface{}, error) {
 	var team *Team
-	team.ID = GetWuid()
+	team.UserId = GetWuid()
 	team.Status = "active"
 	team.Channel = "Wechat"
 	return nil, nil

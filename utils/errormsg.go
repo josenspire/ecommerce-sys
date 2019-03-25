@@ -11,5 +11,7 @@ var ErrTelOrPswInvalid = errors.New("telephone or password is invalid")
 var ErrCurrentUserIsExist = errors.New("current user is already exist, please login")
 var ErrParamsMissing = errors.New("sorry, your request params missing")
 
+var ErrInvitationCodeInvalid = errors.New("this invitation code is invalid, please check it")
+
 // Warning
 var WarnParamsMissing = errors.New("params missing in user checking")

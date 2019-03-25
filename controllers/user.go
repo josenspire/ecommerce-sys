@@ -4,7 +4,9 @@ import (
 	. "ecommerce-sys/models"
 	. "ecommerce-sys/utils"
 	"encoding/json"
+	"fmt"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"github.com/jinzhu/gorm"
 )
 
@@ -22,16 +24,21 @@ type UserController struct {
 // @Param	male		query	bool	false	"Male/Female"
 // @Success	200000	{object}	models.ResponseModel
 // @Failure	200400
-// @router	/register	[post]
+// @router	/register	[post]invitationCode
 func (u *UserController) Register() {
 	var response ResponseModel
-	var user = new(User)
+	reqArgs := make(map[string]string)
+	err := json.Unmarshal(u.Ctx.Input.RequestBody, &reqArgs)
 
-	err := json.Unmarshal(u.Ctx.Input.RequestBody, &user.UserProfile)
+	user := new(User)
+	dto := UserRegisterDTO{}
+	err = json.Unmarshal(u.Ctx.Input.RequestBody, &dto)
+
 	if err != nil {
+		logs.Error(err)
 		response.HandleError(err, PARAMS_MISSING)
 	} else {
-		err = user.Register()
+		err = user.Register(dto)
 		if err != nil {
 			response.HandleFail(REQUEST_FAIL, err.Error())
 		} else {
