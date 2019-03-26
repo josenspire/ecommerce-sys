@@ -16,7 +16,7 @@ type User struct {
 	Role      uint16    `json:"role" gorm:"column:role; default:10; not null;"`
 	Status    string    `json:"status" gorm:"column:status; type:varchar(10); default:'active'; not null;"`
 	Channel   string    `json:"channel" gorm:"column:channel; type:varchar(12); not null;"`
-	Addresses []Address `json:"addresses"`
+	Addresses []Address `json:"-"`
 	Team      *Team     `json:"-"`
 	BaseModel
 }
@@ -139,7 +139,7 @@ func (user *User) LoginByTelephone(telephone string, password string) error {
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
 	fmt.Println("telephone, password", telephone, password)
 	err := mysqlDB.Where("telephone = ? and password = ?", telephone, password).First(&user).Error
-	err = mysqlDB.Model(&user).Related(&user.Addresses).Error
+	// err = mysqlDB.Where("userId = ?", user.UserId).Find(&user.Addresses).Error
 	return err
 }
 

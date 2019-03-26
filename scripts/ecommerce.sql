@@ -66,6 +66,8 @@ SELECT COUNT(1) FROM user WHERE telephone = '13641052046';
 
 
 # news
+CREATE TABLE `addresses` (`addressId` bigint unsigned AUTO_INCREMENT NOT NULL,`contact` varchar(32) NOT NULL,`telephone` varchar(15) NOT NULL,`isDefault` boolean NOT NULL  DEFAULT false,`country` varchar(255) NOT NULL,`city` varchar(255) NOT NULL,`details` varchar(255) NOT NULL,`status` varchar(10) NOT NULL  DEFAULT 'active',`userId` bigint unsigned NOT NULL,`createdAt` dateTime,`updatedAt` dateTime,`deletedAt` dateTime , PRIMARY KEY (`addressId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 SELECT * FROM `users`;
 SELECT * FROM `teams`;
 SELECT * FROM `wxsessions`;
@@ -77,4 +79,7 @@ INSERT  INTO `users` (`userId`,`telephone`,`username`,`password`,`nickname`,`cha
 
 INSERT  INTO `teams` (`teamId`,`topLevelAgent`,`superiorAgent`,`invitationCode`,`userId`,`createdAt`,`updatedAt`,`deletedAt`) VALUES (2199023255553,8888888888,8888888888,'AXD8DS',1099511627777,'2019-03-25 21:15:39','2019-03-25 21:15:39',NULL);
 
+INSERT  INTO `addresses` (`addressId`,`contact`,`telephone`,`isDefault`,`country`,`city`,`details`,`userId`,`createdAt`,`updatedAt`,`deletedAt`) VALUES (53876069761025,'Tech03','13600004088',true,'CHN','GD-ZHA','南方软件园B5-7L',14293651161089,'2019-03-26 15:00:00','2019-03-26 15:00:00',NULL);
+INSERT  INTO `addresses` (`addressId`,`contact`,`telephone`,`country`,`city`,`details`,`userId`,`createdAt`,`updatedAt`,`deletedAt`) VALUES (54975581388801,'Tech04','13600004004','CHN','GD-ZHA','南方软件园B5-7L',14293651161089,'2019-03-26 15:00:48','2019-03-26 15:00:48',NULL);
 
+DELETE FROM `addresses`;
