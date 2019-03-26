@@ -84,7 +84,6 @@ func initialDBTable() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		// err = mysqlDB.Model(&models.Address{}).AddForeignKey("userId", "users(userId)", "CASCADE", "CASCADE").Error
 		err = mysqlDB.Model(&models.UserWechat{}).AddForeignKey("userId", "users(userId)", "CASCADE", "CASCADE").Error
 		err = mysqlDB.Model(&models.UserWechat{}).AddForeignKey("sessionId", "wxsessions(sessionId)", "CASCADE", "CASCADE").Error
 

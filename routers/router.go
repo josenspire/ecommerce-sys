@@ -28,6 +28,8 @@ func init() {
 		beego.NSNamespace("/address",
 			beego.NSRouter("/create", &AddressController{}, "post:CreateAddress"),
 			beego.NSRouter("/details", &AddressController{}, "post:QueryDetails"),
+			beego.NSRouter("/update", &AddressController{}, "put:UpdateAddress"),
+			beego.NSRouter("/delete", &AddressController{}, "delete:DeleteAddress"),
 		),
 	)
 

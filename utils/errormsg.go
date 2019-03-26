@@ -13,5 +13,10 @@ var ErrParamsMissing = errors.New("sorry, your request params missing")
 
 var ErrInvitationCodeInvalid = errors.New("this invitation code is invalid, please check it")
 
+var ErrAddressNotFound = errors.New("this address was not found, please check it")
+
 // Warning
 var WarnParamsMissing = errors.New("params missing in user checking")
+
+// common
+var ErrRecordNotFound = errors.New("this record was not found, please check it")

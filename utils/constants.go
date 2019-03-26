@@ -14,5 +14,7 @@ const (
 	SERVER_REJECT_REQUEST uint = 500003
 
 	// business code
+	RECORD_NOT_FOUND           uint = 200404
 	USER_TELEPHONE_PSW_INVALID uint = 200404
+	ADDRESS_NOT_FOUND          uint = 200404
 )

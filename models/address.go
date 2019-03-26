@@ -20,6 +20,7 @@ type Address struct {
 }
 
 type AddressDTO struct {
+	AddressId    uint64 `json:"addressId"`
 	Contact      string `json:"contact"`
 	Telephone    string `json:"telephone"`
 	IsDefault    bool   `json:"isDefault"`
@@ -31,7 +32,9 @@ type AddressDTO struct {
 
 type IAddress interface {
 	CreateAddress(dto *AddressDTO) error
-	QueryAddressByAddressId(userId uint64, addressId uint64) (Address, error)
+	QueryAddressByAddressId(userId uint64, addressId uint64) (*Address, error)
+	UpdateAddress(dto *AddressDTO) error
+	DeleteAddressByAddressId(userId uint64, addressId uint64) error
 }
 
 func (addr *Address) CreateAddress(dto *AddressDTO) error {
@@ -67,13 +70,30 @@ func (addr *Address) CreateAddress(dto *AddressDTO) error {
 
 func (addr *Address) QueryAddressByAddressId(userId uint64, addressId uint64) (*Address, error) {
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
-	var address *Address
+	var address = Address{}
 
-	err := mysqlDB.Where("userId = ? and addressId = ?", userId, addressId).First(&address).Error
-	if err == gorm.ErrRecordNotFound {
-		return nil, nil
-	} else if err != nil {
+	err := mysqlDB.Where("userId = ? and addressId = ? and status = 'active'", userId, addressId).First(&address).Error
+	if err != nil {
 		return nil, err
 	}
-	return address, nil
+	return &address, nil
+}
+
+func (addr *Address) UpdateAddress(dto *AddressDTO) error {
+	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
+	var address = Address{}
+
+	err := mysqlDB.Model(&address).Where("userId = ? and addressId = ? and status = 'active'", dto.UserId, dto.AddressId).Updates(&dto).Error
+	return err
+}
+
+func (addr *Address) DeleteAddressByAddressId(userId uint64, addressId uint64) error {
+	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
+
+	mdb := mysqlDB.Where("userId = ? and addressId = ? and status = 'active'", userId, addressId).First(&Address{})
+	if mdb.Error == gorm.ErrRecordNotFound {
+		return mdb.Error
+	}
+	err := mdb.Delete(&Address{}).Error
+	return err
 }
