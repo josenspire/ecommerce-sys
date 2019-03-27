@@ -78,7 +78,7 @@ func (addr *AddressController) QueryDetails() {
 // @Param	models.AddressDTO		query	object		true	"Create a new address"
 // @Success	200000	{object}	models.ResponseModel
 // @Failure	200400
-// @router	/update [post]
+// @router	/update [put]
 func (addr *AddressController) UpdateAddress() {
 	var response ResponseModel
 	var dto *AddressDTO
@@ -105,7 +105,7 @@ func (addr *AddressController) UpdateAddress() {
 // @Param	models.AddressDTO		query	object		true	"Delete a address"
 // @Success	200000	{object}	models.ResponseModel
 // @Failure	200400
-// @router	/delete [post]
+// @router	/delete [delete]
 func (addr *AddressController) DeleteAddress() {
 	var response ResponseModel
 	reqArgs := make(map[string]interface{})
@@ -127,6 +127,40 @@ func (addr *AddressController) DeleteAddress() {
 			response.HandleError(err)
 		} else {
 			response.HandleSuccess(nil, "address remove success")
+		}
+	}
+	addr.Data["json"] = response
+	addr.ServeJSON()
+}
+
+// @Title Set As Default Address
+// @Description Set user default address
+// @Param	userId		query		float64		true	"userId"
+// @Param	addressId		query		float64		true	"addressId"
+// @Success	200000	{object}	models.ResponseModel
+// @Failure	200400
+// @router	/delete [put]
+func (addr *AddressController) SetAsDefaultAddress() {
+	var response ResponseModel
+	reqArgs := make(map[string]interface{})
+	err := json.Unmarshal(addr.Ctx.Input.RequestBody, &reqArgs)
+	if err != nil {
+		response.HandleError(err)
+	} else {
+		userId := reqArgs["userId"].(float64)
+		addressId := reqArgs["addressId"].(float64)
+		if IsEmptyString(strconv.Itoa(int(addressId)), strconv.Itoa(int(userId))) {
+			response.HandleFail(PARAMS_MISSING, ErrParamsMissing.Error())
+		}
+		var address *Address
+		err := address.SetDefaultAddress(uint64(userId), uint64(addressId))
+		if err == gorm.ErrRecordNotFound {
+			response.HandleFail(RECORD_NOT_FOUND, ErrRecordNotFound.Error())
+		} else if err != nil {
+			logs.Error(err)
+			response.HandleError(err)
+		} else {
+			response.HandleSuccess(nil, "set default address succeed")
 		}
 	}
 	addr.Data["json"] = response

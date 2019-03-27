@@ -19,6 +19,12 @@ func init() {
 		// 	api cache checking
 		// beego.NSBefore(models.ReadApiCache),
 
+		beego.NSNamespace("/advert",
+			beego.NSRouter("/insert", &AdvertController{}, "post:InsertAdvert"),
+			beego.NSRouter("/update", &AdvertController{}, "put:UpdateAdvert"),
+			beego.NSRouter("/list", &AdvertController{}, "get:GetAdvertList"),
+		),
+
 		beego.NSNamespace("/user",
 			beego.NSRouter("/register", &UserController{}, "post:Register"),
 			beego.NSRouter("/loginByTelephone", &UserController{}, "post:LoginByTelephone"),
@@ -30,6 +36,7 @@ func init() {
 			beego.NSRouter("/details", &AddressController{}, "post:QueryDetails"),
 			beego.NSRouter("/update", &AddressController{}, "put:UpdateAddress"),
 			beego.NSRouter("/delete", &AddressController{}, "delete:DeleteAddress"),
+			beego.NSRouter("/setDefault", &AddressController{}, "put:SetAsDefaultAddress"),
 		),
 	)
 

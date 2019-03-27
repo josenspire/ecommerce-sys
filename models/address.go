@@ -35,6 +35,7 @@ type IAddress interface {
 	QueryAddressByAddressId(userId uint64, addressId uint64) (*Address, error)
 	UpdateAddress(dto *AddressDTO) error
 	DeleteAddressByAddressId(userId uint64, addressId uint64) error
+	SetDefaultAddress(userId uint64, addressId uint64) error
 }
 
 func (addr *Address) CreateAddress(dto *AddressDTO) error {
@@ -81,9 +82,7 @@ func (addr *Address) QueryAddressByAddressId(userId uint64, addressId uint64) (*
 
 func (addr *Address) UpdateAddress(dto *AddressDTO) error {
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
-	var address = Address{}
-
-	err := mysqlDB.Model(&address).Where("userId = ? and addressId = ? and status = 'active'", dto.UserId, dto.AddressId).Updates(&dto).Error
+	err := mysqlDB.Model(&Address{}).Where("userId = ? and addressId = ? and status = 'active'", dto.UserId, dto.AddressId).Updates(&dto).Error
 	return err
 }
 
@@ -95,5 +94,25 @@ func (addr *Address) DeleteAddressByAddressId(userId uint64, addressId uint64) e
 		return mdb.Error
 	}
 	err := mdb.Delete(&Address{}).Error
+	return err
+}
+
+func (addr *Address) SetDefaultAddress(userId uint64, addressId uint64) error {
+	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
+
+	ts := mysqlDB.Begin()
+	err := ts.Model(&Address{}).Where("userId = ? and isDefault = true and status = 'active'", userId).Update("isDefault", false).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		ts.Rollback()
+		logs.Error(err)
+		return err
+	}
+	err = ts.Model(&Address{}).Where("userId = ? and addressId = ? and status = 'active'", userId, addressId).Update("isDefault", true).Error
+	if err != nil {
+		logs.Error(err)
+		ts.Rollback()
+	} else {
+		ts.Commit()
+	}
 	return err
 }
