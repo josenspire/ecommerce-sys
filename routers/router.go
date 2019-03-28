@@ -38,6 +38,13 @@ func init() {
 			beego.NSRouter("/delete", &AddressController{}, "delete:DeleteAddress"),
 			beego.NSRouter("/setDefault", &AddressController{}, "put:SetAsDefaultAddress"),
 		),
+
+		beego.NSNamespace("/product",
+			beego.NSRouter("/insert", &ProductController{}, "post:InsertProduct"),
+			beego.NSRouter("/insertMultiple", &ProductController{}, "post:InsertMultipleProducts"),
+			beego.NSRouter("/list", &ProductController{}, "get:QueryProducts"),
+			beego.NSRouter("/details", &ProductController{}, "post:QueryProductDetails"),
+		),
 	)
 
 	beego.AddNamespace(ns)

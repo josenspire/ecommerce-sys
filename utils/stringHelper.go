@@ -23,10 +23,10 @@ func GenerateRandString(length int) string {
 }
 
 func IsEmptyString(strArgs ...string) bool {
-	var result = false
+	var result = true
 	for _, str := range strArgs {
 		if str != "" {
-			result = true
+			result = false
 			break
 		}
 	}

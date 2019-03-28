@@ -20,3 +20,5 @@ var WarnParamsMissing = errors.New("params missing in user checking")
 
 // common
 var ErrRecordNotFound = errors.New("this record was not found, please check it")
+var ErrCreateRecordsIsEmpty = errors.New("insert records is empty, please check your option")
+var ErrParamsInValid = errors.New("sorry, your params are invalid, please check it")

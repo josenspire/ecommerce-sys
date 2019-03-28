@@ -75,6 +75,8 @@ SELECT * FROM `wxsessions`;
 SELECT * FROM `addresses`;
 SELECT * FROM `userwechat`;
 SELECT * FROM `userteams`;
+SELECT * FROM `inventories`;
+SELECT * FROM `products`;
 
 INSERT  INTO `users` (`userId`,`telephone`,`username`,`password`,`nickname`,`channel`,`createdAt`,`updatedAt`,`deletedAt`) VALUES (1099511627777,'1364105201','','123456789','JAMES001','','2019-03-25 21:15:39','2019-03-25 21:15:39',NULL);
 
@@ -84,3 +86,4 @@ INSERT  INTO `addresses` (`addressId`,`contact`,`telephone`,`isDefault`,`country
 INSERT  INTO `addresses` (`addressId`,`contact`,`telephone`,`country`,`city`,`details`,`userId`,`createdAt`,`updatedAt`,`deletedAt`) VALUES (54975581388801,'Tech04','13600004004','CHN','GD-ZHA','南方软件园B5-7L',14293651161089,'2019-03-26 15:00:48','2019-03-26 15:00:48',NULL);
 
 DELETE FROM `addresses`;
+DELETE FROM `inventories`;

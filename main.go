@@ -137,7 +137,7 @@ func initialDBTable() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = mysqlDB.Model(&models.Product{}).AddForeignKey("inventoryId", "Inventories(inventoryId)", "CASCADE", "CASCADE").Error
+		err = mysqlDB.Model(&models.Inventory{}).AddForeignKey("productId", "Products(productId)", "CASCADE", "CASCADE").Error
 		if err != nil {
 			log.Fatal(err)
 		}
