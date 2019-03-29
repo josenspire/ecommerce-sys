@@ -21,16 +21,16 @@ type Inventory struct {
 }
 
 type Product struct {
-	ProductId      uint64     `json:"productId" gorm:"column:productId; primary_key; not null;"`
-	ProductName    string     `json:"productName" gorm:"column:productName; not null;"`
-	ProductSubName string     `json:"productSubName" gorm:"column:productSubName; not null;"`
-	ProductPic     string     `json:"productPic" gorm:"column:productPic; not null;"`
-	ProductThum    string     `json:"productThum" gorm:"column:productThum; not null;"`
-	ProductDesc    string     `json:"productDesc" gorm:"column:productDesc; not null;"`
-	Priority       uint8      `json:"priority" gorm:"default:0; not null;"`
-	ProductType    string     `json:"productType" gorm:"column:productType; default: 'normal'; type: enum('recommend', 'normal', 'specific'); not null;"` // description(Here will have 3 types, include 'recommend', 'normal', 'specific')
-	Status         string     `json:"status" gorm:"column:status; default: 'active'; type: varchar(10); not null;"`
-	Inventory      *Inventory `json:"-"`
+	ProductId      uint64      `json:"productId" gorm:"column:productId; primary_key; not null;"`
+	ProductName    string      `json:"productName" gorm:"column:productName; not null;"`
+	ProductSubName string      `json:"productSubName" gorm:"column:productSubName; not null;"`
+	ProductPic     string      `json:"productPic" gorm:"column:productPic; not null;"`
+	ProductThum    string      `json:"productThum" gorm:"column:productThum; not null;"`
+	ProductDesc    string      `json:"productDesc" gorm:"column:productDesc; not null;"`
+	Priority       uint8       `json:"priority" gorm:"default:0; not null;"`
+	ProductType    string      `json:"productType" gorm:"column:productType; default: 'normal'; type: enum('recommend', 'normal', 'specific'); not null;"` // description(Here will have 3 types, include 'recommend', 'normal', 'specific')
+	Status         string      `json:"status" gorm:"column:status; default: 'active'; type: varchar(10); not null;"`
+	Inventories    []Inventory `json:"inventories"`
 	BaseModel
 }
 
@@ -62,6 +62,7 @@ type IProduct interface {
 	InsertMultipleProducts(dtos *[]ProductDTO) error
 	QueryProductsByProductType(productType string, pageIndex int) (*[]Product, error)
 	QueryProductDetails(productId uint64) (interface{}, error)
+	QueryInventoryDetails(inventoryId uint64) (interface{}, error)
 }
 
 func (prod *Product) InsertProduct(dto *ProductDTO) error {
@@ -128,15 +129,33 @@ func (prod *Product) QueryProductDetails(productId uint64) (interface{}, error) 
 	var productDetails = make(map[string]interface{})
 
 	var product = Product{}
-	var inventories []Inventory
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
 	err := mysqlDB.Where("productId = ? and status = 'active'", productId).First(&product).Error
-	err = mysqlDB.Where("productId = ? and status = 'active", productId).Find(&inventories).Error
+	err = mysqlDB.Where("productId = ? and status = 'active'", productId).Find(&product.Inventories).Error
+
 	if err != nil {
 		return nil, err
 	} else {
 		productDetails["productDetails"] = product
-		productDetails["inventories"] = inventories
+		// productDetails["inventories"] = inventories
+	}
+	return productDetails, nil
+}
+
+func (prod *Product) QueryInventoryDetails(inventoryId uint64) (interface{}, error) {
+	var productDetails = make(map[string]interface{})
+
+	var product = Product{}
+	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
+	err := mysqlDB.Where("inventoryId = ? and status = 'active'", inventoryId).Find(&product.Inventories).Error
+	if err != nil {
+		return nil, err
+	}
+	err = mysqlDB.Where("productId = ? and status = 'active'", product.Inventories[0].ProductId).First(&product).Error
+	if err != nil {
+		return nil, err
+	} else {
+		productDetails["productDetails"] = product
 	}
 	return productDetails, nil
 }

@@ -95,13 +95,13 @@ func (pd *ProductController) QueryProducts() {
 
 // @Title Product - details
 // @Description Query product details
-// @Params	productId		Query		true		"product id"
+// @Params	productId		Query		float64  	true		"product id"
 // @Success	200000	{object}	models.ResponseModel
 // @Failure	200400
 // @router	/recommend 	[get]
 func (pd *ProductController) QueryProductDetails() {
 	var response ResponseModel
-	reqArgs := make(map[string]float64)
+	reqArgs := make(map[string]interface{})
 
 	fmt.Println(reqArgs)
 
@@ -110,11 +110,44 @@ func (pd *ProductController) QueryProductDetails() {
 		response.HandleFail(PARAMS_MISSING, ErrParamsMissing.Error())
 	} else {
 		productId := reqArgs["productId"]
-		if productId == 0 {
+		if productId == nil {
 			response.HandleFail(PARAMS_MISSING, ErrParamsInValid.Error())
 		} else {
 			var product *Product
-			productDetails, err := product.QueryProductDetails(uint64(productId))
+			productDetails, err := product.QueryProductDetails(uint64(productId.(float64)))
+			if err != nil && err != gorm.ErrRecordNotFound {
+				response.HandleError(err)
+			} else {
+				response.HandleSuccess(productDetails)
+			}
+		}
+	}
+	pd.Data["json"] = response
+	pd.ServeJSON()
+}
+
+// @Title Product - Specification details
+// @Description Query product specification details
+// @Params	inventoryId		 Query		float64 	true		"inventoryId"
+// @Success	200000	{object}	models.ResponseModel
+// @Failure	200400
+// @router	/recommend 	[get]
+func (pd *ProductController) QuerySpecificationDetails() {
+	var response ResponseModel
+	reqArgs := make(map[string]interface{})
+
+	fmt.Println(reqArgs)
+
+	err := json.Unmarshal(pd.Ctx.Input.RequestBody, &reqArgs)
+	if err != nil {
+		response.HandleFail(PARAMS_MISSING, ErrParamsMissing.Error())
+	} else {
+		inventoryId := reqArgs["inventoryId"]
+		if inventoryId == nil {
+			response.HandleFail(PARAMS_MISSING, ErrParamsInValid.Error())
+		} else {
+			var product *Product
+			productDetails, err := product.QueryInventoryDetails(uint64(inventoryId.(float64)))
 			if err != nil && err != gorm.ErrRecordNotFound {
 				response.HandleError(err)
 			} else {

@@ -44,6 +44,7 @@ func init() {
 			beego.NSRouter("/insertMultiple", &ProductController{}, "post:InsertMultipleProducts"),
 			beego.NSRouter("/list", &ProductController{}, "get:QueryProducts"),
 			beego.NSRouter("/details", &ProductController{}, "post:QueryProductDetails"),
+			beego.NSRouter("/details/specification", &ProductController{}, "post:QuerySpecificationDetails"),
 		),
 	)
 
