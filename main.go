@@ -5,7 +5,6 @@ import (
 	"ecommerce-sys/db"
 	"ecommerce-sys/models"
 	_ "ecommerce-sys/routers"
-	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
@@ -144,7 +143,8 @@ func initialDBTable() {
 	}
 }
 
-func mysqlDBInitialize() {
+// beego.orm initial methods
+func _() {
 	dbUser := beego.AppConfig.String("mysqluser")
 	dbPass := beego.AppConfig.String("mysqlpass")
 	dbURL := beego.AppConfig.String("mysqlurls")
@@ -189,6 +189,4 @@ func main() {
 	}
 	beego.SetStaticPath("/image", "./static/img") // default will setup static folder, need to setup static second directory
 	beego.Run()
-
-	fmt.Println("ssssssssssss")
 }

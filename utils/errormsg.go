@@ -10,6 +10,7 @@ var ErrNoProgress = errors.New("multiple Read calls return no data or error")
 var ErrTelOrPswInvalid = errors.New("telephone or password is invalid")
 var ErrCurrentUserIsExist = errors.New("current user is already exist, please login")
 var ErrParamsMissing = errors.New("sorry, your request params missing")
+var ErrDecrypt = errors.New("sorry, your password verification failed")
 
 var ErrInvitationCodeInvalid = errors.New("this invitation code is invalid, please check it")
 

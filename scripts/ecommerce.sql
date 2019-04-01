@@ -66,6 +66,8 @@ SELECT COUNT(1) FROM user WHERE telephone = '13641052046';
 
 
 # news
+USE ecommercesys;
+
 CREATE TABLE `addresses` (`addressId` bigint unsigned AUTO_INCREMENT NOT NULL,`contact` varchar(32) NOT NULL,`telephone` varchar(15) NOT NULL,`isDefault` boolean NOT NULL  DEFAULT false,`country` varchar(255) NOT NULL,`city` varchar(255) NOT NULL,`details` varchar(255) NOT NULL,`status` varchar(10) NOT NULL  DEFAULT 'active',`userId` bigint unsigned NOT NULL,`createdAt` dateTime,`updatedAt` dateTime,`deletedAt` dateTime , PRIMARY KEY (`addressId`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 SELECT * FROM `adverts`;

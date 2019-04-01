@@ -4,6 +4,7 @@ import (
 	"ecommerce-sys/db"
 	. "ecommerce-sys/utils"
 	"fmt"
+	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	"github.com/jinzhu/gorm"
@@ -72,6 +73,24 @@ func (UserTeam) TableName() string {
 	return "userteams"
 }
 
+// Get global config
+var AESSecretKey = beego.AppConfig.String("AESSecretKey")
+
+// callbacks hock -- before create, encrypt password
+func (user *User) BeforeCreate(scope *gorm.Scope) error {
+	encryptPassword, err := AESEncrypt(user.Password, AESSecretKey)
+	if err != nil {
+		logs.Error(err)
+		return err
+	}
+	err = scope.SetColumn("password", encryptPassword)
+	if err != nil {
+		logs.Error(err)
+		return err
+	}
+	return nil
+}
+
 type IUserOperation interface {
 	Register(dto UserRegisterDTO) error
 	CheckIsUserExistByUserId(userId uint64) (bool, error)
@@ -137,9 +156,13 @@ func (user *User) Register(dto UserRegisterDTO) error {
 
 func (user *User) LoginByTelephone(telephone string, password string) error {
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
-	fmt.Println("telephone, password", telephone, password)
-	err := mysqlDB.Where("telephone = ? and password = ?", telephone, password).First(&user).Error
-	// err = mysqlDB.Where("userId = ?", user.UserId).Find(&user.Addresses).Error
+	encryptPassword, err := AESEncrypt(password, AESSecretKey)
+	if err != nil {
+		logs.Error(err)
+		return ErrDecrypt
+	}
+	fmt.Println("telephone, password", telephone, password, encryptPassword)
+	err = mysqlDB.Where("telephone = ? and password = ?", telephone, encryptPassword).First(&user).Error
 	return err
 }
 
