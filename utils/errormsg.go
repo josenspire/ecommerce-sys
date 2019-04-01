@@ -18,6 +18,7 @@ var ErrAddressNotFound = errors.New("this address was not found, please check it
 
 // Warning
 var WarnParamsMissing = errors.New("params missing in user checking")
+var WarnClassifiesMissing = "sorry, there are not have any classifies"
 
 // common
 var ErrRecordNotFound = errors.New("this record was not found, please check it")

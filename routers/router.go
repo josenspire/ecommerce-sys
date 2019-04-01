@@ -32,6 +32,7 @@ func init() {
 		),
 
 		beego.NSNamespace("/address",
+			beego.NSRouter("/list", &AddressController{}, "post:QueryAddresses"),
 			beego.NSRouter("/create", &AddressController{}, "post:CreateAddress"),
 			beego.NSRouter("/details", &AddressController{}, "post:QueryDetails"),
 			beego.NSRouter("/update", &AddressController{}, "put:UpdateAddress"),
@@ -45,6 +46,16 @@ func init() {
 			beego.NSRouter("/list", &ProductController{}, "get:QueryProducts"),
 			beego.NSRouter("/details", &ProductController{}, "post:QueryProductDetails"),
 			beego.NSRouter("/details/specification", &ProductController{}, "post:QuerySpecificationDetails"),
+		),
+
+		beego.NSNamespace("/classify",
+			beego.NSRouter("/create", &ClassifyController{}, "post:CreateClassify"),
+			beego.NSRouter("/category/create", &ClassifyController{}, "post:CreateCategory"),
+			beego.NSRouter("/list", &ClassifyController{}, "get:QueryClassifies"),
+		),
+
+		beego.NSNamespace("/order",
+			beego.NSRouter("/list", &OrderController{}, "post:QueryOrders"),
 		),
 	)
 

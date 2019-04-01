@@ -31,6 +31,7 @@ type AddressDTO struct {
 }
 
 type IAddress interface {
+	QueryAddresses(userId uint64) (*[]Address, error)
 	CreateAddress(dto *AddressDTO) error
 	QueryAddressByAddressId(userId uint64, addressId uint64) (*Address, error)
 	UpdateAddress(dto *AddressDTO) error
@@ -115,4 +116,12 @@ func (addr *Address) SetDefaultAddress(userId uint64, addressId uint64) error {
 		ts.Commit()
 	}
 	return err
+}
+
+func (addr *Address) QueryAddresses(userId uint64) ([]Address, error) {
+	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
+	var addresses []Address
+
+	err := mysqlDB.Where("userId = ?", userId).Order("updatedAt DESC").Find(&addresses).Error
+	return addresses, err
 }

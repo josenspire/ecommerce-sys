@@ -79,6 +79,8 @@ SELECT * FROM `userwechat`;
 SELECT * FROM `userteams`;
 SELECT * FROM `inventories`;
 SELECT * FROM `products`;
+SELECT * FROM `classifies`;
+SELECT * FROM `categories`;
 
 INSERT  INTO `users` (`userId`,`telephone`,`username`,`password`,`nickname`,`channel`,`createdAt`,`updatedAt`,`deletedAt`) VALUES (1099511627777,'1364105201','','123456789','JAMES001','','2019-03-25 21:15:39','2019-03-25 21:15:39',NULL);
 
@@ -89,3 +91,5 @@ INSERT  INTO `addresses` (`addressId`,`contact`,`telephone`,`country`,`city`,`de
 
 DELETE FROM `addresses`;
 DELETE FROM `inventories`;
+
+SELECT * FROM `classifies` left join `categories` on `categories`.`classifyId` = `classifies`.`classifyId`;
