@@ -15,10 +15,17 @@ type Team struct {
 
 type ITeamOperation interface {
 	QueryTeamByInvitationCode(invitationCode string) error
+	QueryUserTeams(userId uint64) error
 }
 
 func (team *Team) QueryTeamByInvitationCode(invitationCode string) error {
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
-	err := mysqlDB.Where("invitationCode = ?", invitationCode).First(&team).Error
+	err := mysqlDB.Where("invitationCode = ? and status = 'active'", invitationCode).First(&team).Error
+	return err
+}
+
+func (team *Team) QueryUserTeams(userId uint64) error {
+	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
+	err := mysqlDB.Where("userId = ? and status = 'active'", userId).First(team).Error
 	return err
 }

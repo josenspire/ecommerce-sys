@@ -29,6 +29,7 @@ func init() {
 			beego.NSRouter("/register", &UserController{}, "post:Register"),
 			beego.NSRouter("/loginByTelephone", &UserController{}, "post:LoginByTelephone"),
 			beego.NSRouter("/loginByWechat", &UserController{}, "post:LoginByWechat"),
+			beego.NSRouter("/teams", &UserController{}, "post:QueryUserTeams"),
 		),
 
 		beego.NSNamespace("/address",
@@ -56,6 +57,7 @@ func init() {
 
 		beego.NSNamespace("/order",
 			beego.NSRouter("/list", &OrderController{}, "post:QueryOrders"),
+			beego.NSRouter("/place", &OrderController{}, "post:PlaceOrder"),
 		),
 	)
 

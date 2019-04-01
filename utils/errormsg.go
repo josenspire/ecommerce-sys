@@ -19,6 +19,7 @@ var ErrAddressNotFound = errors.New("this address was not found, please check it
 // Warning
 var WarnParamsMissing = errors.New("params missing in user checking")
 var WarnClassifiesMissing = "sorry, there are not have any classifies"
+var WarnUserTeamMissing = "sorry, your agent teams is not initial, please call the system's administrator"
 
 // common
 var ErrRecordNotFound = errors.New("this record was not found, please check it")

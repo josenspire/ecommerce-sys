@@ -7,6 +7,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/jinzhu/gorm"
+	"strconv"
 )
 
 type UserController struct {
@@ -79,7 +80,7 @@ func (u *UserController) LoginByTelephone() {
 
 // @Title LoginByWechat
 // @Description User use wechat login api
-// @Param		query	string	true	"Login by cellphone"
+// @Param	sessionId	query	string	true	"Login by cellphone"
 // @Param	password	query	string	true	"User password, length need to more then 6"
 // @Success	200000	{object}	models.ResponseModel
 // @Failure	200400
@@ -103,6 +104,38 @@ func (u *UserController) LoginByWechat() {
 				response.HandleError(err, REQUEST_FAIL)
 			} else {
 				response.HandleSuccess(user, "")
+			}
+		}
+	}
+	u.Data["json"] = response
+	u.ServeJSON()
+}
+
+// @Title Query User Teams
+// @Description Query user's team information
+// @Param	userId	query	float64		true	"User's Id"
+// @Success	200000	{object}	models.ResponseModel
+// @Failure	200400
+// @router	/teams	[post]
+func (u *UserController) QueryUserTeams() {
+	var response ResponseModel
+	reqParams := make(map[string]float64)
+	err := json.Unmarshal(u.Ctx.Input.RequestBody, &reqParams)
+	if err != nil {
+		response.HandleFail(REQUEST_FAIL, err.Error())
+	} else {
+		userId := reqParams["userId"]
+		if IsEmptyString(strconv.Itoa(int(userId))) {
+			response.HandleError(ErrParamsMissing)
+		} else {
+			team := Team{}
+			err := team.QueryUserTeams(uint64(userId))
+			if err == gorm.ErrRecordNotFound {
+				response.HandleSuccess(nil, WarnUserTeamMissing)
+			} else if err != nil {
+				response.HandleError(err)
+			} else {
+				response.HandleSuccess(team)
 			}
 		}
 	}

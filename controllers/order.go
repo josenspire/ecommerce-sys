@@ -21,8 +21,9 @@ type OrderController struct {
 // @Param	pageIndex		query		uint		false	"Page index, default is: 1"
 // @Success	200000	{object}	models.ResponseModel
 // @Failure	200400
-// @router	/create		[post]
+// @router	/list		[post]
 func (or *OrderController) QueryOrders() {
+	// TODO waiting for testing
 	var response ResponseModel
 	reqArgs := make(map[string]interface{})
 	err := json.Unmarshal(or.Ctx.Input.RequestBody, &reqArgs)
@@ -30,25 +31,58 @@ func (or *OrderController) QueryOrders() {
 		logs.Error(err)
 		response.HandleError(err, PARAMS_MISSING)
 	} else {
-		userId, orderType, pageIndex := reqArgs["userId"], reqArgs["orderType"], reqArgs["pageIndex"]
-		if IsEmptyString(strconv.Itoa(int(userId.(float64)))) {
+		userId := reqArgs["userId"].(float64)
+		orderType := reqArgs["orderType"].(string)
+		pageIndex := int(reqArgs["pageIndex"].(float64))
+		if IsEmptyString(strconv.Itoa(int(userId))) {
 			response.HandleFail(PARAMS_MISSING, ErrParamsMissing.Error())
 		} else {
-			if IsEmptyString(orderType.(string)) {
+			if IsEmptyString(orderType) {
 				orderType = "ALL"
 			}
-			if IsEmptyString(strconv.Itoa(pageIndex.(int))) {
+			if IsEmptyString(strconv.Itoa(pageIndex)) {
 				pageIndex = 1
 			}
 			var order *OrderForm
-			orders, err = order.QueryOrders(userId, orderType, pageIndex)
-			if err == gorm.ErrRecordNotFound {
-
-			} else if err != nil {
+			orders, err := order.QueryOrders(uint64(userId), orderType, pageIndex)
+			if err != nil && err != gorm.ErrRecordNotFound {
 				response.HandleError(err)
 			} else {
 				response.HandleSuccess(orders)
 			}
 		}
 	}
+	or.Data["json"] = response
+	or.ServeJSON()
+}
+
+// @Title PlaceOrder
+// @Description Place a new order
+// @Param	userId			query		float64			true	"User Id"
+// @Param	addressId		query		float64			true	"Address Id"
+// @Param	orders			query		interface		true	"Order array details"
+// @Param	discount		query		string			false	"Total discount"
+// @Param	remark			query		string			false	"Order remark"
+// @Success	200000	{object}	models.ResponseModel
+// @Failure	200400
+// @router	/place		[post]
+func (or *OrderController) PlaceOrder() {
+	var response ResponseModel
+	var dto *PlaceOrderDTO
+	err := json.Unmarshal(or.Ctx.Input.RequestBody, &dto)
+	if err != nil {
+		logs.Error(err)
+		response.HandleError(err, PARAMS_MISSING)
+	} else {
+		var order *OrderForm
+		err := order.PlaceOrder(dto)
+		if err != nil {
+			logs.Error(err)
+			response.HandleError(err)
+		} else {
+			response.HandleSuccess(nil, "Placing order succeed")
+		}
+	}
+	or.Data["json"] = response
+	or.ServeJSON()
 }
