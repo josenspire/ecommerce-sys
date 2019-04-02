@@ -15,6 +15,7 @@ var ErrDecrypt = errors.New("sorry, your password verification failed")
 var ErrInvitationCodeInvalid = errors.New("this invitation code is invalid, please check it")
 
 var ErrAddressNotFound = errors.New("this address was not found, please check it")
+var ErrOrderNotFound = "this order is not exist or it was already completed, please check it"
 
 // Warning
 var WarnParamsMissing = errors.New("params missing in user checking")

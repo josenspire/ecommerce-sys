@@ -121,8 +121,8 @@ func initialDBTable() {
 			log.Fatal(err)
 		}
 		// err = mysqlDB.Model(&models.Outbound{}).AddForeignKey("orderId", "orderforms(orderId)", "CASCADE", "CASCADE").Error
-		err = mysqlDB.Model(&models.OrderForm{}).AddForeignKey("orderId", "orderforms(orderId)", "CASCADE", "CASCADE").Error
-		err = mysqlDB.Model(&models.Outbound{}).AddForeignKey("outboundId", "outbounds(outboundId)", "CASCADE", "CASCADE").Error
+		err = mysqlDB.Model(&models.OrderOutbounds{}).AddForeignKey("orderId", "orderforms(orderId)", "CASCADE", "CASCADE").Error
+		err = mysqlDB.Model(&models.OrderOutbounds{}).AddForeignKey("outboundId", "outbounds(outboundId)", "CASCADE", "CASCADE").Error
 		if err != nil {
 			log.Fatal(err)
 		}

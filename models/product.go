@@ -167,7 +167,8 @@ func insertInventories(dtos *[]ProductDTO) (string, []interface{}) {
 	var inserts []string
 	for _, product := range *dtos {
 		inserts = append(inserts, rowSql)
-		values = append(values, GetWuid(), product.Quantity, product.OriginPrice, product.Commission, product.Specification, "productId", GenerateNowDateString(), GenerateNowDateString())
+		// TODO sql uncompleted
+		values = append(values, GetWuid(), product.Quantity, product.OriginPrice, product.Commission, product.Specification, "product", GenerateNowDateString(), GenerateNowDateString())
 	}
 	sqlStr = sqlStr + strings.Join(inserts, ",")
 	return sqlStr, values

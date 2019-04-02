@@ -2,6 +2,8 @@ package models
 
 import (
 	"ecommerce-sys/db"
+	. "ecommerce-sys/utils"
+	"github.com/astaxie/beego/logs"
 	"strings"
 	"time"
 )
@@ -36,8 +38,8 @@ type Outbound struct {
 }
 
 type OrderOutbounds struct {
-	ID         uint64 `json:"id" gorm:"column:id;NOT NULL;PRIMARY_KEY;"`
-	OrderId    uint64 `json:"orderId" gorm:"column:orderId; not null; unique;"`
+	ID         uint64 `json:"id" gorm:"column:id; NOT NULL; primary_key;"`
+	OrderId    uint64 `json:"orderId" gorm:"column:orderId; not null;"`
 	OutboundId uint64 `json:"outboundId" gorm:"column:outboundId; not null;"`
 	BaseModel
 }
@@ -54,13 +56,13 @@ type OutboundDTO struct {
 }
 
 type PlaceOrderDTO struct {
-	UserId        uint64  `json:"userId" gorm:"column:userId"`
-	AddressId     uint64  `json:"addressId" gorm:"column:addressId"`
-	TotalDiscount float64 `json:"totalDiscount" gorm:"totalDiscount; type: decimal(10, 2);"`
-	TotalAmount   float64 `json:"totalAmount" gorm:"totalAmount; type: decimal(10, 2);"`
-	Invoice       string  `json:"invoice" gorm:"column:invoice;"`
-	Remark        string  `json:"remark" gorm:"column:remark"`
-	Outbounds     []OutboundDTO
+	UserId        uint64        `json:"userId" gorm:"column:userId"`
+	AddressId     uint64        `json:"addressId" gorm:"column:addressId"`
+	TotalDiscount float64       `json:"totalDiscount" gorm:"totalDiscount; type: decimal(10, 2);"`
+	TotalAmount   float64       `json:"totalAmount" gorm:"totalAmount; type: decimal(10, 2);"`
+	Invoice       string        `json:"invoice" gorm:"column:invoice;"`
+	Remark        string        `json:"remark" gorm:"column:remark"`
+	Outbounds     []OutboundDTO `json:"outbounds"`
 }
 
 func (of *OrderForm) TableName() string {
@@ -90,21 +92,45 @@ func (of *OrderForm) QueryOrders(userId uint64, orderType string, pageIndex int)
 }
 
 func (of *OrderForm) PlaceOrder(dto *PlaceOrderDTO) error {
-	// mysqlDB := db.GetMySqlConnection().GetMySqlDB()
+	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
 
-	// orderForm := buildOrderForms(dto)
-	// outbounds := buildOutbounds(dto.Outbounds)
-	// 	TODO
-	// orderOutbounds := OrderOutbounds{
-	// 	ID: GetWuid(),
-	// 	OrderId: orderForm.OrderId,
-	// 	OutboundId: outbounds.
-	// }
+	orderId := GetWuid()
+	orderForm := buildOrderForms(dto, orderId)
+	outbounds, orderOutbounds := buildOutboundsAndOrderRelations(dto.Outbounds, orderId)
+
+	tx := mysqlDB.Begin()
+	err := tx.Create(&orderForm).Error
+
+	outboundSqlStr, outboundValues := insertOutbounds(outbounds)
+	err = tx.Exec(outboundSqlStr, outboundValues...).Error
+
+	orderOutboundSqlStr, orderOutboundValues := insertOrderOutbounds(orderOutbounds)
+	err = tx.Exec(orderOutboundSqlStr, orderOutboundValues...).Error
+
+	if err != nil {
+		logs.Error(err)
+		tx.Rollback()
+	} else {
+		tx.Commit()
+	}
+	return err
 }
 
-func buildOrderForms(dto *PlaceOrderDTO) *OrderForm {
+func (of *OrderForm) OrderCompleted(userId uint64, orderId uint64) error {
+	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
+
 	var orderForm = OrderForm{}
-	orderForm.OrderId = GetWuid()
+	err := mysqlDB.Where("userId = ? and orderId = ?", userId, orderId).Not("status", "COMPLETED").First(&orderForm).Error
+	if err != nil {
+		return err
+	}
+	err = mysqlDB.Model(&OrderForm{}).Where("userId = ? and orderId = ?", userId, orderId).Update("status", "COMPLETED").Error
+	return err
+}
+
+func buildOrderForms(dto *PlaceOrderDTO, orderId uint64) *OrderForm {
+	var orderForm = OrderForm{}
+	orderForm.OrderId = orderId
 	orderForm.OrderNumber = time.Now().Unix()
 	orderForm.TotalAmount = dto.TotalAmount
 	orderForm.TotalDiscount = dto.TotalDiscount
@@ -115,11 +141,14 @@ func buildOrderForms(dto *PlaceOrderDTO) *OrderForm {
 	return &orderForm
 }
 
-func buildOutbounds(dtos []OutboundDTO) *[]Outbound {
-	var outbounds []Outbound
+func buildOutboundsAndOrderRelations(dtos []OutboundDTO, orderId uint64) (*[]Outbound, *[]OrderOutbounds) {
+	size := len(dtos)
+	var outbounds = make([]Outbound, size)
+	var orderOutbounds = make([]OrderOutbounds, size)
 	for i, dto := range dtos {
+		outboundId := GetWuid()
 		outbounds[i] = Outbound{
-			OutboundId:       GetWuid(),
+			OutboundId:       outboundId,
 			ProductId:        dto.ProductId,
 			ProductName:      dto.ProductName,
 			ProductPic:       dto.ProductPic,
@@ -129,6 +158,37 @@ func buildOutbounds(dtos []OutboundDTO) *[]Outbound {
 			Count:            dto.Count,
 			Amount:           dto.Amount,
 		}
+		orderOutbounds[i] = OrderOutbounds{
+			ID:         GetWuid(),
+			OrderId:    orderId,
+			OutboundId: outboundId,
+		}
 	}
-	return &outbounds
+	return &outbounds, &orderOutbounds
+}
+
+func insertOutbounds(outbounds *[]Outbound) (string, []interface{}) {
+	var values []interface{}
+	sqlStr := "INSERT INTO `outbounds` (`outboundId`, `productId`, `productName`, `productPic`, `productThum`, `productUnitPrice`, `discount`, `count`, `amount`, `createdAt`, `updatedAt`) VALUES"
+	rowSql := "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	var inserts []string
+	for _, outbound := range *outbounds {
+		inserts = append(inserts, rowSql)
+		values = append(values, outbound.OutboundId, outbound.ProductId, outbound.ProductName, outbound.ProductPic, outbound.ProductThum, outbound.ProductUnitPrice, outbound.Discount, outbound.Count, outbound.Amount, GenerateNowDateString(), GenerateNowDateString())
+	}
+	sqlStr = sqlStr + strings.Join(inserts, ",")
+	return sqlStr, values
+}
+
+func insertOrderOutbounds(orderOutbounds *[]OrderOutbounds) (string, []interface{}) {
+	var values []interface{}
+	sqlStr := "INSERT INTO `orderoutbounds` (`ID`, `orderId`, `outboundId`, `createdAt`, `updatedAt`) VALUES"
+	rowSql := "(?, ?, ?, ?, ?)"
+	var inserts []string
+	for _, orderOutbound := range *orderOutbounds {
+		inserts = append(inserts, rowSql)
+		values = append(values, GetWuid(), orderOutbound.OrderId, orderOutbound.OutboundId, GenerateNowDateString(), GenerateNowDateString())
+	}
+	sqlStr = sqlStr + strings.Join(inserts, ",")
+	return sqlStr, values
 }

@@ -86,3 +86,39 @@ func (or *OrderController) PlaceOrder() {
 	or.Data["json"] = response
 	or.ServeJSON()
 }
+
+// @Title OrderCompleted
+// @Description Order is already completed
+// @Param	userId			query		float64			true	"User Id"
+// @Param	orderId			query		float64			true	"Order Id"
+// @Success	200000	{object}	models.ResponseModel
+// @Failure	200400
+// @router	/completed		[post]
+func (or *OrderController) OrderCompleted() {
+	var response ResponseModel
+	reqArgs := make(map[string]float64)
+	err := json.Unmarshal(or.Ctx.Input.RequestBody, &reqArgs)
+	if err != nil {
+		logs.Error(err)
+		response.HandleError(err, PARAMS_MISSING)
+	} else {
+		userId := int(reqArgs["userId"])
+		orderId := int(reqArgs["orderId"])
+		if IsEmptyString(strconv.Itoa(userId), strconv.Itoa(orderId)) {
+			response.HandleFail(PARAMS_MISSING, ErrParamsMissing.Error())
+		} else {
+			var order *OrderForm
+			err := order.OrderCompleted(uint64(userId), uint64(orderId))
+			if err == gorm.ErrRecordNotFound {
+				response.HandleFail(ORDER_NOT_FOUND, ErrOrderNotFound)
+			} else if err != nil {
+				logs.Error(err)
+				response.HandleError(err)
+			} else {
+				response.HandleSuccess(nil, "Order is already completed")
+			}
+		}
+	}
+	or.Data["json"] = response
+	or.ServeJSON()
+}

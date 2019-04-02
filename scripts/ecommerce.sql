@@ -81,6 +81,9 @@ SELECT * FROM `inventories`;
 SELECT * FROM `products`;
 SELECT * FROM `classifies`;
 SELECT * FROM `categories`;
+SELECT * FROM `orderforms`;
+SELECT * FROM `outbounds`;
+SELECT * FROM `orderoutbounds`;
 
 INSERT  INTO `users` (`userId`,`telephone`,`username`,`password`,`nickname`,`channel`,`createdAt`,`updatedAt`,`deletedAt`) VALUES (1099511627777,'1364105201','','123456789','JAMES001','','2019-03-25 21:15:39','2019-03-25 21:15:39',NULL);
 

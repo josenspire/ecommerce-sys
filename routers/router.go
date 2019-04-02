@@ -58,6 +58,7 @@ func init() {
 		beego.NSNamespace("/order",
 			beego.NSRouter("/list", &OrderController{}, "post:QueryOrders"),
 			beego.NSRouter("/place", &OrderController{}, "post:PlaceOrder"),
+			beego.NSRouter("/completed", &OrderController{}, "post:OrderCompleted"),
 		),
 	)
 
