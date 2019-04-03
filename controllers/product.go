@@ -19,6 +19,7 @@ func (pd *ProductController) InsertProduct() {
 	reqArgs := make(map[string]ProductDTO)
 	err := json.Unmarshal(pd.Ctx.Input.RequestBody, &reqArgs)
 	if err != nil {
+		beego.Warning(err.Error())
 		response.HandleError(err)
 	} else {
 		dto := reqArgs["product"]
@@ -28,6 +29,7 @@ func (pd *ProductController) InsertProduct() {
 			var product *Product
 			err := product.InsertProduct(&dto)
 			if err != nil {
+				beego.Error(err.Error())
 				response.HandleError(err)
 			} else {
 				response.HandleSuccess(nil, "record inserted success")
@@ -40,10 +42,10 @@ func (pd *ProductController) InsertProduct() {
 
 func (pd *ProductController) InsertMultipleProducts() {
 	var response ResponseModel
-
 	reqArgs := make(map[string][]ProductDTO)
 	err := json.Unmarshal(pd.Ctx.Input.RequestBody, &reqArgs)
 	if err != nil {
+		beego.Warning(err.Error())
 		response.HandleError(err)
 	} else {
 		dtos := reqArgs["products"]
@@ -53,6 +55,7 @@ func (pd *ProductController) InsertMultipleProducts() {
 			var product *Product
 			err := product.InsertMultipleProducts(&dtos)
 			if err != nil {
+				beego.Error(err.Error())
 				response.HandleError(err)
 			} else {
 				successMessage := fmt.Sprintf("%d records are inserted success", len(dtos))
@@ -85,6 +88,7 @@ func (pd *ProductController) QueryProducts() {
 	var product *Product
 	products, err = product.QueryProductsByProductType(productType, pageIndexInt)
 	if err != nil && err != gorm.ErrRecordNotFound {
+		beego.Error(err.Error())
 		response.HandleError(err)
 	} else {
 		response.HandleSuccess(products)
@@ -102,11 +106,9 @@ func (pd *ProductController) QueryProducts() {
 func (pd *ProductController) QueryProductDetails() {
 	var response ResponseModel
 	reqArgs := make(map[string]interface{})
-
-	fmt.Println(reqArgs)
-
 	err := json.Unmarshal(pd.Ctx.Input.RequestBody, &reqArgs)
 	if err != nil {
+		beego.Warning(err.Error())
 		response.HandleFail(PARAMS_MISSING, ErrParamsMissing.Error())
 	} else {
 		productId := reqArgs["productId"]
@@ -118,6 +120,7 @@ func (pd *ProductController) QueryProductDetails() {
 			if err == gorm.ErrRecordNotFound {
 				response.HandleFail(RECORD_NOT_FOUND, ErrProductNotFound)
 			} else if err != nil {
+				beego.Error(err.Error())
 				response.HandleError(err, RECORD_NOT_FOUND)
 			} else {
 				response.HandleSuccess(productDetails)
@@ -137,11 +140,9 @@ func (pd *ProductController) QueryProductDetails() {
 func (pd *ProductController) QuerySpecificationDetails() {
 	var response ResponseModel
 	reqArgs := make(map[string]interface{})
-
-	fmt.Println(reqArgs)
-
 	err := json.Unmarshal(pd.Ctx.Input.RequestBody, &reqArgs)
 	if err != nil {
+		beego.Warning(err.Error())
 		response.HandleFail(PARAMS_MISSING, ErrParamsMissing.Error())
 	} else {
 		inventoryId := reqArgs["inventoryId"]
@@ -151,6 +152,7 @@ func (pd *ProductController) QuerySpecificationDetails() {
 			var product *Product
 			productDetails, err := product.QueryInventoryDetails(uint64(inventoryId.(float64)))
 			if err != nil && err != gorm.ErrRecordNotFound {
+				beego.Error(err.Error())
 				response.HandleError(err)
 			} else {
 				response.HandleSuccess(productDetails)

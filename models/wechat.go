@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/httplib"
-	"github.com/astaxie/beego/logs"
 	"github.com/pkg/errors"
 	"net/http"
 	"strconv"
@@ -45,12 +44,12 @@ func JsCode2Session(jsCode string) (string, string, error) {
 	jsonObj := make(map[string]interface{})
 	err := req.ToJSON(&jsonObj)
 	if err != nil {
-		logs.Error(err)
+		beego.Error(err.Error())
 		return "", "", err
 	}
 	if strconv.FormatFloat(jsonObj["errcode"].(float64), 'E', -1, 64) == "" {
 		return jsonObj["openid"].(string), jsonObj["session_key"].(string), nil
 	}
-	logs.Warn(jsonObj)
+	beego.Informational(jsonObj)
 	return "", "", errors.New(jsonObj["errmsg"].(string))
 }

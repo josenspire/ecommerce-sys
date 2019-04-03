@@ -2,7 +2,7 @@ package models
 
 import (
 	"ecommerce-sys/db"
-	"github.com/astaxie/beego/logs"
+	"github.com/astaxie/beego"
 )
 
 type Classify struct {
@@ -64,7 +64,7 @@ func (cls *Classify) QueryClassifies() ([]ClassifyVO, error) {
 	var classifiesVO []ClassifyVO
 	err := mysqlDB.Table("classifies").Select("*").Joins("left join categories on classifies.status = 'active' and categories.status = 'active' and categories.classifyId = classifies.classifyId ORDER BY classifies.classifyPriority DESC;").Scan(&classifiesVO).Error
 	if err != nil {
-		logs.Error(err)
+		beego.Error(err.Error())
 		return nil, err
 	}
 	return classifiesVO, nil

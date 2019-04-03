@@ -39,20 +39,6 @@ type WxSession struct {
 	BaseModel
 }
 
-type UserWechat struct {
-	ID        uint64 `json:"id" gorm:"column:id;NOT NULL;PRIMARY_KEY;"`
-	UserId    uint64 `json:"userId" gorm:"column:userId; not null;"`
-	SessionId uint64 `json:"sessionId" gorm:"column:sessionId; not null; unique;"`
-	BaseModel
-}
-
-type UserTeam struct {
-	ID     uint64 `json:"id" gorm:"column:id;NOT NULL;PRIMARY_KEY;"`
-	UserId uint64 `json:"userId" gorm:"column:userId; not null;"`
-	TeamId uint64 `json:"teamId" gorm:"column:teamId; not null; unique;"`
-	BaseModel
-}
-
 type UserRegisterDTO struct {
 	Telephone      string `json:"telephone"`
 	Password       string `json:"password"`
@@ -64,14 +50,6 @@ func (WxSession) TableName() string {
 	return "wxsessions"
 }
 
-func (UserWechat) TableName() string {
-	return "userwechat"
-}
-
-func (UserTeam) TableName() string {
-	return "userteams"
-}
-
 // Get global config
 var AESSecretKey = beego.AppConfig.String("AESSecretKey")
 
@@ -79,12 +57,12 @@ var AESSecretKey = beego.AppConfig.String("AESSecretKey")
 func (user *User) BeforeCreate(scope *gorm.Scope) error {
 	encryptPassword, err := AESEncrypt(user.Password, AESSecretKey)
 	if err != nil {
-		logs.Error(err)
+		beego.Error(err.Error())
 		return err
 	}
 	err = scope.SetColumn("password", encryptPassword)
 	if err != nil {
-		logs.Error(err)
+		beego.Error(err.Error())
 		return err
 	}
 	return nil
@@ -126,26 +104,20 @@ func (user *User) Register(dto UserRegisterDTO) error {
 			team.TopLevelAgent = 8888888888
 			team.SuperiorAgent = 8888888888
 		} else {
-			logs.Error(err)
+			beego.Error(err.Error())
 			return err
 		}
 	} else {
 		team.TopLevelAgent = agentTeam.SuperiorAgent
 		team.SuperiorAgent = agentTeam.UserId
 	}
-	userTeam := UserTeam{
-		ID:     GetWuid(),
-		UserId: user.UserId,
-		TeamId: team.TeamId,
-	}
 
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
 	ts := mysqlDB.Begin()
 	err = ts.Create(&user).Error
 	err = ts.Create(&team).Error
-	err = ts.Create(&userTeam).Error
 	if err != nil {
-		logs.Error(err)
+		beego.Error(err.Error())
 		ts.Rollback()
 	} else {
 		ts.Commit()
@@ -157,7 +129,7 @@ func (user *User) LoginByTelephone(telephone string, password string) error {
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
 	encryptPassword, err := AESEncrypt(password, AESSecretKey)
 	if err != nil {
-		logs.Error(err)
+		beego.Error(err.Error())
 		return ErrDecrypt
 	}
 	fmt.Println("telephone, password", telephone, password, encryptPassword)
@@ -206,7 +178,7 @@ func (user *User) QueryByUserId(userId string) *User {
 func (user *User) LoginByWechat(jsCode string, wechatUserProfile string, invitationCode string) (*WxSession, error) {
 	wxSession, err := authorization(jsCode, wechatUserProfile)
 	if err != nil {
-		logs.Error(err)
+		beego.Error(err.Error())
 		return nil, err
 	}
 	// userId := wxSession.SessionId
@@ -224,7 +196,7 @@ func authorization(jsCode string, wechatUserProfile string) (*WxSession, error) 
 	// h := sha1.New()
 	// _, err = io.WriteString(h, sessionKey)
 	// if err != nil {
-	// 	logs.Error(err)
+	// 	beego.Error(err.Error())
 	// 	return nil, err
 	// }
 	// sKey := h.Sum(nil)
@@ -241,7 +213,7 @@ func authorization(jsCode string, wechatUserProfile string) (*WxSession, error) 
 	// err = o.Begin()
 	// _, err = o.InsertOrUpdate(wxSession, "sessionId,openId")
 	// if err != nil {
-	// 	logs.Error(err)
+	// 	beego.Error(err.Error())
 	// 	_ = o.Rollback()
 	// 	return nil, err
 	// }
@@ -257,7 +229,7 @@ func authorization(jsCode string, wechatUserProfile string) (*WxSession, error) 
 	//
 	// 	_, err = o.Insert(newUser)
 	// 	if err != nil {
-	// 		logs.Error(err)
+	// 		beego.Error(err.Error())
 	// 		// error rollback
 	// 		_ = o.Rollback()
 	// 	} else {

@@ -5,7 +5,6 @@ import (
 	. "ecommerce-sys/utils"
 	"encoding/json"
 	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/logs"
 	"github.com/jinzhu/gorm"
 	"strconv"
 )
@@ -23,12 +22,11 @@ type OrderController struct {
 // @Failure	200400
 // @router	/list		[post]
 func (or *OrderController) QueryOrders() {
-	// TODO waiting for testing
 	var response ResponseModel
 	reqArgs := make(map[string]interface{})
 	err := json.Unmarshal(or.Ctx.Input.RequestBody, &reqArgs)
 	if err != nil {
-		logs.Error(err)
+		beego.Warning(err.Error())
 		response.HandleError(err, PARAMS_MISSING)
 	} else {
 		userId := reqArgs["userId"].(float64)
@@ -46,6 +44,7 @@ func (or *OrderController) QueryOrders() {
 			var order *OrderForm
 			orders, err := order.QueryOrders(uint64(userId), orderType, pageIndex)
 			if err != nil && err != gorm.ErrRecordNotFound {
+				beego.Error(err.Error())
 				response.HandleError(err)
 			} else {
 				response.HandleSuccess(orders)
@@ -71,13 +70,13 @@ func (or *OrderController) PlaceOrder() {
 	var dto *PlaceOrderDTO
 	err := json.Unmarshal(or.Ctx.Input.RequestBody, &dto)
 	if err != nil {
-		logs.Error(err)
+		beego.Warning(err.Error())
 		response.HandleError(err, PARAMS_MISSING)
 	} else {
 		var order *OrderForm
 		err := order.PlaceOrder(dto)
 		if err != nil {
-			logs.Error(err)
+			beego.Error(err.Error())
 			response.HandleError(err)
 		} else {
 			response.HandleSuccess(nil, "order submission successful")
@@ -99,7 +98,7 @@ func (or *OrderController) OrderCompleted() {
 	reqArgs := make(map[string]float64)
 	err := json.Unmarshal(or.Ctx.Input.RequestBody, &reqArgs)
 	if err != nil {
-		logs.Error(err)
+		beego.Warning(err.Error())
 		response.HandleError(err, PARAMS_MISSING)
 	} else {
 		userId := int(reqArgs["userId"])
@@ -112,7 +111,7 @@ func (or *OrderController) OrderCompleted() {
 			if err == gorm.ErrRecordNotFound {
 				response.HandleFail(ORDER_NOT_FOUND, ErrOrderNotFound)
 			} else if err != nil {
-				logs.Error(err)
+				beego.Warning(err.Error())
 				response.HandleError(err)
 			} else {
 				response.HandleSuccess(nil, "Order is already completed")
@@ -135,7 +134,7 @@ func (or *OrderController) OrderCancel() {
 	reqArgs := make(map[string]float64)
 	err := json.Unmarshal(or.Ctx.Input.RequestBody, &reqArgs)
 	if err != nil {
-		logs.Error(err)
+		beego.Warning(err.Error())
 		response.HandleError(err, PARAMS_MISSING)
 	} else {
 		userId := int(reqArgs["userId"])
@@ -148,7 +147,7 @@ func (or *OrderController) OrderCancel() {
 			if err == gorm.ErrRecordNotFound {
 				response.HandleFail(ORDER_NOT_FOUND, ErrOrderNotFound)
 			} else if err != nil {
-				logs.Error(err)
+				beego.Error(err.Error())
 				response.HandleError(err)
 			} else {
 				response.HandleSuccess(nil, "Order is already completed")
@@ -171,7 +170,7 @@ func (or *OrderController) QueryProductDetails() {
 	reqArgs := make(map[string]float64)
 	err := json.Unmarshal(or.Ctx.Input.RequestBody, &reqArgs)
 	if err != nil {
-		logs.Error(err)
+		beego.Warning(err.Error())
 		response.HandleError(err, PARAMS_MISSING)
 	} else {
 		userId := int(reqArgs["userId"])
@@ -184,7 +183,7 @@ func (or *OrderController) QueryProductDetails() {
 			if err == gorm.ErrRecordNotFound {
 				response.HandleFail(ORDER_NOT_FOUND, ErrOrderNotFound)
 			} else if err != nil {
-				logs.Error(err)
+				beego.Error(err.Error())
 				response.HandleError(err)
 			} else {
 				response.HandleSuccess(order)

@@ -5,7 +5,6 @@ import (
 	. "ecommerce-sys/utils"
 	"encoding/json"
 	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/logs"
 )
 
 type ClassifyController struct {
@@ -23,12 +22,12 @@ func (cls *ClassifyController) CreateClassify() {
 	var classify *Classify
 	err := json.Unmarshal(cls.Ctx.Input.RequestBody, &classify)
 	if err != nil {
-		logs.Error(err)
+		beego.Warning(err.Error())
 		response.HandleError(err, PARAMS_MISSING)
 	} else {
 		err = classify.CreateClassify()
 		if err != nil {
-			logs.Error(err)
+			beego.Error(err.Error())
 			response.HandleError(err)
 		} else {
 			response.HandleSuccess(nil, "Create new classify succeed")
@@ -49,13 +48,13 @@ func (cls *ClassifyController) CreateCategory() {
 	var category *Category
 	err := json.Unmarshal(cls.Ctx.Input.RequestBody, &category)
 	if err != nil {
-		logs.Error(err)
+		beego.Warning(err.Error())
 		response.HandleError(err, PARAMS_MISSING)
 	} else {
 		var classify *Classify
 		err := classify.CreateCategory(category)
 		if err != nil {
-			logs.Error(err)
+			beego.Error(err.Error())
 			response.HandleError(err)
 		} else {
 			response.HandleSuccess(nil, "Create new category succeed")
@@ -75,7 +74,7 @@ func (cls *ClassifyController) QueryClassifies() {
 	var classify *Classify
 	classifies, err := classify.QueryClassifies()
 	if err != nil {
-		logs.Error(err)
+		beego.Error(err.Error())
 		response.HandleError(err)
 	} else {
 		var message = ""

@@ -3,7 +3,7 @@ package models
 import (
 	"ecommerce-sys/db"
 	. "ecommerce-sys/utils"
-	"github.com/astaxie/beego/logs"
+	"github.com/astaxie/beego"
 	"strings"
 	"time"
 )
@@ -74,15 +74,16 @@ type IOrders interface {
 
 func (of *OrderForm) QueryOrders(userId uint64, orderType string, pageIndex int) (*[]OrderForm, error) {
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
+	var err error
 
 	_orderType := strings.ToUpper(orderType)
 	var orders []OrderForm
 	if _orderType == "ALL" {
-		mysqlDB.Where("userId = ?", userId).Offset((pageIndex - 1) * 20).Limit(20).Order("updatedAt DESC").Find(&orders)
+		err = mysqlDB.Where("userId = ?", userId).Offset((pageIndex - 1) * 20).Limit(20).Order("updatedAt DESC").Find(&orders).Error
 	} else {
-		mysqlDB.Where("userId = ? status = ?", userId, _orderType).Offset((pageIndex - 1) * 20).Limit(20).Order("updatedAt DESC").Find(&orders)
+		err = mysqlDB.Where("userId = ? status = ?", userId, _orderType).Offset((pageIndex - 1) * 20).Limit(20).Order("updatedAt DESC").Find(&orders).Error
 	}
-	return &orders, nil
+	return &orders, err
 }
 
 func (of *OrderForm) PlaceOrder(dto *PlaceOrderDTO) error {
@@ -99,7 +100,7 @@ func (of *OrderForm) PlaceOrder(dto *PlaceOrderDTO) error {
 	err = tx.Exec(outboundSqlStr, outboundValues...).Error
 
 	if err != nil {
-		logs.Error(err)
+		beego.Error(err.Error())
 		tx.Rollback()
 	} else {
 		tx.Commit()
@@ -113,6 +114,7 @@ func (of *OrderForm) OrderCompleted(userId uint64, orderId uint64) error {
 	var orderForm = OrderForm{}
 	err := mysqlDB.Where("orderId = ? and userId = ?", userId, orderId).Not("status", []string{"CANCEL", "COMPLETED"}).First(&orderForm).Error
 	if err != nil {
+		beego.Error(err.Error())
 		return err
 	}
 	err = mysqlDB.Model(&OrderForm{}).Where("orderId = ? and userId = ?", userId, orderId).Update("status", "COMPLETED").Error
@@ -125,6 +127,7 @@ func (of *OrderForm) OrderCancel(userId uint64, orderId uint64) error {
 	var orderForm = OrderForm{}
 	err := mysqlDB.Where("orderId = ? and userId = ?", userId, orderId).Not("status", []string{"CANCEL", "COMPLETED"}).First(&orderForm).Error
 	if err != nil {
+		beego.Error(err.Error())
 		return err
 	}
 	err = mysqlDB.Model(&OrderForm{}).Where("orderId = ? and userId = ?", userId, orderId).Update("status", "CANCEL").Error
@@ -137,10 +140,12 @@ func (of *OrderForm) QueryOrderDetails(userId uint64, orderId uint64) (*OrderFor
 	var orderForm OrderForm
 	err := mysqlDB.Where("orderId = ? and userId = ?", orderId, userId).First(&orderForm).Error
 	if err != nil {
+		beego.Error(err.Error())
 		return nil, err
 	}
 	err = mysqlDB.Model(&orderForm).Related(&orderForm.Outbounds).Find(&orderForm.Outbounds).Error
 	if err != nil {
+		beego.Error(err.Error())
 		return nil, err
 	}
 	return &orderForm, err

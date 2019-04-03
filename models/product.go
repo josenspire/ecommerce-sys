@@ -3,7 +3,7 @@ package models
 import (
 	"ecommerce-sys/db"
 	. "ecommerce-sys/utils"
-	"github.com/astaxie/beego/logs"
+	"github.com/astaxie/beego"
 	"strings"
 )
 
@@ -90,7 +90,7 @@ func (prod *Product) InsertProduct(dto *ProductDTO) error {
 	err := ts.Create(&productModel).Error
 	err = ts.Create(&inventoryModel).Error
 	if err != nil {
-		logs.Error(err)
+		beego.Error(err.Error())
 		ts.Rollback()
 	} else {
 		ts.Commit()
@@ -109,7 +109,7 @@ func (prod *Product) InsertMultipleProducts(dtos *[]ProductDTO) error {
 	err = ts.Exec(inventorySqlStr, inventoryValues...).Error
 
 	if err != nil {
-		logs.Error(err)
+		beego.Error(err.Error())
 		ts.Rollback()
 	} else {
 		ts.Commit()
@@ -132,15 +132,16 @@ func (prod *Product) QueryProductDetails(productId uint64) (interface{}, error) 
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
 	err := mysqlDB.Where("productId = ? and status = 'active'", productId).First(&product).Error
 	if err != nil {
+		beego.Error(err.Error())
 		return nil, err
 	}
 	err = mysqlDB.Where("productId = ? and status = 'active'", productId).Find(&product.Inventories).Error
 
 	if err != nil {
+		beego.Error(err.Error())
 		return nil, err
 	} else {
 		productDetails["productDetails"] = product
-		// productDetails["inventories"] = inventories
 	}
 	return productDetails, nil
 }
@@ -152,10 +153,12 @@ func (prod *Product) QueryInventoryDetails(inventoryId uint64) (interface{}, err
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
 	err := mysqlDB.Where("inventoryId = ? and status = 'active'", inventoryId).Find(&product.Inventories).Error
 	if err != nil {
+		beego.Error(err.Error())
 		return nil, err
 	}
 	err = mysqlDB.Where("productId = ? and status = 'active'", product.Inventories[0].ProductId).First(&product).Error
 	if err != nil {
+		beego.Error(err.Error())
 		return nil, err
 	} else {
 		productDetails["productDetails"] = product
