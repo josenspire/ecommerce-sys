@@ -115,8 +115,10 @@ func (pd *ProductController) QueryProductDetails() {
 		} else {
 			var product *Product
 			productDetails, err := product.QueryProductDetails(uint64(productId.(float64)))
-			if err != nil && err != gorm.ErrRecordNotFound {
-				response.HandleError(err)
+			if err == gorm.ErrRecordNotFound {
+				response.HandleFail(RECORD_NOT_FOUND, ErrProductNotFound)
+			} else if err != nil {
+				response.HandleError(err, RECORD_NOT_FOUND)
 			} else {
 				response.HandleSuccess(productDetails)
 			}

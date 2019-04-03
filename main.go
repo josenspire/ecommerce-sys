@@ -77,17 +77,13 @@ func initialDBTable() {
 			&models.WxSession{},
 			&models.Team{},
 			&models.Address{},
-			&models.UserWechat{},
-			&models.UserTeam{},
 		).Error
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = mysqlDB.Model(&models.UserWechat{}).AddForeignKey("userId", "users(userId)", "CASCADE", "CASCADE").Error
-		err = mysqlDB.Model(&models.UserWechat{}).AddForeignKey("sessionId", "wxsessions(sessionId)", "CASCADE", "CASCADE").Error
-
-		err = mysqlDB.Model(&models.UserTeam{}).AddForeignKey("userId", "users(userId)", "CASCADE", "CASCADE").Error
-		err = mysqlDB.Model(&models.UserTeam{}).AddForeignKey("teamId", "teams(teamId)", "CASCADE", "CASCADE").Error
+		err = mysqlDB.Model(&models.WxSession{}).AddForeignKey("userId", "users(userId)", "CASCADE", "CASCADE").Error
+		err = mysqlDB.Model(&models.Team{}).AddForeignKey("userId", "users(userId)", "CASCADE", "CASCADE").Error
+		err = mysqlDB.Model(&models.Address{}).AddForeignKey("userId", "users(userId)", "CASCADE", "CASCADE").Error
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -115,14 +111,11 @@ func initialDBTable() {
 		).CreateTable(
 			&models.OrderForm{},
 			&models.Outbound{},
-			&models.OrderOutbounds{},
 		).Error
 		if err != nil {
 			log.Fatal(err)
 		}
-		// err = mysqlDB.Model(&models.Outbound{}).AddForeignKey("orderId", "orderforms(orderId)", "CASCADE", "CASCADE").Error
-		err = mysqlDB.Model(&models.OrderOutbounds{}).AddForeignKey("orderId", "orderforms(orderId)", "CASCADE", "CASCADE").Error
-		err = mysqlDB.Model(&models.OrderOutbounds{}).AddForeignKey("outboundId", "outbounds(outboundId)", "CASCADE", "CASCADE").Error
+		err = mysqlDB.Model(&models.Outbound{}).AddForeignKey("orderId", "orderforms(orderId)", "CASCADE", "CASCADE").Error
 		if err != nil {
 			log.Fatal(err)
 		}

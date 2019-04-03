@@ -131,6 +131,9 @@ func (prod *Product) QueryProductDetails(productId uint64) (interface{}, error) 
 	var product = Product{}
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
 	err := mysqlDB.Where("productId = ? and status = 'active'", productId).First(&product).Error
+	if err != nil {
+		return nil, err
+	}
 	err = mysqlDB.Where("productId = ? and status = 'active'", productId).Find(&product.Inventories).Error
 
 	if err != nil {

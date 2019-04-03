@@ -11,14 +11,13 @@ import (
 )
 
 type User struct {
-	// ID uint64 `json:"id" gorm:"column:id;NOT NULL;PRIMARY_KEY;"`
 	UserId uint64 `json:"userId" gorm:"column:userId;primary_key;not null"`
 	UserProfile
 	Role      uint16    `json:"role" gorm:"column:role; default:10; not null;"`
 	Status    string    `json:"status" gorm:"column:status; type:varchar(10); default:'active'; not null;"`
 	Channel   string    `json:"channel" gorm:"column:channel; type:varchar(12); not null;"`
-	Addresses []Address `json:"-"`
-	Team      *Team     `json:"-"`
+	Addresses []Address `json:"addresses" gorm:"column:addresses;"`
+	Team      Team      `json:"team" gorm:"column:gorm;"`
 	BaseModel
 }
 

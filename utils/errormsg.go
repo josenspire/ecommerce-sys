@@ -16,6 +16,7 @@ var ErrInvitationCodeInvalid = errors.New("this invitation code is invalid, plea
 
 var ErrAddressNotFound = errors.New("this address was not found, please check it")
 var ErrOrderNotFound = "this order is not exist or it was already completed, please check it"
+var ErrProductNotFound = "sorry, this product was not found or has been removed"
 
 // Warning
 var WarnParamsMissing = errors.New("params missing in user checking")
