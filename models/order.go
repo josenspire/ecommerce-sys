@@ -20,7 +20,7 @@ type OrderForm struct {
 	OutTradeNo    uint64     `json:"outTradeNo" gorm:"column:outTradeNo; not null;"`
 	AddressId     uint64     `json:"addressId" gorm:"column:addressId; not null;"`
 	UserId        uint64     `json:"userId" gorm:"column:userId; not null;"`
-	Outbounds     []Outbound `json:"outbounds" gorm:"outbounds"`
+	Outbounds     []Outbound `json:"outbounds" gorm:"column:outbounds;ForeignKey:orderId;"`
 	BaseModel
 }
 
@@ -74,14 +74,14 @@ type IOrders interface {
 
 func (of *OrderForm) QueryOrders(userId uint64, orderType string, pageIndex int) (*[]OrderForm, error) {
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
-	var err error
 
 	_orderType := strings.ToUpper(orderType)
+	var err error
 	var orders []OrderForm
 	if _orderType == "ALL" {
-		err = mysqlDB.Where("userId = ?", userId).Offset((pageIndex - 1) * 20).Limit(20).Order("updatedAt DESC").Find(&orders).Error
+		err = mysqlDB.Offset((pageIndex - 1) * 20).Limit(20).Order("updatedAt DESC").Preload("Outbounds").Find(&orders).Error
 	} else {
-		err = mysqlDB.Where("userId = ? status = ?", userId, _orderType).Offset((pageIndex - 1) * 20).Limit(20).Order("updatedAt DESC").Find(&orders).Error
+		err = mysqlDB.Where("userId = ? and status = ?", userId, _orderType).Offset((pageIndex - 1) * 20).Limit(20).Order("updatedAt DESC").Preload("Outbounds").Find(&orders).Error
 	}
 	return &orders, err
 }
@@ -112,12 +112,12 @@ func (of *OrderForm) OrderCompleted(userId uint64, orderId uint64) error {
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
 
 	var orderForm = OrderForm{}
-	err := mysqlDB.Where("orderId = ? and userId = ?", userId, orderId).Not("status", []string{"CANCEL", "COMPLETED"}).First(&orderForm).Error
+	err := mysqlDB.Where("orderId = ? and userId = ?", orderId, userId).Not("status", []string{"CANCEL", "COMPLETED"}).First(&orderForm).Error
 	if err != nil {
 		beego.Error(err.Error())
 		return err
 	}
-	err = mysqlDB.Model(&OrderForm{}).Where("orderId = ? and userId = ?", userId, orderId).Update("status", "COMPLETED").Error
+	err = mysqlDB.Model(&OrderForm{}).Where("orderId = ? and userId = ?", orderId, userId).Update("status", "COMPLETED").Error
 	return err
 }
 
@@ -125,12 +125,12 @@ func (of *OrderForm) OrderCancel(userId uint64, orderId uint64) error {
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
 
 	var orderForm = OrderForm{}
-	err := mysqlDB.Where("orderId = ? and userId = ?", userId, orderId).Not("status", []string{"CANCEL", "COMPLETED"}).First(&orderForm).Error
+	err := mysqlDB.Where("orderId = ? and userId = ?", orderId, userId).Not("status", []string{"CANCEL", "COMPLETED"}).First(&orderForm).Error
 	if err != nil {
 		beego.Error(err.Error())
 		return err
 	}
-	err = mysqlDB.Model(&OrderForm{}).Where("orderId = ? and userId = ?", userId, orderId).Update("status", "CANCEL").Error
+	err = mysqlDB.Model(&OrderForm{}).Where("orderId = ? and userId = ?", orderId, userId).Update("status", "CANCEL").Error
 	return err
 }
 
@@ -143,7 +143,7 @@ func (of *OrderForm) QueryOrderDetails(userId uint64, orderId uint64) (*OrderFor
 		beego.Error(err.Error())
 		return nil, err
 	}
-	err = mysqlDB.Model(&orderForm).Related(&orderForm.Outbounds).Find(&orderForm.Outbounds).Error
+	err = mysqlDB.Model(&orderForm).Association("Outbounds").Find(&orderForm.Outbounds).Error
 	if err != nil {
 		beego.Error(err.Error())
 		return nil, err

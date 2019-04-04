@@ -92,7 +92,7 @@ func (or *OrderController) PlaceOrder() {
 // @Param	orderId			query		float64			true	"Order Id"
 // @Success	200000	{object}	models.ResponseModel
 // @Failure	200400
-// @router	/completed		[post]
+// @router	/completed		[put]
 func (or *OrderController) OrderCompleted() {
 	var response ResponseModel
 	reqArgs := make(map[string]float64)
@@ -128,7 +128,7 @@ func (or *OrderController) OrderCompleted() {
 // @Param	orderId			query		float64			true	"Order Id"
 // @Success	200000	{object}	models.ResponseModel
 // @Failure	200400
-// @router	/cancel		[post]
+// @router	/cancel		[put]
 func (or *OrderController) OrderCancel() {
 	var response ResponseModel
 	reqArgs := make(map[string]float64)

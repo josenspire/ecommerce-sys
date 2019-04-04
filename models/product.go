@@ -30,7 +30,7 @@ type Product struct {
 	Priority       uint8       `json:"priority" gorm:"default:0; not null;"`
 	ProductType    string      `json:"productType" gorm:"column:productType; default: 'normal'; type: enum('recommend', 'normal', 'specific'); not null;"` // description(Here will have 3 types, include 'recommend', 'normal', 'specific')
 	Status         string      `json:"status" gorm:"column:status; default: 'active'; type: varchar(10); not null;"`
-	Inventories    []Inventory `json:"inventories"`
+	Inventories    []Inventory `json:"inventories" gorm:"column: inventories;"`
 	BaseModel
 }
 
@@ -126,7 +126,7 @@ func (prod *Product) QueryProductsByProductType(productType string, pageIndex in
 }
 
 func (prod *Product) QueryProductDetails(productId uint64) (interface{}, error) {
-	var productDetails = make(map[string]interface{})
+	// var productDetails = make(map[string]interface{})
 
 	var product = Product{}
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
@@ -135,15 +135,14 @@ func (prod *Product) QueryProductDetails(productId uint64) (interface{}, error) 
 		beego.Error(err.Error())
 		return nil, err
 	}
-	err = mysqlDB.Where("productId = ? and status = 'active'", productId).Find(&product.Inventories).Error
-
+	err = mysqlDB.Model(&product).Related(&product.Inventories).Where("productId = ? and status = 'active'", productId).Find(&product.Inventories).Error
+	// err = mysqlDB.Where("productId = ? and status = 'active'", productId).Find(&product.Inventories).Error
 	if err != nil {
 		beego.Error(err.Error())
 		return nil, err
-	} else {
-		productDetails["productDetails"] = product
 	}
-	return productDetails, nil
+	// productDetails["productDetails"] = product
+	return product, nil
 }
 
 func (prod *Product) QueryInventoryDetails(inventoryId uint64) (interface{}, error) {
