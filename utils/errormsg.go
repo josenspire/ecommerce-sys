@@ -22,6 +22,7 @@ var ErrProductNotFound = "sorry, this product was not found or has been removed"
 var WarnParamsMissing = errors.New("params missing in user checking")
 var WarnClassifiesMissing = "sorry, there are not have any classifies"
 var WarnUserTeamMissing = "sorry, your agent teams is not initial, please call the system's administrator"
+var WarnAccountNeedVerify = errors.New("your account needs to be verified by mobile phone and then set a password")
 
 // common
 var ErrRecordNotFound = errors.New("this record was not found, please check it")

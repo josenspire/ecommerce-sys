@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/sha1"
 	"encoding/base64"
 	"fmt"
 	"github.com/astaxie/beego/logs"
+	"io"
 	"math/big"
 )
 
@@ -118,4 +120,14 @@ func pKCS5UnPadding(originData []byte) []byte {
 	length := len(originData)
 	unPadding := int(originData[length-1])
 	return originData[:(length - unPadding)]
+}
+
+func SHA1Encrypt(plainText string) ([]byte, error) {
+	h := sha1.New()
+	_, err := io.WriteString(h, plainText)
+	if err != nil {
+		return nil, err
+	}
+	resultBytes := h.Sum(nil)
+	return resultBytes, nil
 }

@@ -1,6 +1,9 @@
 package models
 
-import "ecommerce-sys/db"
+import (
+	"ecommerce-sys/db"
+	"github.com/astaxie/beego"
+)
 
 type Team struct {
 	TeamId         uint64 `json:"teamId" gorm:"column:teamId; primary_key; not null;"`
@@ -13,9 +16,15 @@ type Team struct {
 	BaseModel
 }
 
+type TeamVO struct {
+	Team              Team `json:"team"`
+	SecondAgentsCount uint `json:"secondAgentsCount"`
+	ThirdAgentsCount  uint `json:"thirdAgentsCount"`
+}
+
 type ITeamOperation interface {
 	QueryTeamByInvitationCode(invitationCode string) error
-	QueryUserTeams(userId uint64) error
+	QueryUserTeams(userId uint64) (*TeamVO, error)
 }
 
 func (team *Team) QueryTeamByInvitationCode(invitationCode string) error {
@@ -24,8 +33,34 @@ func (team *Team) QueryTeamByInvitationCode(invitationCode string) error {
 	return err
 }
 
-func (team *Team) QueryUserTeams(userId uint64) error {
+func (team *Team) QueryUserTeams(userId uint64) (*TeamVO, error) {
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
-	err := mysqlDB.Where("userId = ? and status = 'active'", userId).First(team).Error
-	return err
+	var userTeam Team
+	err := mysqlDB.Where("userId = ? and status = 'active'", userId).First(&userTeam).Error
+	// query top agent
+	secondAgentsCount, err := countUsersByUserId("topLevelAgent", userId)
+	if err != nil {
+		beego.Error(err.Error())
+		return nil, err
+	}
+	// query supervisor agent
+	thirdAgentsCount, err := countUsersByUserId("superiorAgent", userId)
+	if err != nil {
+		beego.Error(err.Error())
+		return nil, err
+	}
+	vo := TeamVO{userTeam, secondAgentsCount, thirdAgentsCount}
+	return &vo, err
+}
+
+func countUsersByUserId(agentLevel string, userId uint64) (uint, error) {
+	var count uint
+	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
+	var err error
+	if agentLevel == "topLevelAgent" {
+		err = mysqlDB.Model(&Team{}).Where("topLevelAgent = ?", userId).Count(&count).Error
+	} else {
+		err = mysqlDB.Model(&Team{}).Where("superiorAgent = ?", userId).Count(&count).Error
+	}
+	return count, err
 }

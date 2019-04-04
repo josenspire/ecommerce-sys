@@ -67,6 +67,9 @@ func (u *UserController) LoginByTelephone() {
 		err = user.LoginByTelephone(telephone, password)
 		if err == gorm.ErrRecordNotFound {
 			response.HandleError(ErrTelOrPswInvalid, USER_TELEPHONE_PSW_INVALID)
+		} else if err == WarnAccountNeedVerify {
+			// TODO: need to return the notification
+			response.HandleFail(TELEPHONE_VERIFY, WarnAccountNeedVerify.Error())
 		} else if err != nil {
 			beego.Error(err.Error())
 			response.HandleError(err)
@@ -105,7 +108,7 @@ func (u *UserController) LoginByWechat() {
 				beego.Error(err.Error())
 				response.HandleError(err, REQUEST_FAIL)
 			} else {
-				response.HandleSuccess(user, "")
+				response.HandleSuccess(&user, "")
 			}
 		}
 	}
@@ -127,19 +130,19 @@ func (u *UserController) QueryUserTeams() {
 		beego.Warning(err.Error())
 		response.HandleFail(REQUEST_FAIL, err.Error())
 	} else {
-		userId := reqParams["userId"]
-		if IsEmptyString(strconv.Itoa(int(userId))) {
+		userId := int(reqParams["userId"])
+		if IsEmptyString(strconv.Itoa(userId)) {
 			response.HandleError(ErrParamsMissing)
 		} else {
-			team := Team{}
-			err := team.QueryUserTeams(uint64(userId))
+			var team *Team
+			teamProfile, err := team.QueryUserTeams(uint64(userId))
 			if err == gorm.ErrRecordNotFound {
 				response.HandleSuccess(nil, WarnUserTeamMissing)
 			} else if err != nil {
 				beego.Error(err)
 				response.HandleError(err)
 			} else {
-				response.HandleSuccess(team)
+				response.HandleSuccess(teamProfile)
 			}
 		}
 	}

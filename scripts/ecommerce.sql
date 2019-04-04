@@ -91,6 +91,8 @@ INSERT  INTO `teams` (`teamId`,`topLevelAgent`,`superiorAgent`,`invitationCode`,
 INSERT  INTO `addresses` (`addressId`,`contact`,`telephone`,`isDefault`,`country`,`city`,`details`,`userId`,`createdAt`,`updatedAt`,`deletedAt`) VALUES (53876069761025,'Tech03','13600004088',true,'CHN','GD-ZHA','南方软件园B5-7L',14293651161089,'2019-03-26 15:00:00','2019-03-26 15:00:00',NULL);
 INSERT  INTO `addresses` (`addressId`,`contact`,`telephone`,`country`,`city`,`details`,`userId`,`createdAt`,`updatedAt`,`deletedAt`) VALUES (54975581388801,'Tech04','13600004004','CHN','GD-ZHA','南方软件园B5-7L',14293651161089,'2019-03-26 15:00:48','2019-03-26 15:00:48',NULL);
 
+INSERT  INTO `wxsessions` (`sessionId`,`skey`,`sessionKey`,`wechatUserProfile`,`openId`,`userId`,`createdAt`,`updatedAt`,`deletedAt`) VALUES (144036023238657,'AKDNXLCKVKNASDKFLJDKSLAz+==','987654321','123456789','0123456789',14293651161089,'2019-04-04 13:17:47','2019-04-04 13:17:47',NULL);
+
 DELETE FROM `addresses`;
 DELETE FROM `inventories`;
 

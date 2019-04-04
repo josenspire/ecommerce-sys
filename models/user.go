@@ -3,6 +3,7 @@ package models
 import (
 	"ecommerce-sys/db"
 	. "ecommerce-sys/utils"
+	"encoding/hex"
 	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
@@ -17,14 +18,13 @@ type User struct {
 	Status    string    `json:"status" gorm:"column:status; type:varchar(10); default:'active'; not null;"`
 	Channel   string    `json:"channel" gorm:"column:channel; type:varchar(12); not null;"`
 	Addresses []Address `json:"addresses" gorm:"column:addresses;"`
-	Team      Team      `json:"team" gorm:"column:gorm;"`
 	BaseModel
 }
 
 type UserProfile struct {
 	Telephone string `json:"telephone" gorm:"column:telephone; type:varchar(11);not null"`
 	Username  string `json:"username" gorm:"column:username; type:varchar(18);not null"`
-	Password  string `json:"password" gorm:"column:password; type:varchar(24);not null"`
+	Password  string `json:"-" gorm:"column:password; type:varchar(24);null"`
 	Nickname  string `json:"nickname" gorm:"column:nickname; type:varchar(16);not null;"`
 	Male      bool   `json:"male" gorm:"column:male; not null; default:false;"`
 	Signature string `json:"signature" gorm:"not null; default:'This guy is lazy...'"`
@@ -33,9 +33,10 @@ type UserProfile struct {
 type WxSession struct {
 	SessionId         uint64 `json:"sessionId" gorm:"column:sessionId; not null; primary_key;"`
 	Skey              string `json:"skey" gorm:"column:skey; not null;"`
-	SessionKey        string `json:"session_key" gorm:"column:sessionKey; not null;" `
+	SessionKey        string `json:"sessionKey" gorm:"column:sessionKey; not null;" `
 	WechatUserProfile string `json:"wechatUserProfile" gorm:"column:wechatUserProfile; not null;"`
 	OpenId            string `json:"openId" gorm:"column:openId; index; not null;"`
+	UserId            uint64 `json:"userId" gorm:"column:userId; not null;"`
 	BaseModel
 }
 
@@ -44,6 +45,11 @@ type UserRegisterDTO struct {
 	Password       string `json:"password"`
 	Nickname       string `json:"nickname"`
 	InvitationCode string `json:"invitationCode"`
+}
+
+type UserWechatVO struct {
+	User          *User      `json:"user"`
+	WechatSession *WxSession `json:"wechatSession"`
 }
 
 func (WxSession) TableName() string {
@@ -55,6 +61,9 @@ var AESSecretKey = beego.AppConfig.String("AESSecretKey")
 
 // callbacks hock -- before create, encrypt password
 func (user *User) BeforeCreate(scope *gorm.Scope) error {
+	if IsEmptyString(user.Password) {
+		return nil
+	}
 	encryptPassword, err := AESEncrypt(user.Password, AESSecretKey)
 	if err != nil {
 		beego.Error(err.Error())
@@ -74,7 +83,7 @@ type IUserOperation interface {
 	CheckIsUserExistByTelephone(telephone string) (bool, error)
 	QueryByUserId(userId string) *User
 	LoginByTelephone(telephone string, password string) error
-	LoginByWechat(jsCode string, userInfo string, invitationCode string) (interface{}, error)
+	LoginByWechat(jsCode string, wechatUserProfile string, invitationCode string) (*UserWechatVO, error)
 }
 
 func (user *User) Register(dto UserRegisterDTO) error {
@@ -90,27 +99,7 @@ func (user *User) Register(dto UserRegisterDTO) error {
 	user.Password = dto.Password
 	user.Nickname = dto.Nickname
 
-	var agentTeam Team
-	team := Team{}
-	team.UserId = user.UserId
-	team.TeamId = GetWuid()
-	team.InvitationCode = GenerateRandString(6)
-
-	err = agentTeam.QueryTeamByInvitationCode(dto.InvitationCode)
-
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			// TOP ADMIN
-			team.TopLevelAgent = 8888888888
-			team.SuperiorAgent = 8888888888
-		} else {
-			beego.Error(err.Error())
-			return err
-		}
-	} else {
-		team.TopLevelAgent = agentTeam.SuperiorAgent
-		team.SuperiorAgent = agentTeam.UserId
-	}
+	team, err := initialUserAgentTeamsContent(user.UserId, dto.InvitationCode)
 
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
 	ts := mysqlDB.Begin()
@@ -127,12 +116,20 @@ func (user *User) Register(dto UserRegisterDTO) error {
 
 func (user *User) LoginByTelephone(telephone string, password string) error {
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
+	var userProfile *User
+	err := mysqlDB.Where("telephone = ?", telephone).First(&userProfile).Error
+	if err == gorm.ErrRecordNotFound {
+		return ErrTelOrPswInvalid
+	}
+	if IsEmptyString(userProfile.Password) {
+		// 	TODO: should verify telephone, send SMS code
+		return WarnAccountNeedVerify
+	}
 	encryptPassword, err := AESEncrypt(password, AESSecretKey)
 	if err != nil {
 		beego.Error(err.Error())
 		return ErrDecrypt
 	}
-	fmt.Println("telephone, password", telephone, password, encryptPassword)
 	err = mysqlDB.Where("telephone = ? and password = ?", telephone, encryptPassword).First(&user).Error
 	return err
 }
@@ -175,91 +172,124 @@ func (user *User) QueryByUserId(userId string) *User {
 	panic("implement me")
 }
 
-func (user *User) LoginByWechat(jsCode string, wechatUserProfile string, invitationCode string) (*WxSession, error) {
-	wxSession, err := authorization(jsCode, wechatUserProfile)
+func (user *User) LoginByWechat(jsCode string, wechatUserProfile string, invitationCode string) (*UserWechatVO, error) {
+	user, wxSession, err := authorizationWithInitialUser(jsCode, wechatUserProfile, invitationCode)
 	if err != nil {
 		beego.Error(err.Error())
 		return nil, err
 	}
-	// userId := wxSession.SessionId
-	// if invitationCode
-	return wxSession, nil
-}
-
-func authorization(jsCode string, wechatUserProfile string) (*WxSession, error) {
-	// openId, sessionKey, err := JsCode2Session(jsCode)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// fmt.Printf("User openId = %s, sessionKey = %s", openId, sessionKey)
-	//
-	// h := sha1.New()
-	// _, err = io.WriteString(h, sessionKey)
-	// if err != nil {
-	// 	beego.Error(err.Error())
-	// 	return nil, err
-	// }
-	// sKey := h.Sum(nil)
-	//
-	// var wxSession *WxSession
-	// wxSession.SessionId = GetWuid()
-	// wxSession.SessionKey = sessionKey
-	// wxSession.OpenId = openId
-	// wxSession.Skey = string(sKey)
-	// wxSession.WechatUserProfile = wechatUserProfile
-	//
-	// o := orm.NewOrm()
-	// // transaction begin
-	// err = o.Begin()
-	// _, err = o.InsertOrUpdate(wxSession, "sessionId,openId")
-	// if err != nil {
-	// 	beego.Error(err.Error())
-	// 	_ = o.Rollback()
-	// 	return nil, err
-	// }
-	// user := isAssociated(openId)
-	// if user == nil {
-	// 	// create user
-	// 	var newUser *User
-	// 	newUser.UserId = GetWuid()
-	// 	newUser.Channel = "Wechat"
-	// 	newUser.WxSession = wxSession
-	// 	newUser.Status = "active"
-	// 	newUser.Role = 10
-	//
-	// 	_, err = o.Insert(newUser)
-	// 	if err != nil {
-	// 		beego.Error(err.Error())
-	// 		// error rollback
-	// 		_ = o.Rollback()
-	// 	} else {
-	// 		_ = o.Commit()
-	// 	}
-	// }
-	// // query user with wechat information
-	// var userSession *WxSession
-	// err = o.Raw("SELECT * FROM wxsession t1, user t2 WHERE t1.sessionId = t2.sessionId and t1.sessionId = %s", wxSession.SessionId).QueryRow(&userSession)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// return userSession, nil
-	return nil, nil
-}
-
-func isAssociated(openId string) *User {
-	var user *User
-	o := orm.NewOrm()
-	err := o.Raw("SELECT * FROM user WHERE openId = %;", openId).QueryRow(user)
-	if err != nil {
-		return nil
+	var vo = UserWechatVO{
+		User:          user,
+		WechatSession: wxSession,
 	}
-	return user
+	return &vo, nil
 }
 
-func initTeamForm() (interface{}, error) {
-	var team *Team
-	team.UserId = GetWuid()
-	team.Status = "active"
-	team.Channel = "Wechat"
-	return nil, nil
+func authorizationWithInitialUser(jsCode string, wechatUserProfile string, invitationCode string) (*User, *WxSession, error) {
+	openId, sessionKey, err := JsCode2Session(jsCode)
+	// openId, sessionKey := GenerateNowDateString(), GenerateRandString(8)
+
+	if err != nil {
+		beego.Error(err.Error())
+		return nil, nil, err
+	}
+	fmt.Printf("User openId = %s, sessionKey = %s", openId, sessionKey)
+
+	skeyBytes, err := SHA1Encrypt(sessionKey)
+	if err != nil {
+		beego.Error(err)
+		return nil, nil, err
+	}
+	skeyHexStr := hex.EncodeToString(skeyBytes)
+
+	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
+	tx := mysqlDB.Begin()
+
+	wechatSession := WxSession{}
+	err = tx.Where("openId = ?", openId).First(&wechatSession).Error
+	if err == gorm.ErrRecordNotFound {
+		var userId = GetWuid()
+		user := User{
+			UserId:  userId,
+			Channel: "Wechat",
+		}
+		err = tx.Create(&user).Error
+		if err != nil {
+			beego.Error(err.Error())
+			tx.Rollback()
+			return nil, nil, err
+		}
+		wxSession := WxSession{
+			SessionId:         GetWuid(),
+			SessionKey:        sessionKey,
+			OpenId:            openId,
+			UserId:            userId,
+			Skey:              skeyHexStr,
+			WechatUserProfile: wechatUserProfile,
+		}
+		err = tx.Create(&wxSession).Error
+		if err != nil {
+			beego.Error(err.Error())
+			tx.Rollback()
+			return nil, nil, err
+		}
+		wechatSession = wxSession
+
+		team, err := initialUserAgentTeamsContent(userId, invitationCode)
+		if err != nil {
+			beego.Error(err.Error())
+			tx.Rollback()
+			return nil, nil, err
+		}
+		err = tx.Create(&team).Error
+		if err != nil {
+			beego.Error(err.Error())
+			tx.Rollback()
+			return nil, nil, err
+		}
+	} else if err != nil {
+		beego.Error(err.Error())
+		tx.Rollback()
+		return nil, nil, err
+	}
+	err = tx.Model(&wechatSession).Updates(map[string]interface{}{"sessionKey": sessionKey, "skey": skeyHexStr}).Error
+	if err != nil {
+		beego.Error(err.Error())
+		return nil, nil, err
+	}
+	tx.Commit()
+
+	var user = User{}
+	var wxSession = WxSession{}
+	err = mysqlDB.Where("userId = ?", wechatSession.UserId).First(&user).Error
+	if err == gorm.ErrRecordNotFound {
+		beego.Error(err.Error())
+		return nil, nil, err
+	}
+	err = mysqlDB.Model(&user).Where("userId = ?", user.UserId).First(&wxSession).Error
+	return &user, &wxSession, nil
+}
+
+func initialUserAgentTeamsContent(userId uint64, invitationCode string) (*Team, error) {
+	var team = Team{
+		UserId:         userId,
+		TeamId:         GetWuid(),
+		InvitationCode: GenerateRandString(6),
+	}
+	var agentTeam Team
+	err := agentTeam.QueryTeamByInvitationCode(invitationCode)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			// TOP ADMIN
+			team.TopLevelAgent = TOP_AGENT
+			team.SuperiorAgent = SUPERIOR_AGNET
+		} else {
+			beego.Error(err.Error())
+			return nil, err
+		}
+	} else {
+		team.TopLevelAgent = agentTeam.SuperiorAgent
+		team.SuperiorAgent = agentTeam.UserId
+	}
+	return &team, nil
 }
