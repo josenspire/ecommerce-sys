@@ -70,9 +70,9 @@ func (pd *ProductController) InsertMultipleProducts() {
 // @Title Product list
 // @Description Query product list by product type.
 // @Params	productType		body	true	"Product type, default is 'recommend'"
-// @Success	200000	{object}	models.ResponseModel
-// @Failure	200400	{object}	models.ResponseModel
-// @router	/recommend 	[get]
+// @Success	200000 {object} models.ResponseModel
+// @Failure	200400 {object}	models.ResponseModel
+// @router /recommend [get]
 func (pd *ProductController) QueryProducts() {
 	var response ResponseModel
 	var productType = pd.Input().Get("type")
@@ -100,9 +100,9 @@ func (pd *ProductController) QueryProducts() {
 // @Title Product - details
 // @Description Query product details
 // @Params	productId		body		float64  	true	"Product id"
-// @Success	200000	{object}	models.ResponseModel
-// @Failure	200400	{object}	models.ResponseModel
-// @router	/recommend 	[get]
+// @Success	200000 {object} models.ResponseModel
+// @Failure	200400 {object}	models.ResponseModel
+// @router /recommend [post]
 func (pd *ProductController) QueryProductDetails() {
 	var response ResponseModel
 	reqArgs := make(map[string]interface{})
@@ -134,9 +134,9 @@ func (pd *ProductController) QueryProductDetails() {
 // @Title Product - Specification details
 // @Description Query product specification details
 // @Params	inventoryId		 body		float64 	true	"Inventory's id"
-// @Success	200000	{object}	models.ResponseModel
-// @Failure	200400	{object}	models.ResponseModel
-// @router	/recommend 	[get]
+// @Success	200000 {object} models.ResponseModel
+// @Failure	200400 {object}	models.ResponseModel
+// @router /recommend [post]
 func (pd *ProductController) QuerySpecificationDetails() {
 	var response ResponseModel
 	reqArgs := make(map[string]interface{})

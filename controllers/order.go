@@ -18,9 +18,9 @@ type OrderController struct {
 // @Param	userId		body	float64		true	"User Id"
 // @Param	orderType	body	string		true	"Order type, default is 'all'"
 // @Param	pageIndex	body	uint		false	"Page index, default is: 1"
-// @Success	200000	{object}	models.ResponseModel
-// @Failure	200400	{object}	models.ResponseModel
-// @router	/list		[post]
+// @Success	200000 {object} models.ResponseModel
+// @Failure	200400 {object}	models.ResponseModel
+// @router /list [post]
 func (or *OrderController) QueryOrders() {
 	var response ResponseModel
 	reqArgs := make(map[string]interface{})
@@ -62,9 +62,9 @@ func (or *OrderController) QueryOrders() {
 // @Param	orders			body		interface		true	"Order array details"
 // @Param	discount		body		string			false	"Total discount"
 // @Param	remark			body		string			false	"Order remark"
-// @Success	200000	{object}	models.ResponseModel
-// @Failure	200400	{object}	models.ResponseModel
-// @router	/place		[post]
+// @Success	200000 {object} models.ResponseModel
+// @Failure	200400 {object}	models.ResponseModel
+// @router /place [post]
 func (or *OrderController) PlaceOrder() {
 	var response ResponseModel
 	var dto *PlaceOrderDTO
@@ -90,9 +90,9 @@ func (or *OrderController) PlaceOrder() {
 // @Description Order is already completed
 // @Param	userId		body	float64			true	"User Id"
 // @Param	orderId		body	float64			true	"Order Id"
-// @Success	200000	{object}	models.ResponseModel
-// @Failure	200400	{object}	models.ResponseModel
-// @router	/completed		[put]
+// @Success	200000 {object} models.ResponseModel
+// @Failure	200400 {object}	models.ResponseModel
+// @router /completed [put]
 func (or *OrderController) OrderCompleted() {
 	var response ResponseModel
 	reqArgs := make(map[string]float64)
@@ -126,9 +126,9 @@ func (or *OrderController) OrderCompleted() {
 // @Description Cancel the order
 // @Param	userId		body		float64			true	"User Id"
 // @Param	orderId		body		float64			true	"Order Id"
-// @Success	200000	{object}	models.ResponseModel
-// @Failure	200400	{object}	models.ResponseModel
-// @router	/cancel		[put]
+// @Success	200000 {object} models.ResponseModel
+// @Failure	200400 {object}	models.ResponseModel
+// @router /cancel [put]
 func (or *OrderController) OrderCancel() {
 	var response ResponseModel
 	reqArgs := make(map[string]float64)
@@ -162,9 +162,9 @@ func (or *OrderController) OrderCancel() {
 // @Description Query the order's detail information
 // @Param	userId			body		float64			true	"User Id"
 // @Param	orderId			body		float64			true	"Order Id"
-// @Success	200000	{object}	models.ResponseModel
-// @Failure	200400	{object}	models.ResponseModel
-// @router	/details		[post]
+// @Success	200000 {object} models.ResponseModel
+// @Failure	200400 {object}	models.ResponseModel
+// @router /details [post]
 func (or *OrderController) QueryProductDetails() {
 	var response ResponseModel
 	reqArgs := make(map[string]float64)

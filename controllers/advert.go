@@ -17,9 +17,9 @@ type AdvertController struct {
 // @Param	advertUrl	body	string	true	"advert url"
 // @Param	relativeId	body	float64	false	"advert relate to"
 // @Param	remark		body	string	false	"advert remark"
-// @Failure	200400	{object}	models.ResponseModel
-// @Success	200000	{object}	models.ResponseModel
-// @router	/insertAdvert	[post]
+// @Failure	200400 {object} models.ResponseModel
+// @Success	200000 {object}	models.ResponseModel
+// @router /insert [post]
 func (adv *AdvertController) InsertAdvert() {
 	var response ResponseModel
 	advert := new(Advert)
@@ -46,9 +46,9 @@ func (adv *AdvertController) InsertAdvert() {
 // @Param	advertUrl	body	string	true	"advert url"
 // @Param	relativeId	body	float64	false	"advert relate to"
 // @Param	remark		body	string	false	"advert remark"
-// @Failure	200400	{object}	models.ResponseModel
-// @Success	200000	{object}	models.ResponseModel
-// @router	/updateAdvert		[put]
+// @Failure	200400 {object} models.ResponseModel
+// @Success	200000 {object}	models.ResponseModel
+// @router /update [put]
 func (adv *AdvertController) UpdateAdvert() {
 	var response ResponseModel
 	advert := Advert{}
@@ -73,9 +73,9 @@ func (adv *AdvertController) UpdateAdvert() {
 
 // @Title Advert List
 // @Description Get advert list
-// @Failure	200400	{object}	models.ResponseModel
-// @Success	200000	{object}	models.ResponseModel
-// @router	/list		[get]
+// @Failure	200400 {object} models.ResponseModel
+// @Success	200000 {object}	models.ResponseModel
+// @router /list [get]
 func (adv *AdvertController) GetAdvertList() {
 	var response ResponseModel
 	advert := Advert{}

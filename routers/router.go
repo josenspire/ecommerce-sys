@@ -19,6 +19,9 @@ func init() {
 		// 	api cache checking
 		// beego.NSBefore(models.ReadApiCache),
 
+		/**
+		Note: swagger api doc, just support to `NSNamespace + NSInclude`, or will not work in others way
+		*/
 		beego.NSNamespace("/advert",
 			beego.NSRouter("/insert", &AdvertController{}, "post:InsertAdvert"),
 			beego.NSRouter("/update", &AdvertController{}, "put:UpdateAdvert"),
