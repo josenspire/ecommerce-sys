@@ -13,9 +13,12 @@ type ClassifyController struct {
 
 // @Title Create Classify
 // @Description Create a new classify
-// @Param	models.Classify		query	object		true	"classify request model"
+// @Param	classifyName		body	string		true	"Classify name"
+// @Param	classifyIcon		body	string		true	"Classify icon"
+// @Param	classifyPriority	body	int			false	"Classify priority, default is 1"
+// @Param	status				body	string		false	"Classify status, default is 'active'"
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
+// @Failure	200400	{object}	models.ResponseModel
 // @router	/create		[post]
 func (cls *ClassifyController) CreateClassify() {
 	var response ResponseModel
@@ -39,9 +42,13 @@ func (cls *ClassifyController) CreateClassify() {
 
 // @Title Create Category
 // @Description Create a new category
-// @Param	models.Category		query	object		true	"Create a new category
+// @Param	categoryName		body	string		true	"Category name"
+// @Param	categoryIcon		body	string		true	"Category icon"
+// @Param	categoryPriority	body	string		true	"Category priority, default is '1'"
+// @Param	classifyId			body	string		true	"Classify's id"
+// @Param	status				body	string		false	"Category status, default is 'active'"
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
+// @Failure	200400	{object}	models.ResponseModel
 // @router	/category/create		[post]
 func (cls *ClassifyController) CreateCategory() {
 	var response ResponseModel
@@ -67,7 +74,7 @@ func (cls *ClassifyController) CreateCategory() {
 // @Title Classify
 // @Description Query classifies information
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
+// @Failure	200400	{object}	models.ResponseModel
 // @router	/list		[get]
 func (cls *ClassifyController) QueryClassifies() {
 	var response ResponseModel

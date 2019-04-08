@@ -14,11 +14,11 @@ type AdvertController struct {
 
 // @Title Advert Insert
 // @Description Insert a new advert
-// @Param	advertUrl	query	string	true	"advert url"
-// @Param	relativeId	query	float64	false	"advert relate to"
-// @Param	remark		query	string	false	"advert remark"
+// @Param	advertUrl	body	string	true	"advert url"
+// @Param	relativeId	body	float64	false	"advert relate to"
+// @Param	remark		body	string	false	"advert remark"
+// @Failure	200400	{object}	models.ResponseModel
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
 // @router	/insertAdvert	[post]
 func (adv *AdvertController) InsertAdvert() {
 	var response ResponseModel
@@ -42,12 +42,12 @@ func (adv *AdvertController) InsertAdvert() {
 
 // @Title Advert Update
 // @Description Update a advert
-// @Param	advertId		query	float64	 true	"advert id"
-// @Param	advertUrl	query	string	true	"advert url"
-// @Param	relativeId	query	float64	false	"advert relate to"
-// @Param	remark		query	string	false	"advert remark"
+// @Param	advertId	body	float64	 true	"advert id"
+// @Param	advertUrl	body	string	true	"advert url"
+// @Param	relativeId	body	float64	false	"advert relate to"
+// @Param	remark		body	string	false	"advert remark"
+// @Failure	200400	{object}	models.ResponseModel
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
 // @router	/updateAdvert		[put]
 func (adv *AdvertController) UpdateAdvert() {
 	var response ResponseModel
@@ -73,8 +73,8 @@ func (adv *AdvertController) UpdateAdvert() {
 
 // @Title Advert List
 // @Description Get advert list
+// @Failure	200400	{object}	models.ResponseModel
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
 // @router	/list		[get]
 func (adv *AdvertController) GetAdvertList() {
 	var response ResponseModel

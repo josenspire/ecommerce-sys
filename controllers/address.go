@@ -15,9 +15,9 @@ type AddressController struct {
 
 // @Title Query Address
 // @Description Query user address list
-// @Param	userId			query	 float64	 true	"User Id"
+// @Param	userId	body	 	float64	 true	"User Id"
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
+// @Failure	200400	{object}	models.ResponseModel
 // @router	/list 	[post]
 func (addr *AddressController) QueryAddresses() {
 	var response ResponseModel
@@ -47,9 +47,15 @@ func (addr *AddressController) QueryAddresses() {
 
 // @Title Create Address
 // @Description Create user address
-// @Param	models.AddressDTO		query	object		true	"Create a new address"
+// @Param	contact			body	string		true	"Address contact"
+// @Param	telephone		body	string		true	"Address telephone"
+// @Param	isDefault		body	bool		true	"Address isDefault"
+// @Param	country			body	string		true	"Address country"
+// @Param	provinceCity	body	string		true	"Address provinceCity"
+// @Param	details			body	string		true	"Address details"
+// @Param	userId			body	uint64		true	"Address userId"
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
+// @Failure	200400	{object}	models.ResponseModel
 // @router	/create [post]
 func (addr *AddressController) CreateAddress() {
 	var response ResponseModel
@@ -74,10 +80,10 @@ func (addr *AddressController) CreateAddress() {
 
 // @Title Query Address Details
 // @Description Query user address details
-// @Param	userId		query	 float64		true	"user id"
-// @Param	addressId		query	 float64		true	"address id"
+// @Param	userId			body	 float64		true	"user id"
+// @Param	addressId		body	 float64		true	"address id"
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
+// @Failure	200400	{object}	models.ResponseModel
 // @router	/details [post]
 func (addr *AddressController) QueryDetails() {
 	var response ResponseModel
@@ -110,9 +116,9 @@ func (addr *AddressController) QueryDetails() {
 
 // @Title Update Address Details
 // @Description Update user address details
-// @Param	models.AddressDTO		query	object		true	"Create a new address"
+// @Param	models.AddressDTO	body	object		true	"Create a new address"
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
+// @Failure	200400	{object}	models.ResponseModel
 // @router	/update [put]
 func (addr *AddressController) UpdateAddress() {
 	var response ResponseModel
@@ -139,9 +145,15 @@ func (addr *AddressController) UpdateAddress() {
 
 // @Title Delete Address Details
 // @Description Delete user address details
-// @Param	models.AddressDTO		query	object		true	"Delete a address"
+// @Param	contact			body	string		true	"Address contact"
+// @Param	telephone		body	string		true	"Address telephone"
+// @Param	isDefault		body	bool		true	"Address isDefault"
+// @Param	country			body	string		true	"Address country"
+// @Param	provinceCity	body	string		true	"Address provinceCity"
+// @Param	details			body	string		true	"Address details"
+// @Param	userId			body	uint64		true	"Address userId"
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
+// @Failure	200400	{object}	models.ResponseModel
 // @router	/delete [delete]
 func (addr *AddressController) DeleteAddress() {
 	var response ResponseModel
@@ -174,10 +186,10 @@ func (addr *AddressController) DeleteAddress() {
 
 // @Title Set As Default Address
 // @Description Set user default address
-// @Param	userId		query		float64		true	"userId"
-// @Param	addressId		query		float64		true	"addressId"
+// @Param	userId			body		float64		true	"userId"
+// @Param	addressId		body		float64		true	"addressId"
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
+// @Failure	200400	{object}	models.ResponseModel
 // @router	/delete [put]
 func (addr *AddressController) SetAsDefaultAddress() {
 	var response ResponseModel

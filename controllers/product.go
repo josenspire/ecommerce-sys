@@ -69,9 +69,9 @@ func (pd *ProductController) InsertMultipleProducts() {
 
 // @Title Product list
 // @Description Query product list by product type.
-// @Params	productType		Query	true	"product type, default is 'recommend'"
+// @Params	productType		body	true	"Product type, default is 'recommend'"
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
+// @Failure	200400	{object}	models.ResponseModel
 // @router	/recommend 	[get]
 func (pd *ProductController) QueryProducts() {
 	var response ResponseModel
@@ -99,9 +99,9 @@ func (pd *ProductController) QueryProducts() {
 
 // @Title Product - details
 // @Description Query product details
-// @Params	productId		Query		float64  	true		"product id"
+// @Params	productId		body		float64  	true	"Product id"
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
+// @Failure	200400	{object}	models.ResponseModel
 // @router	/recommend 	[get]
 func (pd *ProductController) QueryProductDetails() {
 	var response ResponseModel
@@ -133,9 +133,9 @@ func (pd *ProductController) QueryProductDetails() {
 
 // @Title Product - Specification details
 // @Description Query product specification details
-// @Params	inventoryId		 Query		float64 	true		"inventoryId"
+// @Params	inventoryId		 body		float64 	true	"Inventory's id"
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
+// @Failure	200400	{object}	models.ResponseModel
 // @router	/recommend 	[get]
 func (pd *ProductController) QuerySpecificationDetails() {
 	var response ResponseModel

@@ -15,11 +15,11 @@ type OrderController struct {
 
 // @Title Order List
 // @Description Query user all order records
-// @Param	userId			query		float64		true	"User Id"
-// @Param	orderType		query		string		true	"Order type, default is 'all'"
-// @Param	pageIndex		query		uint		false	"Page index, default is: 1"
+// @Param	userId		body	float64		true	"User Id"
+// @Param	orderType	body	string		true	"Order type, default is 'all'"
+// @Param	pageIndex	body	uint		false	"Page index, default is: 1"
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
+// @Failure	200400	{object}	models.ResponseModel
 // @router	/list		[post]
 func (or *OrderController) QueryOrders() {
 	var response ResponseModel
@@ -57,13 +57,13 @@ func (or *OrderController) QueryOrders() {
 
 // @Title PlaceOrder
 // @Description Place a new order
-// @Param	userId			query		float64			true	"User Id"
-// @Param	addressId		query		float64			true	"Address Id"
-// @Param	orders			query		interface		true	"Order array details"
-// @Param	discount		query		string			false	"Total discount"
-// @Param	remark			query		string			false	"Order remark"
+// @Param	userId			body		float64			true	"User Id"
+// @Param	addressId		body		float64			true	"Address Id"
+// @Param	orders			body		interface		true	"Order array details"
+// @Param	discount		body		string			false	"Total discount"
+// @Param	remark			body		string			false	"Order remark"
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
+// @Failure	200400	{object}	models.ResponseModel
 // @router	/place		[post]
 func (or *OrderController) PlaceOrder() {
 	var response ResponseModel
@@ -88,10 +88,10 @@ func (or *OrderController) PlaceOrder() {
 
 // @Title OrderCompleted
 // @Description Order is already completed
-// @Param	userId			query		float64			true	"User Id"
-// @Param	orderId			query		float64			true	"Order Id"
+// @Param	userId		body	float64			true	"User Id"
+// @Param	orderId		body	float64			true	"Order Id"
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
+// @Failure	200400	{object}	models.ResponseModel
 // @router	/completed		[put]
 func (or *OrderController) OrderCompleted() {
 	var response ResponseModel
@@ -124,10 +124,10 @@ func (or *OrderController) OrderCompleted() {
 
 // @Title OrderCancel
 // @Description Cancel the order
-// @Param	userId			query		float64			true	"User Id"
-// @Param	orderId			query		float64			true	"Order Id"
+// @Param	userId		body		float64			true	"User Id"
+// @Param	orderId		body		float64			true	"Order Id"
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
+// @Failure	200400	{object}	models.ResponseModel
 // @router	/cancel		[put]
 func (or *OrderController) OrderCancel() {
 	var response ResponseModel
@@ -160,10 +160,10 @@ func (or *OrderController) OrderCancel() {
 
 // @Title QueryProductDetails
 // @Description Query the order's detail information
-// @Param	userId			query		float64			true	"User Id"
-// @Param	orderId			query		float64			true	"Order Id"
+// @Param	userId			body		float64			true	"User Id"
+// @Param	orderId			body		float64			true	"Order Id"
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
+// @Failure	200400	{object}	models.ResponseModel
 // @router	/details		[post]
 func (or *OrderController) QueryProductDetails() {
 	var response ResponseModel

@@ -15,16 +15,16 @@ type UserController struct {
 
 // @Title Register
 // @Description User register api by telephone
-// @Param	telephone	query	string	true	"Register by cellphone"
-// @Param	username	query	string	false	"User's username"
-// @Param	password	query	string	true	"User password, length need to more then 6"
-// @Param	nickname	query	string	true	"User nickname"
-// @Param	signature	query	string	false	"User signature"
-// @Param	male		query	bool	false	"Male/Female"
+// @Param	telephone	body	string	true	"Register by cellphone"
+// @Param	username	body	string	false	"User's username"
+// @Param	password	body	string	true	"User password, length need to more then 6"
+// @Param	nickname	body	string	true	"User nickname"
+// @Param	signature	body	string	false	"User signature"
+// @Param	male		body	bool	false	"Male/Female"
 // @Param	invitationCode	query	string	true	"User's agent invitation code"
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
-// @router	/register	[post]invitationCode
+// @Failure	200400	{object}	models.ResponseModel
+// @router	/register	[post]
 func (u *UserController) Register() {
 	var response ResponseModel
 	user := new(User)
@@ -48,10 +48,10 @@ func (u *UserController) Register() {
 
 // @Title Login
 // @Description User login api
-// @Param	telephone	query	string	true	"Login by telephone"
-// @Param	password	query	string	true	"User password, length need to more then 6"
+// @Param	telephone	body	string	true	"Login by telephone"
+// @Param	password	body	string	true	"User password, length need to more then 6"
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
+// @Failure	200400	{object}	models.ResponseModel
 // @router	/loginByTelephone	[post]
 func (u *UserController) LoginByTelephone() {
 	var response ResponseModel
@@ -83,10 +83,11 @@ func (u *UserController) LoginByTelephone() {
 
 // @Title LoginByWechat
 // @Description User use wechat login api
-// @Param	sessionId	query	string	true	"Login by cellphone"
-// @Param	password	query	string	true	"User password, length need to more then 6"
+// @Param	jsCode			body	string	true	"User's wechat 'jsCode'"
+// @Param	userInfo		body	string	true	"User's wechat base profile"
+// @Param	invitationCode	body	string	false	"Invitation code"
 // @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
+// @Failure	200400	{object}	models.ResponseModel
 // @router	/loginByWechat	[post]
 func (u *UserController) LoginByWechat() {
 	var response ResponseModel
@@ -118,10 +119,10 @@ func (u *UserController) LoginByWechat() {
 
 // @Title Query User Teams
 // @Description Query user's team information
-// @Param	userId	query	float64		true	"User's Id"
-// @Success	200000	{object}	models.ResponseModel
-// @Failure	200400
-// @router	/teams	[post]
+// @Param	userId		body	float64		true	"User's Id"
+// @Success	200000		{object}	models.ResponseModel
+// @Failure	200400		{object}	models.ResponseModel
+// @router	/teams		[post]
 func (u *UserController) QueryUserTeams() {
 	var response ResponseModel
 	reqParams := make(map[string]float64)
