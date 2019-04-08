@@ -116,10 +116,14 @@ func (user *User) Register(dto UserRegisterDTO) error {
 
 func (user *User) LoginByTelephone(telephone string, password string) error {
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
-	var userProfile *User
+	var userProfile User
 	err := mysqlDB.Where("telephone = ?", telephone).First(&userProfile).Error
 	if err == gorm.ErrRecordNotFound {
 		return ErrTelOrPswInvalid
+	}
+	if err != nil {
+		beego.Error(err)
+		return err
 	}
 	if IsEmptyString(userProfile.Password) {
 		// 	TODO: should verify telephone, send SMS code
