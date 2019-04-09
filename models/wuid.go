@@ -7,7 +7,7 @@ import (
 )
 
 type Wuid struct {
-	H uint  `gorm:"primary_key; AUTO_INCREMENT; not null;"`
+	H uint  `gorm:"primary_key;  ; not null;"`
 	X uint8 `gorm:"unique_index; default: '0'; not null;"`
 }
 

@@ -28,6 +28,11 @@ func init() {
 			beego.NSRouter("/list", &AdvertController{}, "get:GetAdvertList"),
 		),
 
+		beego.NSNamespace("/auth",
+			beego.NSRouter("/obtainSecurityCode", &SMSController{}, "post:ObtainSecurityCode"),
+			beego.NSRouter("/verifySecurityCode", &SMSController{}, "post:VerifySecurityCode"),
+		),
+
 		beego.NSNamespace("/user",
 			beego.NSRouter("/register", &UserController{}, "post:Register"),
 			beego.NSRouter("/loginByTelephone", &UserController{}, "post:LoginByTelephone"),

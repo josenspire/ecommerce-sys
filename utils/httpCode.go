@@ -19,4 +19,5 @@ const (
 	USER_TELEPHONE_PSW_INVALID uint = 200404
 	ADDRESS_NOT_FOUND          uint = 200404
 	ORDER_NOT_FOUND            uint = 200404
+	SECURITY_CODE_INVALID      uint = 200400
 )

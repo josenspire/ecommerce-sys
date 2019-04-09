@@ -5,20 +5,19 @@ import (
 	"github.com/astaxie/beego"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
-	"log"
 	"sync"
 )
 
 type MysqlConnectionPool struct{}
 
 var mysqlInstance *MysqlConnectionPool
-var once sync.Once
+var mysqlOnce sync.Once
 
 var db *gorm.DB
 var dbErr error
 
 func GetMySqlConnection() *MysqlConnectionPool {
-	once.Do(func() {
+	mysqlOnce.Do(func() {
 		mysqlInstance = &MysqlConnectionPool{}
 	})
 	return mysqlInstance
@@ -34,7 +33,7 @@ func (m *MysqlConnectionPool) InitConnectionPool() bool {
 	uri := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", dbUser, dbPass, dbURL, dbPort, dbName)
 	db, dbErr = gorm.Open("mysql", uri)
 	if dbErr != nil {
-		log.Fatal(dbErr)
+		beego.Error(dbErr)
 		return false
 	}
 	db.Set("gorm:table_options", "ENGINE=InnoDB")

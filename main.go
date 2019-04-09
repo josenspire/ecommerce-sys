@@ -1,7 +1,6 @@
 package main
 
 import (
-	. "ecommerce-sys/controllers"
 	"ecommerce-sys/db"
 	"ecommerce-sys/models"
 	_ "ecommerce-sys/routers"
@@ -30,17 +29,27 @@ func init() {
 	// maxdays 文件最多保存多少天，默认保存 7 天
 	// rotate 是否开启 logrotate，默认是 true
 	err := logs.SetLogger(logs.AdapterFile, `{"filename":"./logs/ecommerce-sys.log","level":6,"maxlines":0,"maxsize":0,"daily":true,"maxdays":30}`)
-	ErrorHandle(err)
+	if err != nil {
+		beego.Error(err.Error())
+		return
+	}
 
 	connectResult := db.GetMySqlConnection().InitConnectionPool()
 	if !connectResult {
-		log.Println("Init database pool failure...")
+		log.Println("Init mysql database pool failure...")
 		os.Exit(1)
 	} else {
 		log.Println("Mysql database pool init succeeded...")
 	}
-
 	initialDBTable()
+
+	redisInit := db.GetRedisConnection().InitialRedisClient()
+	if !redisInit {
+		log.Println("Init redis database pool failure...")
+		os.Exit(1)
+	} else {
+		log.Println("Redis database pool init succeeded...")
+	}
 }
 
 func initialDBTable() {
@@ -148,7 +157,10 @@ func _() {
 	dbPort := beego.AppConfig.String("mysqlport")
 
 	err := orm.RegisterDriver("mysql", orm.DRMySQL)
-	ErrorHandle(err)
+	if err != nil {
+		beego.Error(err.Error())
+		return
+	}
 	// 参数4(可选)  设置最大空闲连接
 	// 参数5(可选)  设置最大数据库连接
 	maxIdle := 30
@@ -163,7 +175,10 @@ func _() {
 		dbUser+":"+dbPass+"@tcp("+dbURL+":"+dbPort+")/"+dbName+"?charset=utf8&parseTime=true",
 		maxIdle,
 		maxConn)
-	ErrorHandle(err)
+	if err != nil {
+		beego.Error(err.Error())
+		return
+	}
 
 	// init model
 	// orm.RegisterModel(new(WxSession), new(User), new(Address))
@@ -172,7 +187,10 @@ func _() {
 	orm.Debug = true
 	// 自动建表
 	err = orm.RunSyncdb("default", false, true)
-	ErrorHandle(err)
+	if err != nil {
+		beego.Error(err.Error())
+		return
+	}
 
 	// 设置为 UTC 时间(default：本地时区)
 	orm.DefaultTimeLoc = time.UTC
