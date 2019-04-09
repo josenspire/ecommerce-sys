@@ -69,7 +69,7 @@ func (u *UserController) LoginByTelephone() {
 			response.HandleError(ErrTelOrPswInvalid, USER_TELEPHONE_PSW_INVALID)
 		} else if err == WarnAccountNeedVerify {
 			// TODO: need to return the notification
-			response.HandleFail(TELEPHONE_VERIFY, WarnAccountNeedVerify.Error())
+			response.HandleFail(TELEPHONE_NEED_VERIFY, WarnAccountNeedVerify.Error())
 		} else if err != nil {
 			beego.Error(err.Error())
 			response.HandleError(err)

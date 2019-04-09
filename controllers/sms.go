@@ -5,40 +5,46 @@ import (
 	. "ecommerce-sys/utils"
 	"encoding/json"
 	"github.com/astaxie/beego"
+	"strings"
 )
 
 type SMSController struct {
 	beego.Controller
 }
 
-func (sms *SMSController) ObtainSecurityCode() {
+func (s *SMSController) ObtainSecurityCode() {
 	var response ResponseModel
 	reqArgs := make(map[string]interface{})
-	err := json.Unmarshal(sms.Ctx.Input.RequestBody, &reqArgs)
+	err := json.Unmarshal(s.Ctx.Input.RequestBody, &reqArgs)
 	if err != nil {
 		beego.Error(err)
 		response.HandleFail(PARAMS_MISSING, ErrParamsInValid.Error())
 	} else {
 		telephone := reqArgs["telephone"].(string)
 		userId := reqArgs["userId"].(float64)
-		operationMode := reqArgs["operationMode"].(string)
+		operationMode := strings.ToUpper(reqArgs["operationMode"].(string))
+
 		var sms *SMS
 		smsProfile, err := sms.ObtainSecurityCode(telephone, uint64(userId), operationMode)
-		if err != nil {
+		if err == WarnTelephoneNotRegistered {
+			response.HandleFail(TELEPHONE_HAS_NOT_REGISTERED, WarnTelephoneNotRegistered.Error())
+		} else if err == WarnTelephoneAlreadyRegistered {
+			response.HandleFail(TELEPHONE_HAS_BEEN_USED, WarnTelephoneAlreadyRegistered.Error())
+		} else if err != nil {
 			beego.Error(err)
 			response.HandleError(err, REQUEST_FAIL)
 		} else {
 			response.HandleSuccess(smsProfile, "security code send success, will expire at 15 min after")
 		}
 	}
-	sms.Data["json"] = response
-	sms.ServeJSON()
+	s.Data["json"] = response
+	s.ServeJSON()
 }
 
-func (sms *SMSController) VerifySecurityCode() {
+func (s *SMSController) VerifySecurityCode() {
 	var response ResponseModel
 	reqArgs := make(map[string]interface{})
-	err := json.Unmarshal(sms.Ctx.Input.RequestBody, &reqArgs)
+	err := json.Unmarshal(s.Ctx.Input.RequestBody, &reqArgs)
 	if err != nil {
 		beego.Error(err)
 		response.HandleFail(PARAMS_MISSING, ErrParamsInValid.Error())
@@ -60,6 +66,6 @@ func (sms *SMSController) VerifySecurityCode() {
 			}
 		}
 	}
-	sms.Data["json"] = response
-	sms.ServeJSON()
+	s.Data["json"] = response
+	s.ServeJSON()
 }

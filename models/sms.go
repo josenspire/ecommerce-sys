@@ -22,6 +22,23 @@ type SMS struct {
 func (sms *SMS) ObtainSecurityCode(telephone string, userId uint64, operationMode string) (*SMS, error) {
 	redisClient := db.GetRedisConnection().GetRedisClient()
 
+	isExist, err := new(User).CheckIsUserExistByTelephone(telephone)
+	if err != nil {
+		beego.Error(err.Error())
+		return nil, err
+	}
+
+	if operationMode == REGISTER {
+		if isExist {
+			return nil, WarnTelephoneAlreadyRegistered
+		}
+	}
+	if operationMode == LOGIN {
+		if !isExist {
+			return nil, WarnTelephoneNotRegistered
+		}
+	}
+
 	key, value, smsContent := buildSMSContent(telephone, userId, operationMode)
 	err := redisClient.Set(key, value, 20*time.Minute).Err()
 	if err != nil {
