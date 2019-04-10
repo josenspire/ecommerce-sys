@@ -3,6 +3,8 @@ package db
 import (
 	"github.com/astaxie/beego"
 	"github.com/go-redis/redis"
+	"log"
+	"os"
 	"sync"
 )
 
@@ -12,6 +14,10 @@ var redisInstance *RedisConnectPool
 var redisOnce sync.Once
 
 var client *redis.Client
+
+func init() {
+	redis.SetLogger(log.New(os.Stderr, "redis: ", log.LstdFlags))
+}
 
 func GetRedisConnection() *RedisConnectPool {
 	redisOnce.Do(func() {

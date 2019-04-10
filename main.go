@@ -40,8 +40,8 @@ func init() {
 		os.Exit(1)
 	} else {
 		log.Println("Mysql database pool init succeeded...")
+		initialDBTable()
 	}
-	initialDBTable()
 
 	redisInit := db.GetRedisConnection().InitialRedisClient()
 	if !redisInit {

@@ -40,7 +40,7 @@ func (sms *SMS) ObtainSecurityCode(telephone string, userId uint64, operationMod
 	}
 
 	key, value, smsContent := buildSMSContent(telephone, userId, operationMode)
-	err := redisClient.Set(key, value, 20*time.Minute).Err()
+	err = redisClient.Set(key, value, 15*time.Minute).Err()
 	if err != nil {
 		beego.Error(err.Error())
 		return nil, err
