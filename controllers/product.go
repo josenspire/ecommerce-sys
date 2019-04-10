@@ -1,13 +1,13 @@
 package controllers
 
 import (
+	. "ecommerce-sys/commons"
 	. "ecommerce-sys/models"
 	. "ecommerce-sys/utils"
 	"encoding/json"
 	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/jinzhu/gorm"
-	"strconv"
 )
 
 type ProductController struct {
@@ -75,24 +75,32 @@ func (pd *ProductController) InsertMultipleProducts() {
 // @router /recommend [get]
 func (pd *ProductController) QueryProducts() {
 	var response ResponseModel
-	var productType = pd.Input().Get("type")
-	var pageIndexStr = pd.Input().Get("page")
-	if IsEmptyString(productType) {
-		productType = "normal"
-	}
-	pageIndexInt, err := strconv.Atoi(pageIndexStr)
-	if err != nil || pageIndexInt <= 0 {
-		pageIndexInt = 1
-	}
-	var products *[]Product
-	var product *Product
-	products, err = product.QueryProductsByProductType(productType, pageIndexInt)
-	if err != nil && err != gorm.ErrRecordNotFound {
-		beego.Error(err.Error())
+	reqArgs := make(map[string]interface{})
+	err := json.Unmarshal(pd.Ctx.Input.RequestBody, &reqArgs)
+	if err != nil {
+		beego.Warning(err.Error())
 		response.HandleError(err)
 	} else {
-		response.HandleSuccess(products)
+		productType := reqArgs["productType"].(string)
+		pageIndex := int(reqArgs["pageIndex"].(float64))
+
+		if IsEmptyString(productType) {
+			productType = "normal"
+		}
+		if pageIndex <= 0 {
+			pageIndex = 1
+		}
+		var products *[]Product
+		var product *Product
+		products, err = product.QueryProductsByProductType(productType, pageIndex)
+		if err != nil && err != gorm.ErrRecordNotFound {
+			beego.Error(err.Error())
+			response.HandleError(err)
+		} else {
+			response.HandleSuccess(products)
+		}
 	}
+
 	pd.Data["json"] = response
 	pd.ServeJSON()
 }

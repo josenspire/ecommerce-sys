@@ -8,6 +8,7 @@
 package routers
 
 import (
+	. "ecommerce-sys/commons"
 	. "ecommerce-sys/controllers"
 	"github.com/astaxie/beego"
 )
@@ -15,17 +16,23 @@ import (
 func init() {
 	beego.Router("/", &MainController{})
 
+	var aspectControl = AspectControl{}
+	beego.InsertFilter("/*", beego.BeforeExec, aspectControl.HandleRequest)
+
+	beego.InsertFilter("/*", beego.AfterExec, aspectControl.HandleResponse)
+
 	ns := beego.NewNamespace("/v1/api",
 		// 	api cache checking
 		// beego.NSBefore(models.ReadApiCache),
 
 		/**
-		Note: swagger api doc, just support to `NSNamespace + NSInclude`, or will not work in others way
-		*/
+		* Note: swagger api doc, just support to `NSNamespace + NSInclude`, or will not work in others way
+		 */
+
 		beego.NSNamespace("/advert",
 			beego.NSRouter("/insert", &AdvertController{}, "post:InsertAdvert"),
 			beego.NSRouter("/update", &AdvertController{}, "put:UpdateAdvert"),
-			beego.NSRouter("/list", &AdvertController{}, "get:GetAdvertList"),
+			beego.NSRouter("/list", &AdvertController{}, "post:GetAdvertList"),
 		),
 
 		beego.NSNamespace("/auth",
@@ -52,7 +59,7 @@ func init() {
 		beego.NSNamespace("/product",
 			beego.NSRouter("/insert", &ProductController{}, "post:InsertProduct"),
 			beego.NSRouter("/insertMultiple", &ProductController{}, "post:InsertMultipleProducts"),
-			beego.NSRouter("/list", &ProductController{}, "get:QueryProducts"),
+			beego.NSRouter("/list", &ProductController{}, "post:QueryProducts"),
 			beego.NSRouter("/details", &ProductController{}, "post:QueryProductDetails"),
 			beego.NSRouter("/details/specification", &ProductController{}, "post:QuerySpecificationDetails"),
 		),
@@ -60,7 +67,7 @@ func init() {
 		beego.NSNamespace("/classify",
 			beego.NSRouter("/create", &ClassifyController{}, "post:CreateClassify"),
 			beego.NSRouter("/category/create", &ClassifyController{}, "post:CreateCategory"),
-			beego.NSRouter("/list", &ClassifyController{}, "get:QueryClassifies"),
+			beego.NSRouter("/list", &ClassifyController{}, "post:QueryClassifies"),
 		),
 
 		beego.NSNamespace("/order",

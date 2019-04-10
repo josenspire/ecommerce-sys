@@ -1,9 +1,11 @@
 package utils
 
 import (
+	"bytes"
 	"encoding/json"
 	"github.com/astaxie/beego"
 	"reflect"
+	"strconv"
 )
 
 // can not handle key as Hump named
@@ -55,4 +57,23 @@ func MergeMaps(m1 map[string]interface{}, m2 map[string]interface{}) map[string]
 		m1[k] = v
 	}
 	return m1
+}
+
+func StringsToJSON(str string) string {
+	var jsons bytes.Buffer
+	for _, r := range str {
+		rint := int(r)
+		if rint < 128 {
+			jsons.WriteRune(r)
+		} else {
+			jsons.WriteString("\\u")
+			if rint < 0x100 {
+				jsons.WriteString("00")
+			} else if rint < 0x1000 {
+				jsons.WriteString("0")
+			}
+			jsons.WriteString(strconv.FormatInt(int64(rint), 16))
+		}
+	}
+	return jsons.String()
 }

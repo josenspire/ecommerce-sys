@@ -3,7 +3,7 @@ package main
 import (
 	"ecommerce-sys/db"
 	"ecommerce-sys/models"
-	_ "ecommerce-sys/routers"
+	_ "ecommerce-sys/router"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"

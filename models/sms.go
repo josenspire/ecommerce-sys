@@ -38,7 +38,7 @@ func (sms *SMS) ObtainSecurityCode(telephone string, userId uint64, operationMod
 			return nil, WarnTelephoneNotRegistered
 		}
 	}
-
+	// TODO: should integrate with sms server (Alicloud etc..)
 	key, value, smsContent := buildSMSContent(telephone, userId, operationMode)
 	err = redisClient.Set(key, value, 15*time.Minute).Err()
 	if err != nil {

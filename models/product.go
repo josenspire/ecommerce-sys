@@ -126,8 +126,6 @@ func (prod *Product) QueryProductsByProductType(productType string, pageIndex in
 }
 
 func (prod *Product) QueryProductDetails(productId uint64) (interface{}, error) {
-	// var productDetails = make(map[string]interface{})
-
 	var product = Product{}
 	mysqlDB := db.GetMySqlConnection().GetMySqlDB()
 	err := mysqlDB.Where("productId = ? and status = 'active'", productId).First(&product).Error
