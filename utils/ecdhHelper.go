@@ -7,6 +7,7 @@ import (
 	"crypto/md5"
 	"crypto/rand"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/pem"
 	"fmt"
 	"github.com/astaxie/beego"
@@ -17,10 +18,13 @@ import (
 
 type ECDH interface {
 	GenerateECKeyPair() (crypto.PrivateKey, crypto.PublicKey, error)
+	GenerateECKeyPairToPEM(curve elliptic.Curve) ([]byte, []byte, error)
+	GeneratePKIXPublicKey(publicKeyBlock string) string
 	Marshal(pub crypto.PublicKey) []byte
 	Unmarshal(data []byte) (crypto.PublicKey, bool)
 	ParsePKCS8ECPrivateKey(privateKeyDerBytes []byte) (*EllipticPrivateKey, *EllipticPublicKey, error)
-	ParsePKIXECPublicKeyFrom(publicKeyDerBytes []byte) (*EllipticPublicKey, error)
+	ParsePKIXECPublicKey(publicKeyDerBytes []byte) (*EllipticPublicKey, error)
+	GetPKIXPublicKeyBlockFromPEM(pemBytes []byte) string
 	DecodePEMToDERBytes(pemBytes []byte) []byte
 	ComputeSecret(privKey crypto.PrivateKey, pubKey crypto.PublicKey) ([]byte, error)
 }
@@ -39,8 +43,15 @@ type EllipticPublicKey struct {
 	Y *big.Int
 }
 
+const (
+	EC_PUBLIC_KEY_BLOCK_BEGIN = "-----BEGIN PUBLIC KEY-----"
+	EC_PUBLIC_KEY_BLOCK_END   = "-----END PUBLIC KEY-----"
+)
+
+// elliptic.P224(), elliptic.P384(), elliptic.P521()
 var curve = elliptic.P256()
 
+// generate ec key pair and return
 func (e *EllipticECDH) GenerateECKeyPair() (crypto.PrivateKey, crypto.PublicKey, error) {
 	priv, x, y, err := elliptic.GenerateKey(curve, rand.Reader)
 	if err != nil {
@@ -55,6 +66,17 @@ func (e *EllipticECDH) GenerateECKeyPair() (crypto.PrivateKey, crypto.PublicKey,
 		Y: y,
 	}
 	return privateKey, publicKey, nil
+}
+
+// generate ec key pair and write them to PEM file, then return them
+func (e *EllipticECDH) GenerateECKeyPairToPEM(curve elliptic.Curve) ([]byte, []byte, error) {
+	// priv, x, y, err := elliptic.GenerateKey(curve, rand.Reader)
+	// if err != nil {
+	// 	beego.Error(err.Error())
+	// 	return nil, nil, err
+	// }
+	// 	TODO: GEN key
+	return nil, nil, nil
 }
 
 // Marshal ec public key
@@ -100,13 +122,12 @@ func (e *EllipticECDH) ParsePKCS8ECPrivateKey(privateKeyDerBytes []byte) (*Ellip
 	return &privKey, &pubKey, nil
 }
 
-func (e *EllipticECDH) ParsePKIXECPublicKeyFrom(publicKeyDerBytes []byte) (*EllipticPublicKey, error) {
+func (e *EllipticECDH) ParsePKIXECPublicKey(publicKeyDerBytes []byte) (*EllipticPublicKey, error) {
 	pub, err := x509.ParsePKIXPublicKey(publicKeyDerBytes)
 	if err != nil {
 		beego.Error(err.Error())
 		return nil, err
 	}
-	fmt.Println(pub)
 	publicKey := pub.(*ecdsa.PublicKey)
 
 	pubKey := EllipticPublicKey{
@@ -116,6 +137,7 @@ func (e *EllipticECDH) ParsePKIXECPublicKeyFrom(publicKeyDerBytes []byte) (*Elli
 	return &pubKey, nil
 }
 
+// decode PEM, support private/public key, return block data
 func (e *EllipticECDH) DecodePEMToDERBytes(pemBytes []byte) []byte {
 	block, _ := pem.Decode(pemBytes)
 	return block.Bytes
@@ -127,6 +149,20 @@ func (e *EllipticECDH) ComputeSecret(privKey crypto.PrivateKey, pubKey crypto.Pu
 	pub := pubKey.(*EllipticPublicKey)
 	x, _ := curve.ScalarMult(pub.X, pub.Y, priv.D)
 	return x.Bytes(), nil
+}
+
+// handle client public key which is less of begin and end
+func (e *EllipticECDH) GeneratePKIXPublicKey(publicKeyBlock string) string {
+	return fmt.Sprintf("%s\n%s\n%s", EC_PUBLIC_KEY_BLOCK_BEGIN, publicKeyBlock, EC_PUBLIC_KEY_BLOCK_END)
+}
+
+// get public key form pem and format to base64
+func (e *EllipticECDH) GetPKIXPublicKeyBlockFromPEM(pemBytes []byte) string {
+	blockBytes := e.DecodePEMToDERBytes(pemBytes)
+	if len(blockBytes) == 0 {
+		return ""
+	}
+	return base64.StdEncoding.EncodeToString(blockBytes)
 }
 
 // https://blog.yumaojun.net/2017/02/19/go-crypto/

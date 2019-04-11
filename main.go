@@ -3,7 +3,8 @@ package main
 import (
 	"ecommerce-sys/db"
 	"ecommerce-sys/models"
-	_ "ecommerce-sys/router"
+	_ "ecommerce-sys/routers"
+	"ecommerce-sys/utils"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
@@ -36,7 +37,8 @@ func init() {
 
 	connectResult := db.GetMySqlConnection().InitConnectionPool()
 	if !connectResult {
-		log.Println("Init mysql database pool failure...")
+		beego.Error(utils.ErrMysqlInitFailure)
+		log.Println("[Error]: Init mysql database pool failure...")
 		os.Exit(1)
 	} else {
 		log.Println("Mysql database pool init succeeded...")
@@ -45,8 +47,8 @@ func init() {
 
 	redisInit := db.GetRedisConnection().InitialRedisClient()
 	if !redisInit {
-		log.Println("Init redis database pool failure...")
-		os.Exit(1)
+		beego.Error(utils.ErrRedisInitFailure)
+		log.Println("[Error]: Init redis database pool failure...")
 	} else {
 		log.Println("Redis database pool init succeeded...")
 	}

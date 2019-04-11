@@ -15,7 +15,7 @@ func TestGenerateKeyPair(t *testing.T) {
 			var privKey1 *EllipticPrivateKey
 			var pubKey1 *EllipticPublicKey
 
-			privBytes := OsFileReader("ecdh_priv.pem")
+			privBytes := OsFileReader("./../pem/ecdh_priv.pem")
 			privDerBytes := ellipticECDH.DecodePEMToDERBytes(privBytes)
 
 			privKey1, pubKey1, _ = ellipticECDH.ParsePKCS8ECPrivateKey(privDerBytes)
@@ -37,14 +37,14 @@ func TestGenerateKeyPair(t *testing.T) {
 			var pubKey1 *EllipticPublicKey
 			var pubKeyTemp *EllipticPublicKey
 
-			privBytes := OsFileReader("ecdh_priv.pem")
+			privBytes := OsFileReader("./../pem/ecdh_priv.pem")
 			privDerBytes := ellipticECDH.DecodePEMToDERBytes(privBytes)
 
-			pubBytes := OsFileReader("ecdh_pub.pem")
+			pubBytes := OsFileReader("./../pem/ecdh_pub.pem")
 			pubDerBytes := ellipticECDH.DecodePEMToDERBytes(pubBytes)
 
 			privKey1, pubKeyTemp, _ = ellipticECDH.ParsePKCS8ECPrivateKey(privDerBytes)
-			pubKey1, _ = ellipticECDH.ParsePKIXECPublicKeyFrom(pubDerBytes)
+			pubKey1, _ = ellipticECDH.ParsePKIXECPublicKey(pubDerBytes)
 
 			privKey2, pubKey2, _ := ellipticECDH.GenerateECKeyPair()
 
@@ -57,6 +57,23 @@ func TestGenerateKeyPair(t *testing.T) {
 			fmt.Println(secretStr1, secretStr2)
 			convey.So(pubKey1.X.String(), convey.ShouldEqual, pubKeyTemp.X.String())
 			convey.So(secretStr1, convey.ShouldEqual, secretStr2)
+		})
+
+		convey.Convey("Testing generate PKIX stander public key", func() {
+			var ellipticECDH *EllipticECDH
+			var inputPublicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE60BkU5fcacDtqV6Co2rPgxzfXdmLcnVNau6JE84AVPRz3x/cZFlJK6aSrSgzqxUPAU8NBNj1J4Z2oHdsjzZpMg=="
+			var publicKeyPEM = ellipticECDH.GeneratePKIXPublicKey(inputPublicKey)
+			convey.So(publicKeyPEM, convey.ShouldContainSubstring, `MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE60BkU5fcacDtqV6Co2rPgxzfXdmL`)
+		})
+
+		convey.Convey("Testing get public key form pem and format to base64", func() {
+			var ellipticECDH *EllipticECDH
+
+			pubBytes := OsFileReader("./../pem/ecdh_pub.pem")
+			publicKeyStr := ellipticECDH.GetPKIXPublicKeyBlockFromPEM(pubBytes)
+
+			var expectation = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE60BkU5fcacDtqV6Co2rPgxzfXdmLcnVNau6JE84AVPRz3x/cZFlJK6aSrSgzqxUPAU8NBNj1J4Z2oHdsjzZpMg=="
+			convey.So(publicKeyStr, convey.ShouldStartWith, expectation)
 		})
 	})
 }
