@@ -12,6 +12,8 @@ var ErrCurrentUserIsExist = errors.New("current user is already exist, please lo
 var ErrParamsMissing = errors.New("sorry, your request params missing")
 var ErrDecrypt = errors.New("sorry, your password verification failed")
 var ErrSecurityCodeInvalid = "security code is invalid or expired, please check it or obtain another one"
+var ErrPrivKeyParseFailedFromPEM = errors.New("failed to parse private key from PEM file")
+var ErrPubKeyParseFailedFromPEM = errors.New("failed to parse public key from PEM file")
 
 var ErrInvitationCodeInvalid = errors.New("this invitation code is invalid, please check it")
 
@@ -31,3 +33,4 @@ var WarnTelephoneNotRegistered = errors.New("sorry, the phone number has not bee
 var ErrRecordNotFound = errors.New("this record was not found, please check it")
 var ErrCreateRecordsIsEmpty = errors.New("insert records is empty, please check your option")
 var ErrParamsInValid = errors.New("sorry, your params are invalid, please check it")
+var ErrPEMIsNotExist = errors.New("sorry, parse key fail, the PEM file is empty")
