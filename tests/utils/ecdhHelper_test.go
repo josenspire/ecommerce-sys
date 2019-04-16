@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"crypto/ecdsa"
 	. "ecommerce-sys/utils"
 	"encoding/base64"
 	"fmt"
@@ -18,7 +19,9 @@ func TestGenerateKeyPair(t *testing.T) {
 			privBytes := OsFileReader("./../pem/ecdh_priv.pem")
 			privDerBytes := ellipticECDH.DecodePEMToDERBytes(privBytes)
 
-			privKey1, pubKey1, _ = ellipticECDH.ParsePKCS8ECPrivateKey(privDerBytes)
+			ellipticECDH, _ = ellipticECDH.ParsePKCS8ECPrivateKey(privDerBytes)
+			privKey1 = ellipticECDH.PrivateKey
+			pubKey1 = ellipticECDH.PublicKey
 			privKey2, pubKey2, _ := ellipticECDH.GenerateECKeyPair()
 
 			secret1, _ := ellipticECDH.ComputeSecret(privKey1, pubKey2)
@@ -43,8 +46,9 @@ func TestGenerateKeyPair(t *testing.T) {
 			pubBytes := OsFileReader("./../pem/ecdh_pub.pem")
 			pubDerBytes := ellipticECDH.DecodePEMToDERBytes(pubBytes)
 
-			privKey1, pubKeyTemp, _ = ellipticECDH.ParsePKCS8ECPrivateKey(privDerBytes)
-			pubKey1, _ = ellipticECDH.ParsePKIXECPublicKey(pubDerBytes)
+			ellipticECDH, _ = ellipticECDH.ParsePKCS8ECPrivateKey(privDerBytes)
+			privKey1, pubKeyTemp = ellipticECDH.PrivateKey, ellipticECDH.PublicKey
+			pubKey1, _, _ = ellipticECDH.ParsePKIXECPublicKey(pubDerBytes)
 
 			privKey2, pubKey2, _ := ellipticECDH.GenerateECKeyPair()
 
@@ -74,6 +78,20 @@ func TestGenerateKeyPair(t *testing.T) {
 
 			var expectation = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE60BkU5fcacDtqV6Co2rPgxzfXdmLcnVNau6JE84AVPRz3x/cZFlJK6aSrSgzqxUPAU8NBNj1J4Z2oHdsjzZpMg=="
 			convey.So(publicKeyStr, convey.ShouldStartWith, expectation)
+		})
+
+		convey.Convey("Testing private key signature data and public verify signature", func() {
+			var ellipticECDH *EllipticECDH
+			var ecdsaPrivateKey *ecdsa.PrivateKey
+
+			privBytes := OsFileReader("./../pem/ecdh_priv.pem")
+			privDerBytes := ellipticECDH.DecodePEMToDERBytes(privBytes)
+			ellipticECDH, _ = ellipticECDH.ParsePKCS8ECPrivateKey(privDerBytes)
+			ecdsaPrivateKey = ellipticECDH.ECDSAPrivateKey
+			signatureData, _ := ellipticECDH.Signature("德玛西亚", ecdsaPrivateKey)
+
+			verifyResult := ellipticECDH.VerifySignature(signatureData, &ecdsaPrivateKey.PublicKey)
+			convey.So(verifyResult, convey.ShouldBeTrue)
 		})
 	})
 }
