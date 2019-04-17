@@ -7,7 +7,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
-	"crypto/sha1"
+	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/pem"
@@ -186,7 +186,7 @@ type SignatureData struct {
 
 func (e *EllipticECDH) Signature(message string, privateKey *ecdsa.PrivateKey) (string, error) {
 	var h hash.Hash
-	h = sha1.New()
+	h = sha256.New()
 	r := big.NewInt(0)
 	s := big.NewInt(0)
 	_, err := io.WriteString(h, message)
