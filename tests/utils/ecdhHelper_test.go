@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestGenerateKeyPair(t *testing.T) {
+func TestECDHHelper(t *testing.T) {
 	convey.Convey("Subject: EllipticECDH", t, func() {
 		convey.Convey("Testing parse PKCS#8 private key and compute secret", func() {
 			var ellipticECDH *EllipticECDH
@@ -92,6 +92,40 @@ func TestGenerateKeyPair(t *testing.T) {
 			fmt.Println("=========", signatureDataStr, "=========")
 			// verifyResult := ellipticECDH.VerifySignature(signatureDataStr, &ecdsaPrivateKey.PublicKey)
 			convey.So(signatureDataStr, convey.ShouldBeTrue)
+		})
+	})
+}
+
+func TestIntegrationWithJavascript(t *testing.T) {
+	convey.Convey("Subject: ECDS/ECDSA Integration", t, func() {
+		convey.Convey("Testing integration with Javascript for `ecdh and ecdsa and aes crypt`", func() {
+			var ellipticECDH = &EllipticECDH{}
+			var pubKey *EllipticPublicKey
+			var ecdsaPublicKey *ecdsa.PublicKey
+			var publicKeyStr string
+			var publicKeyBytes []byte
+
+			mockData := "5b63546b6KW/5Lqa5Lq65rC45LiN6KiA5byD77yB"
+			secretKey := "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE60BkU5fcacDtqV6Co2rPgxzfXdmLcnVNau6JE84AVPRz3x/cZFlJK6aSrSgzqxUPAU8NBNj1J4Z2oHdsjzZpMg=="
+			signature := "MjkwNTI4YmUwYWVlYTU1Zjg2Y2E4NzU3OGJjMmRmMWQ4N2I1ZDNiYjQxY2FlMzkyOGI2Yzc2NjE5ZWI5ZWQwYjo3YzlhM2Y0NmExYmFiNjNhNGY3NWRiNzg4YmZmZWJiYTg2ZTUzNGQ3ZTFiMmM3ZWE2ODdhYTQyZGU3YTczNGQ0"
+
+			privBytes := OsFileReader("./../pem/ecdh_priv.pem")
+			privDerBytes := ellipticECDH.DecodePEMToDERBytes(privBytes)
+			ellipticECDH, _ = ellipticECDH.ParsePKCS8ECPrivateKey(privDerBytes)
+
+			publicKeyStr = ellipticECDH.GeneratePKIXPublicKey(secretKey)
+			publicKeyBytes = ellipticECDH.DecodePEMToDERBytes([]byte(publicKeyStr))
+			pubKey, ecdsaPublicKey, _ = ellipticECDH.ParsePKIXECPublicKey(publicKeyBytes)
+
+			secret, _ := ellipticECDH.ComputeSecret(ellipticECDH.PrivateKey, pubKey)
+
+			var signatureData *SignatureData
+			signatureData, _ = HandleSignatureData(mockData, signature)
+			verifyResult := ellipticECDH.VerifySignature(signatureData, ecdsaPublicKey)
+
+			convey.So(verifyResult, convey.ShouldBeTrue)
+
+			convey.So(secret, convey.ShouldEqual, "xxx")
 		})
 	})
 }

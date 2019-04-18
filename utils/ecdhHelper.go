@@ -10,27 +10,30 @@ import (
 	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
+	"encoding/binary"
+	"encoding/hex"
 	"encoding/pem"
 	"fmt"
 	"github.com/astaxie/beego"
 	"hash"
 	"io"
 	"math/big"
+	"strings"
 )
 
 type ECDH interface {
-	GenerateECKeyPair() (crypto.PrivateKey, crypto.PublicKey, error)
+	GenerateECKeyPair() (*EllipticPrivateKey, *EllipticPublicKey, error)
 	GenerateECKeyPairToPEM(curve elliptic.Curve) ([]byte, []byte, error)
 	GeneratePKIXPublicKey(publicKeyBlock string) string
 	Marshal(pub crypto.PublicKey) []byte
 	Unmarshal(data []byte) (crypto.PublicKey, bool)
 	ParsePKCS8ECPrivateKey(privateKeyDerBytes []byte) (*EllipticECDH, error)
-	ParsePKIXECPublicKey(publicKeyDerBytes []byte) (*EllipticPublicKey, error)
+	ParsePKIXECPublicKey(publicKeyDerBytes []byte) (*EllipticPublicKey, *ecdsa.PublicKey, error)
 	GetPKIXPublicKeyBlockFromPEM(pemBytes []byte) string
 	DecodePEMToDERBytes(pemBytes []byte) []byte
-	ComputeSecret(privKey crypto.PrivateKey, pubKey crypto.PublicKey) ([]byte, error)
+	ComputeSecret(privKey *EllipticPrivateKey, pubKey *EllipticPublicKey) ([]byte, error)
 
-	Signature(message string, privateKey *ecdsa.PrivateKey) (signatureData *SignatureData, err error)
+	Signature(message string, privateKey *ecdsa.PrivateKey) (string, error)
 	VerifySignature(signatureData *SignatureData, publicKey *ecdsa.PublicKey) (status bool)
 }
 
@@ -58,7 +61,7 @@ const (
 var curve = elliptic.P256()
 
 // generate ec key pair and return
-func (e *EllipticECDH) GenerateECKeyPair() (crypto.PrivateKey, crypto.PublicKey, error) {
+func (e *EllipticECDH) GenerateECKeyPair() (*EllipticPrivateKey, *EllipticPublicKey, error) {
 	priv, x, y, err := elliptic.GenerateKey(curve, rand.Reader)
 	if err != nil {
 		beego.Error(err.Error())
@@ -155,10 +158,8 @@ func (e *EllipticECDH) DecodePEMToDERBytes(pemBytes []byte) []byte {
 }
 
 // ECDH Compute Secret
-func (e *EllipticECDH) ComputeSecret(privKey crypto.PrivateKey, pubKey crypto.PublicKey) ([]byte, error) {
-	priv := privKey.(*EllipticPrivateKey)
-	pub := pubKey.(*EllipticPublicKey)
-	x, _ := curve.ScalarMult(pub.X, pub.Y, priv.D)
+func (e *EllipticECDH) ComputeSecret(privKey *EllipticPrivateKey, pubKey *EllipticPublicKey) ([]byte, error) {
+	x, _ := curve.ScalarMult(pubKey.X, pubKey.Y, privKey.D)
 	return x.Bytes(), nil
 }
 
@@ -222,6 +223,7 @@ func (e *EllipticECDH) Signature(message string, privateKey *ecdsa.PrivateKey) (
 	writer := gzip.NewWriter(&certBytes)
 	defer writer.Close()
 	_, err = writer.Write(rt)
+	_, err = writer.Write([]byte(":"))
 	_, err = writer.Write(st)
 	if err != nil {
 		return "", err
@@ -233,4 +235,39 @@ func (e *EllipticECDH) Signature(message string, privateKey *ecdsa.PrivateKey) (
 func (e *EllipticECDH) VerifySignature(signatureData *SignatureData, publicKey *ecdsa.PublicKey) (status bool) {
 	status = ecdsa.Verify(publicKey, *signatureData.signHash, signatureData.r, signatureData.s)
 	return
+}
+
+func HandleSignatureData(data string, signatureBase64 string) (signatureData *SignatureData, err error) {
+	signatureBytes, err := base64.StdEncoding.DecodeString(signatureBase64)
+	if err != nil {
+		beego.Error(err.Error())
+		return nil, err
+	}
+	signatureStr := string(signatureBytes)
+	rs := strings.Split(signatureStr, ":")
+
+	// hr, err := strconv.ParseInt(rs[0], 0, 64)
+	hr, err := hex.DecodeString(rs[0])
+	if err != nil {
+		beego.Error(err.Error())
+		return nil, err
+	}
+	hs, err := hex.DecodeString(rs[0])
+	if err != nil {
+		beego.Error(err.Error())
+		return nil, err
+	}
+	// var bigHr, bigHs *big.Intint64
+	dataBytes, err := base64.StdEncoding.DecodeString(data)
+	if err != nil {
+		beego.Error(err.Error())
+		return nil, err
+	}
+	signatureData = &SignatureData{
+		r:         big.NewInt(int64(binary.BigEndian.Uint64(hr))),
+		s:         big.NewInt(int64(binary.BigEndian.Uint64(hs))),
+		signHash:  &dataBytes,
+		signature: &[]byte{},
+	}
+	return signatureData, nil
 }
