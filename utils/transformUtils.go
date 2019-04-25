@@ -2,8 +2,10 @@ package utils
 
 import (
 	"bytes"
+	"encoding/hex"
 	"encoding/json"
 	"github.com/astaxie/beego"
+	"math/big"
 	"reflect"
 	"strconv"
 )
@@ -76,4 +78,14 @@ func StringsToJSON(str string) string {
 		}
 	}
 	return jsons.String()
+}
+
+func HexToBigInt(hexStr string) (bi *big.Int, err error) {
+	hBytes, err := hex.DecodeString(hexStr)
+	if err != nil {
+		return nil, err
+	}
+	bi = new(big.Int)
+	bi.SetBytes(hBytes)
+	return bi, err
 }

@@ -1,22 +1,16 @@
 package utils
 
 import (
-	"bytes"
-	"compress/gzip"
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
-	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
-	"encoding/binary"
 	"encoding/hex"
 	"encoding/pem"
 	"fmt"
 	"github.com/astaxie/beego"
-	"hash"
-	"io"
 	"math/big"
 	"strings"
 )
@@ -28,12 +22,14 @@ type ECDH interface {
 	Marshal(pub crypto.PublicKey) []byte
 	Unmarshal(data []byte) (crypto.PublicKey, bool)
 	ParsePKCS8ECPrivateKey(privateKeyDerBytes []byte) (*EllipticECDH, error)
+	ParseECPrivateKeyFromPEM(filePath string) (ellipticECDH *EllipticECDH, err error)
+	ParseECPublicKeyFromPEM(publicKeyStr string) (ecPubKey *EllipticPublicKey, ecdsaPubKey *ecdsa.PublicKey, err error)
 	ParsePKIXECPublicKey(publicKeyDerBytes []byte) (*EllipticPublicKey, *ecdsa.PublicKey, error)
 	GetPKIXPublicKeyBlockFromPEM(pemBytes []byte) string
 	DecodePEMToDERBytes(pemBytes []byte) []byte
 	ComputeSecret(privKey *EllipticPrivateKey, pubKey *EllipticPublicKey) ([]byte, error)
 
-	Signature(message string, privateKey *ecdsa.PrivateKey) (string, error)
+	Signature(messageBytes []byte, privateKey *ecdsa.PrivateKey) (string, error)
 	VerifySignature(signatureData *SignatureData, publicKey *ecdsa.PublicKey) (status bool)
 }
 
@@ -136,6 +132,22 @@ func (e *EllipticECDH) ParsePKCS8ECPrivateKey(privateKeyDerBytes []byte) (*Ellip
 	return ecdhKey, nil
 }
 
+func (e *EllipticECDH) ParseECPrivateKeyFromPEM(filePath string) (ellipticECDH *EllipticECDH, err error) {
+	privBytes := OsFileReader(filePath)
+	privDerBytes := e.DecodePEMToDERBytes(privBytes)
+	ellipticECDH, err = e.ParsePKCS8ECPrivateKey(privDerBytes)
+	return
+}
+
+func (e *EllipticECDH) ParseECPublicKeyFromPEM(publicKeyStr string) (ecPubKey *EllipticPublicKey, ecdsaPubKey *ecdsa.PublicKey, err error) {
+	var publicKeyDerBytes []byte
+
+	publicKeyStr = e.GeneratePKIXPublicKey(publicKeyStr)
+	publicKeyDerBytes = e.DecodePEMToDERBytes([]byte(publicKeyStr))
+	ecPubKey, ecdsaPubKey, err = e.ParsePKIXECPublicKey(publicKeyDerBytes)
+	return
+}
+
 func (e *EllipticECDH) ParsePKIXECPublicKey(publicKeyDerBytes []byte) (*EllipticPublicKey, *ecdsa.PublicKey, error) {
 	pub, err := x509.ParsePKIXPublicKey(publicKeyDerBytes)
 	if err != nil {
@@ -185,51 +197,17 @@ type SignatureData struct {
 	signature *[]byte
 }
 
-func (e *EllipticECDH) Signature(message string, privateKey *ecdsa.PrivateKey) (string, error) {
-	var h hash.Hash
-	h = sha256.New()
-	r := big.NewInt(0)
-	s := big.NewInt(0)
-	_, err := io.WriteString(h, message)
-	if err != nil {
-		beego.Error(err.Error())
-		return "", err
-	}
-	signHash := h.Sum(nil)
-	r, s, err = ecdsa.Sign(rand.Reader, privateKey, signHash)
+func (e *EllipticECDH) Signature(messageBytes []byte, privateKey *ecdsa.PrivateKey) (string, error) {
+	r, s := new(big.Int), new(big.Int)
+	r, s, err := ecdsa.Sign(rand.Reader, privateKey, messageBytes)
 	if err != nil {
 		return "", err
 	}
-	signature := r.Bytes()
-	signature = append(signature, s.Bytes()...)
-	// signatureData = &SignatureData{
-	// 	r:         r,
-	// 	s:         s,
-	// 	signHash:  &signHash,
-	// 	signature: &signature,
-	// }
-	rt, rErr := r.MarshalText()
-	if rErr != nil {
-		beego.Error(rErr.Error())
-		return "", err
-	}
-	st, sErr := r.MarshalText()
-	if sErr != nil {
-		beego.Error(rErr.Error())
-		return "", err
-	}
+	hr := hex.EncodeToString(r.Bytes())
+	hs := hex.EncodeToString(s.Bytes())
 
-	var certBytes bytes.Buffer
-	writer := gzip.NewWriter(&certBytes)
-	defer writer.Close()
-	_, err = writer.Write(rt)
-	_, err = writer.Write([]byte(":"))
-	_, err = writer.Write(st)
-	if err != nil {
-		return "", err
-	}
-	writer.Flush()
-	return base64.StdEncoding.EncodeToString(certBytes.Bytes()), nil
+	certBytes := fmt.Sprintf("%s:%s", []byte(hr), []byte(hs))
+	return base64.StdEncoding.EncodeToString([]byte(certBytes)), nil
 }
 
 func (e *EllipticECDH) VerifySignature(signatureData *SignatureData, publicKey *ecdsa.PublicKey) (status bool) {
@@ -246,26 +224,22 @@ func HandleSignatureData(data string, signatureBase64 string) (signatureData *Si
 	signatureStr := string(signatureBytes)
 	rs := strings.Split(signatureStr, ":")
 
-	// hr, err := strconv.ParseInt(rs[0], 0, 64)
-	hr, err := hex.DecodeString(rs[0])
+	var br, bs *big.Int
+	br, err = HexToBigInt(rs[0])
+	bs, err = HexToBigInt(rs[1])
 	if err != nil {
 		beego.Error(err.Error())
 		return nil, err
 	}
-	hs, err := hex.DecodeString(rs[0])
-	if err != nil {
-		beego.Error(err.Error())
-		return nil, err
-	}
-	// var bigHr, bigHs *big.Intint64
+	// var bigHr, bigHs *big.Int int64
 	dataBytes, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
 		beego.Error(err.Error())
 		return nil, err
 	}
 	signatureData = &SignatureData{
-		r:         big.NewInt(int64(binary.BigEndian.Uint64(hr))),
-		s:         big.NewInt(int64(binary.BigEndian.Uint64(hs))),
+		r:         br,
+		s:         bs,
 		signHash:  &dataBytes,
 		signature: &[]byte{},
 	}
