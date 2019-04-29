@@ -91,7 +91,10 @@ func TestECDHHelper(t *testing.T) {
 
 			msgBytes, _ := base64.StdEncoding.DecodeString(mockData)
 			signatureDataStr, _ := ellipticECDH.Signature(msgBytes, ecdsaPrivateKey)
-			fmt.Println("---------------", signatureDataStr)
+
+			fmt.Println("[data]", mockData)
+			fmt.Println("[signature]", signatureDataStr)
+
 			signatureData, _ := HandleSignatureData(mockData, signatureDataStr)
 			verifyResult := ellipticECDH.VerifySignature(signatureData, &ecdsaPrivateKey.PublicKey)
 			convey.So(verifyResult, convey.ShouldBeTrue)
@@ -111,9 +114,7 @@ func TestIntegrationWithJavascript(t *testing.T) {
 			signature := "MDBlZTUwZDhjNzEwMzA4YWM0ZjIxMDFjNGYwYjA3MTA3YjU0OTRkYTEzYmQ1MTQ1M2E5MzFmYjBmNTJhM2Y3NzQyOjAwOTNhNDgwMjE3MzRiYWQ3ODg5N2UyNzA1MzUwZmNmMDM1ZGQzYWM0NGQzNGFhZWQ1NDgxODBjOTdlMWY3YjVlNQ=="
 
 			ellipticECDH, _ = ellipticECDH.ParseECPrivateKeyFromPEM("./../pem/ecdh_priv.pem")
-
 			pubKey, ecdsaPublicKey, _ = ellipticECDH.ParseECPublicKeyFromPEM(secretKey)
-
 			secret, _ := ellipticECDH.ComputeSecret(ellipticECDH.PrivateKey, pubKey)
 
 			var signatureData *SignatureData

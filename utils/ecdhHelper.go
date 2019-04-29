@@ -206,7 +206,7 @@ func (e *EllipticECDH) Signature(messageBytes []byte, privateKey *ecdsa.PrivateK
 	hr := hex.EncodeToString(r.Bytes())
 	hs := hex.EncodeToString(s.Bytes())
 
-	certBytes := fmt.Sprintf("%s:%s", []byte(hr), []byte(hs))
+	certBytes := fmt.Sprintf("%s:%s", hr, hs)
 	return base64.StdEncoding.EncodeToString([]byte(certBytes)), nil
 }
 
@@ -223,7 +223,6 @@ func HandleSignatureData(data string, signatureBase64 string) (signatureData *Si
 	}
 	signatureStr := string(signatureBytes)
 	rs := strings.Split(signatureStr, ":")
-
 	var br, bs *big.Int
 	br, err = HexToBigInt(rs[0])
 	bs, err = HexToBigInt(rs[1])
