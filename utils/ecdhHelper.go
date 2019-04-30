@@ -132,20 +132,30 @@ func (e *EllipticECDH) ParsePKCS8ECPrivateKey(privateKeyDerBytes []byte) (*Ellip
 	return ecdhKey, nil
 }
 
-func (e *EllipticECDH) ParseECPrivateKeyFromPEM(filePath string) (ellipticECDH *EllipticECDH, err error) {
+func (e *EllipticECDH) ParseECPrivateKeyFromPEM(filePath string) (*EllipticECDH, error) {
+	var ellipticECDH = &EllipticECDH{}
 	privBytes := OsFileReader(filePath)
 	privDerBytes := e.DecodePEMToDERBytes(privBytes)
-	ellipticECDH, err = e.ParsePKCS8ECPrivateKey(privDerBytes)
-	return
+	ellipticECDH, err := e.ParsePKCS8ECPrivateKey(privDerBytes)
+	if err != nil {
+		beego.Error(err.Error())
+		return nil, err
+	}
+	return ellipticECDH, nil
 }
 
-func (e *EllipticECDH) ParseECPublicKeyFromPEM(publicKeyStr string) (ecPubKey *EllipticPublicKey, ecdsaPubKey *ecdsa.PublicKey, err error) {
+func (e *EllipticECDH) ParseECPublicKeyFromPEM(publicKeyStr string) (*EllipticPublicKey, *ecdsa.PublicKey, error) {
 	var publicKeyDerBytes []byte
-
+	var ecPubKey = &EllipticPublicKey{}
+	var ecdsaPubKey = &ecdsa.PublicKey{}
 	publicKeyStr = e.GeneratePKIXPublicKey(publicKeyStr)
 	publicKeyDerBytes = e.DecodePEMToDERBytes([]byte(publicKeyStr))
-	ecPubKey, ecdsaPubKey, err = e.ParsePKIXECPublicKey(publicKeyDerBytes)
-	return
+	ecPubKey, ecdsaPubKey, err := e.ParsePKIXECPublicKey(publicKeyDerBytes)
+	if err != nil {
+		beego.Error(err.Error())
+		return nil, nil, err
+	}
+	return ecPubKey, ecdsaPubKey, nil
 }
 
 func (e *EllipticECDH) ParsePKIXECPublicKey(publicKeyDerBytes []byte) (*EllipticPublicKey, *ecdsa.PublicKey, error) {
@@ -155,7 +165,6 @@ func (e *EllipticECDH) ParsePKIXECPublicKey(publicKeyDerBytes []byte) (*Elliptic
 		return nil, nil, err
 	}
 	publicKey := pub.(*ecdsa.PublicKey)
-
 	pubKey := EllipticPublicKey{
 		X: publicKey.X,
 		Y: publicKey.Y,

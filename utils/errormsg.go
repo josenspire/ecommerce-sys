@@ -36,3 +36,4 @@ var ErrParamsInValid = errors.New("sorry, your params are invalid, please check 
 var ErrPEMIsNotExist = errors.New("sorry, parse key fail, the PEM file is empty")
 var ErrMysqlInitFailure = errors.New("error, server initial [mysql] pool failure, please check it")
 var ErrRedisInitFailure = errors.New("error, server initial [redis] pool failure, please check it")
+var ErrSignatureInvalid = errors.New("error, request data signature is invalid")

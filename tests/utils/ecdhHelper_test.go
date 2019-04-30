@@ -104,25 +104,37 @@ func TestECDHHelper(t *testing.T) {
 
 func TestIntegrationWithJavascript(t *testing.T) {
 	convey.Convey("Subject: ECDS/ECDSA Integration", t, func() {
-		convey.Convey("Testing integration with Javascript for `ecdh and ecdsa and aes crypt`", func() {
+		// convey.Convey("Testing integration with Javascript for `ecdh and ecdsa and aes crypt`", func() {
+		// 	var ellipticECDH = &EllipticECDH{}
+		// 	var pubKey *EllipticPublicKey
+		// 	var ecdsaPublicKey *ecdsa.PublicKey
+		//
+		// 	mockData := "5b63546b6KW/5Lqa5Lq65rC45LiN6KiA5byD77yB"
+		// 	secretKey := "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE0rK1g09teXQFAfZAG23Ax0SrFMOAmyCEOslHs+RZObcYGMRcQNpi2/aFlAsds4LgY0OvwodprHvwgEdlDP+agw=="
+		// 	signature := "MDBlZTUwZDhjNzEwMzA4YWM0ZjIxMDFjNGYwYjA3MTA3YjU0OTRkYTEzYmQ1MTQ1M2E5MzFmYjBmNTJhM2Y3NzQyOjAwOTNhNDgwMjE3MzRiYWQ3ODg5N2UyNzA1MzUwZmNmMDM1ZGQzYWM0NGQzNGFhZWQ1NDgxODBjOTdlMWY3YjVlNQ=="
+		//
+		// 	ecdh, _ := ellipticECDH.ParseECPrivateKeyFromPEM("./../../commons/pem/ecdh_priv.pem")
+		// 	pubKey, ecdsaPublicKey, _ = ellipticECDH.ParseECPublicKeyFromPEM(secretKey)
+		// 	secret, _ := ellipticECDH.ComputeSecret(ecdh.PrivateKey, pubKey)
+		//
+		// 	var signatureData *SignatureData
+		// 	signatureData, _ = HandleSignatureData(mockData, signature)
+		// 	verifyResult := ellipticECDH.VerifySignature(signatureData, ecdsaPublicKey)
+		//
+		// 	convey.So(verifyResult, convey.ShouldBeTrue)
+		// 	convey.So(base64.StdEncoding.EncodeToString(secret), convey.ShouldEqual, "VxTUEv3XhrueEkuHjA09AL88wuNBc7Q+49ExN0aSmm4=")
+		// })
+
+		convey.Convey("Testing integration with Javascript for `ecdh and compute secret`", func() {
+			secretKey := `MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEAFYf7bhFdUeTiIwk0KbDoengAREz96cRNgMRkHBF9G0rJCFBaQcZ5p3f2etaUoz4zoaGwLuU1Hw2ko2Wtak81A==`
 			var ellipticECDH = &EllipticECDH{}
 			var pubKey *EllipticPublicKey
-			var ecdsaPublicKey *ecdsa.PublicKey
 
-			mockData := "5b63546b6KW/5Lqa5Lq65rC45LiN6KiA5byD77yB"
-			secretKey := "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE0rK1g09teXQFAfZAG23Ax0SrFMOAmyCEOslHs+RZObcYGMRcQNpi2/aFlAsds4LgY0OvwodprHvwgEdlDP+agw=="
-			signature := "MDBlZTUwZDhjNzEwMzA4YWM0ZjIxMDFjNGYwYjA3MTA3YjU0OTRkYTEzYmQ1MTQ1M2E5MzFmYjBmNTJhM2Y3NzQyOjAwOTNhNDgwMjE3MzRiYWQ3ODg5N2UyNzA1MzUwZmNmMDM1ZGQzYWM0NGQzNGFhZWQ1NDgxODBjOTdlMWY3YjVlNQ=="
-
-			ellipticECDH, _ = ellipticECDH.ParseECPrivateKeyFromPEM("./../pem/ecdh_priv.pem")
-			pubKey, ecdsaPublicKey, _ = ellipticECDH.ParseECPublicKeyFromPEM(secretKey)
+			ellipticECDH, _ = ellipticECDH.ParseECPrivateKeyFromPEM("./../../commons/pem/ecdh_priv.pem")
+			pubKey, _, _ = ellipticECDH.ParseECPublicKeyFromPEM(secretKey)
 			secret, _ := ellipticECDH.ComputeSecret(ellipticECDH.PrivateKey, pubKey)
 
-			var signatureData *SignatureData
-			signatureData, _ = HandleSignatureData(mockData, signature)
-			verifyResult := ellipticECDH.VerifySignature(signatureData, ecdsaPublicKey)
-
-			convey.So(verifyResult, convey.ShouldBeTrue)
-			convey.So(base64.StdEncoding.EncodeToString(secret), convey.ShouldEqual, "lj1FP0dMJeDUuwR0JzwWg36Xa2vBn6ZreSqcC1ZwzJk=")
+			convey.So(base64.StdEncoding.EncodeToString(secret), convey.ShouldEqual, "0Ip1YLH/K31gocq74xZAEFjJNvZ0WeCGky1q6/EkaLY=")
 		})
 	})
 }
