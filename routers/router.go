@@ -16,10 +16,10 @@ import (
 func init() {
 	beego.Router("/", &MainController{})
 
-	var aspectControl = AspectControl{}
-	beego.InsertFilter("/*", beego.BeforeExec, aspectControl.HandleRequest)
+	var aspectControl IAspectControl = &AspectControlWithoutEcdh{}
 
-	beego.InsertFilter("/*", beego.AfterExec, aspectControl.HandleResponse)
+	beego.InsertFilter("/*", beego.BeforeExec, aspectControl.HandleRequestWithoutEcdh)
+	beego.InsertFilter("/*", beego.FinishRouter, aspectControl.HandleResponseWithoutEcdh)
 
 	ns := beego.NewNamespace("/v1/api",
 		// 	api cache checking
@@ -28,7 +28,6 @@ func init() {
 		/**
 		* Note: swagger api doc, just support to `NSNamespace + NSInclude`, or will not work in others way
 		 */
-
 		beego.NSNamespace("/advert",
 			beego.NSRouter("/insert", &AdvertController{}, "post:InsertAdvert"),
 			beego.NSRouter("/update", &AdvertController{}, "put:UpdateAdvert"),

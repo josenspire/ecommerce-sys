@@ -5,6 +5,7 @@ import (
 	. "ecommerce-sys/utils"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
 	"log"
@@ -17,7 +18,19 @@ type RequestModel struct {
 	Signature string `json:"signature"`
 }
 
-type AspectControl struct{}
+type IAspectControl interface {
+	HandleRequest(ct *context.Context)
+	HandleResponse(ct *context.Context)
+	HandleRequestWithoutEcdh(ct *context.Context)
+	HandleResponseWithoutEcdh(ct *context.Context)
+}
+
+type AspectControl struct {
+	IAspectControl
+}
+type AspectControlWithoutEcdh struct {
+	IAspectControl
+}
 
 func (asp *AspectControl) HandleRequest(ct *context.Context) {
 	var requestModel *RequestModel
@@ -37,9 +50,9 @@ func (asp *AspectControl) HandleRequest(ct *context.Context) {
 			// TODO: should build completed response body then return to client
 			ct.Abort(http.StatusOK, err.Error())
 		}
-		// var requestContent = make([]byte, len(reqBytes))
+
 		ct.Input.RequestBody = reqBytes
-		log.Println("request body: ", ct.Input.RequestBody)
+		log.Println("[Request With ECDH] request body: ", ct.Input.RequestBody)
 	}
 }
 
@@ -88,4 +101,13 @@ func (asp *AspectControl) HandleRequestBody(requestModel *RequestModel) (reqByte
 		return nil, err
 	}
 	return []byte(requestData), nil
+}
+
+func (asp *AspectControlWithoutEcdh) HandleRequestWithoutEcdh(ct *context.Context) {
+	log.Println("[Normal Request] request body: ", string(ct.Input.RequestBody))
+}
+
+func (asp *AspectControlWithoutEcdh) HandleResponseWithoutEcdh(ct *context.Context) {
+	fmt.Print(ct.Output)
+	log.Println("[Normal Response] response body: ")
 }
