@@ -7,6 +7,7 @@ import (
 	"github.com/astaxie/beego/cache"
 	_ "github.com/astaxie/beego/cache/redis"
 	"github.com/astaxie/beego/context"
+	"github.com/astaxie/beego/logs"
 	"net/http"
 	"reflect"
 	"time"
@@ -49,7 +50,7 @@ func ReadApiCache(ct *context.Context) {
 	fmt.Println("[RequestBody]:", reqJson)
 
 	if redis, err := GetRedis(); err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		ct.Abort(http.StatusInternalServerError, err.Error())
 	} else {
 		if cacheJsonObj := redis.Get(input.URI()); cacheJsonObj != nil {
@@ -70,7 +71,7 @@ func WriteApiCache(ct *context.Context, response interface{}) {
 	input := ct.Input
 
 	if redis, err := GetRedis(); err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 	} else {
 		var requestBody interface{}
 		json.Unmarshal(input.RequestBody, &requestBody)
@@ -82,14 +83,14 @@ func WriteApiCache(ct *context.Context, response interface{}) {
 
 		err := redis.Put(input.URI(), cacheByte, time.Second*60*2)
 		if err != nil {
-			beego.Error(err.Error())
+			logs.Error(err.Error())
 		}
 	}
 }
 
 func ReadCacheDataByKey(cacheKey string) interface{} {
 	if redis, err := GetRedis(); err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return err.Error()
 	} else {
 		if cacheJsonObj := redis.Get(cacheKey); cacheJsonObj != nil {

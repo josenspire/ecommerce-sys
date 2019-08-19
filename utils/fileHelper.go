@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"io/ioutil"
 	"os"
 )
@@ -13,7 +13,7 @@ func OsFileReader(fileName string) []byte {
 			return contents
 		}
 	} else {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 	}
 	return nil
 }

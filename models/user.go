@@ -66,12 +66,12 @@ func (user *User) BeforeCreate(scope *gorm.Scope) error {
 	}
 	encryptPassword, err := AESEncrypt(user.Password, AESSecretKey)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return err
 	}
 	err = scope.SetColumn("password", encryptPassword)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return err
 	}
 	return nil
@@ -106,7 +106,7 @@ func (user *User) Register(dto UserRegisterDTO) error {
 	err = ts.Create(&user).Error
 	err = ts.Create(&team).Error
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		ts.Rollback()
 	} else {
 		ts.Commit()
@@ -122,7 +122,7 @@ func (user *User) LoginByTelephone(telephone string, password string) error {
 		return ErrTelOrPswInvalid
 	}
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		return err
 	}
 	if IsEmptyString(userProfile.Password) {
@@ -131,7 +131,7 @@ func (user *User) LoginByTelephone(telephone string, password string) error {
 	}
 	encryptPassword, err := AESEncrypt(password, AESSecretKey)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return ErrDecrypt
 	}
 	err = mysqlDB.Where("telephone = ? and password = ?", telephone, encryptPassword).First(&user).Error
@@ -179,7 +179,7 @@ func (user *User) QueryByUserId(userId string) *User {
 func (user *User) LoginByWechat(jsCode string, wechatUserProfile string, invitationCode string) (*UserWechatVO, error) {
 	user, wxSession, err := authorizationWithInitialUser(jsCode, wechatUserProfile, invitationCode)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, err
 	}
 	var vo = UserWechatVO{
@@ -194,14 +194,14 @@ func authorizationWithInitialUser(jsCode string, wechatUserProfile string, invit
 	// openId, sessionKey := GenerateNowDateString(), GenerateRandString(8)
 
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, nil, err
 	}
 	fmt.Printf("User openId = %s, sessionKey = %s", openId, sessionKey)
 
 	skeyBytes, err := SHA1Encrypt(sessionKey)
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		return nil, nil, err
 	}
 	skeyHexStr := hex.EncodeToString(skeyBytes)
@@ -219,7 +219,7 @@ func authorizationWithInitialUser(jsCode string, wechatUserProfile string, invit
 		}
 		err = tx.Create(&user).Error
 		if err != nil {
-			beego.Error(err.Error())
+			logs.Error(err.Error())
 			tx.Rollback()
 			return nil, nil, err
 		}
@@ -233,7 +233,7 @@ func authorizationWithInitialUser(jsCode string, wechatUserProfile string, invit
 		}
 		err = tx.Create(&wxSession).Error
 		if err != nil {
-			beego.Error(err.Error())
+			logs.Error(err.Error())
 			tx.Rollback()
 			return nil, nil, err
 		}
@@ -241,24 +241,24 @@ func authorizationWithInitialUser(jsCode string, wechatUserProfile string, invit
 
 		team, err := initialUserAgentTeamsContent(userId, invitationCode)
 		if err != nil {
-			beego.Error(err.Error())
+			logs.Error(err.Error())
 			tx.Rollback()
 			return nil, nil, err
 		}
 		err = tx.Create(&team).Error
 		if err != nil {
-			beego.Error(err.Error())
+			logs.Error(err.Error())
 			tx.Rollback()
 			return nil, nil, err
 		}
 	} else if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		tx.Rollback()
 		return nil, nil, err
 	}
 	err = tx.Model(&wechatSession).Updates(map[string]interface{}{"sessionKey": sessionKey, "skey": skeyHexStr}).Error
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, nil, err
 	}
 	tx.Commit()
@@ -267,7 +267,7 @@ func authorizationWithInitialUser(jsCode string, wechatUserProfile string, invit
 	var wxSession = WxSession{}
 	err = mysqlDB.Where("userId = ?", wechatSession.UserId).First(&user).Error
 	if err == gorm.ErrRecordNotFound {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, nil, err
 	}
 	err = mysqlDB.Model(&user).Where("userId = ?", user.UserId).First(&wxSession).Error
@@ -288,7 +288,7 @@ func initialUserAgentTeamsContent(userId uint64, invitationCode string) (*Team, 
 			team.TopLevelAgent = TOP_AGENT
 			team.SuperiorAgent = SUPERIOR_AGNET
 		} else {
-			beego.Error(err.Error())
+			logs.Error(err.Error())
 			return nil, err
 		}
 	} else {

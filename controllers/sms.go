@@ -6,6 +6,7 @@ import (
 	. "ecommerce-sys/utils"
 	"encoding/json"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"strings"
 )
 
@@ -18,7 +19,7 @@ func (s *SMSController) ObtainSecurityCode() {
 	reqArgs := make(map[string]interface{})
 	err := json.Unmarshal(s.Ctx.Input.RequestBody, &reqArgs)
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		response.HandleFail(PARAMS_MISSING, ErrParamsInValid.Error())
 	} else {
 		telephone := reqArgs["telephone"].(string)
@@ -32,7 +33,7 @@ func (s *SMSController) ObtainSecurityCode() {
 		} else if err == WarnTelephoneAlreadyRegistered {
 			response.HandleFail(TELEPHONE_HAS_BEEN_USED, WarnTelephoneAlreadyRegistered.Error())
 		} else if err != nil {
-			beego.Error(err)
+			logs.Error(err)
 			response.HandleError(err, REQUEST_FAIL)
 		} else {
 			response.HandleSuccess(smsProfile, "security code send success, will expire at 15 min after")
@@ -47,7 +48,7 @@ func (s *SMSController) VerifySecurityCode() {
 	reqArgs := make(map[string]interface{})
 	err := json.Unmarshal(s.Ctx.Input.RequestBody, &reqArgs)
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		response.HandleFail(PARAMS_MISSING, ErrParamsInValid.Error())
 	} else {
 		userId := reqArgs["userId"].(float64)
@@ -57,7 +58,7 @@ func (s *SMSController) VerifySecurityCode() {
 		var sms *SMS
 		verifyResult, err := sms.VerifySecurityCode(telephone, uint64(userId), securityCode, operationMode)
 		if err != nil {
-			beego.Error(err)
+			logs.Error(err)
 			response.HandleError(err, REQUEST_FAIL)
 		} else {
 			if verifyResult {

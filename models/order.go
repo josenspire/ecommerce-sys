@@ -3,7 +3,7 @@ package models
 import (
 	"ecommerce-sys/db"
 	. "ecommerce-sys/utils"
-	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"strings"
 	"time"
 )
@@ -100,7 +100,7 @@ func (of *OrderForm) PlaceOrder(dto *PlaceOrderDTO) error {
 	err = tx.Exec(outboundSqlStr, outboundValues...).Error
 
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		tx.Rollback()
 	} else {
 		tx.Commit()
@@ -114,7 +114,7 @@ func (of *OrderForm) OrderCompleted(userId uint64, orderId uint64) error {
 	var orderForm = OrderForm{}
 	err := mysqlDB.Where("orderId = ? and userId = ?", orderId, userId).Not("status", []string{"CANCEL", "COMPLETED"}).First(&orderForm).Error
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return err
 	}
 	err = mysqlDB.Model(&OrderForm{}).Where("orderId = ? and userId = ?", orderId, userId).Update("status", "COMPLETED").Error
@@ -127,7 +127,7 @@ func (of *OrderForm) OrderCancel(userId uint64, orderId uint64) error {
 	var orderForm = OrderForm{}
 	err := mysqlDB.Where("orderId = ? and userId = ?", orderId, userId).Not("status", []string{"CANCEL", "COMPLETED"}).First(&orderForm).Error
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return err
 	}
 	err = mysqlDB.Model(&OrderForm{}).Where("orderId = ? and userId = ?", orderId, userId).Update("status", "CANCEL").Error
@@ -140,12 +140,12 @@ func (of *OrderForm) QueryOrderDetails(userId uint64, orderId uint64) (*OrderFor
 	var orderForm OrderForm
 	err := mysqlDB.Where("orderId = ? and userId = ?", orderId, userId).First(&orderForm).Error
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, err
 	}
 	err = mysqlDB.Model(&orderForm).Association("Outbounds").Find(&orderForm.Outbounds).Error
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, err
 	}
 	return &orderForm, err

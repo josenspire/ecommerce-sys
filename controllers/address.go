@@ -6,6 +6,7 @@ import (
 	. "ecommerce-sys/utils"
 	"encoding/json"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"github.com/jinzhu/gorm"
 	"strconv"
 )
@@ -25,7 +26,7 @@ func (addr *AddressController) QueryAddresses() {
 	reqArgs := make(map[string]interface{})
 	err := json.Unmarshal(addr.Ctx.Input.RequestBody, &reqArgs)
 	if err != nil {
-		beego.Warning(err.Error())
+		logs.Warning(err.Error())
 		response.HandleError(err)
 	} else {
 		userId := reqArgs["userId"].(float64)
@@ -35,7 +36,7 @@ func (addr *AddressController) QueryAddresses() {
 			var address *Address
 			addresses, err := address.QueryAddresses(uint64(userId))
 			if err != nil {
-				beego.Error(err.Error())
+				logs.Error(err.Error())
 				response.HandleError(err)
 			} else {
 				response.HandleSuccess(addresses)
@@ -63,13 +64,13 @@ func (addr *AddressController) CreateAddress() {
 	var dto *AddressDTO
 	err := json.Unmarshal(addr.Ctx.Input.RequestBody, &dto)
 	if err != nil {
-		beego.Warning(err.Error())
+		logs.Warning(err.Error())
 		response.HandleError(err)
 	} else {
 		var address *Address
 		err = address.CreateAddress(dto)
 		if err != nil {
-			beego.Error(err.Error())
+			logs.Error(err.Error())
 			response.HandleError(err)
 		} else {
 			response.HandleSuccess(address)
@@ -91,7 +92,7 @@ func (addr *AddressController) QueryDetails() {
 	reqArgs := make(map[string]interface{})
 	err := json.Unmarshal(addr.Ctx.Input.RequestBody, &reqArgs)
 	if err != nil {
-		beego.Warning(err.Error())
+		logs.Warning(err.Error())
 		response.HandleError(err)
 	} else {
 		addressId := reqArgs["addressId"].(float64)
@@ -104,7 +105,7 @@ func (addr *AddressController) QueryDetails() {
 			if err == gorm.ErrRecordNotFound {
 				response.HandleFail(RECORD_NOT_FOUND, ErrRecordNotFound.Error())
 			} else if err != nil {
-				beego.Error(err.Error())
+				logs.Error(err.Error())
 				response.HandleError(err)
 			} else {
 				response.HandleSuccess(&addressDetails)
@@ -126,7 +127,7 @@ func (addr *AddressController) UpdateAddress() {
 	var dto *AddressDTO
 	err := json.Unmarshal(addr.Ctx.Input.RequestBody, &dto)
 	if err != nil {
-		beego.Warning(err.Error())
+		logs.Warning(err.Error())
 		response.HandleError(err)
 	} else {
 		var address *Address
@@ -134,7 +135,7 @@ func (addr *AddressController) UpdateAddress() {
 		if err == gorm.ErrRecordNotFound {
 			response.HandleFail(ADDRESS_NOT_FOUND, ErrAddressNotFound.Error())
 		} else if err != nil {
-			beego.Error(err.Error())
+			logs.Error(err.Error())
 			response.HandleError(err)
 		} else {
 			response.HandleSuccess(address)
@@ -161,7 +162,7 @@ func (addr *AddressController) DeleteAddress() {
 	reqArgs := make(map[string]interface{})
 	err := json.Unmarshal(addr.Ctx.Input.RequestBody, &reqArgs)
 	if err != nil {
-		beego.Warning(err.Error())
+		logs.Warning(err.Error())
 		response.HandleError(err)
 	} else {
 		addressId := reqArgs["addressId"].(float64)
@@ -174,7 +175,7 @@ func (addr *AddressController) DeleteAddress() {
 			if err == gorm.ErrRecordNotFound {
 				response.HandleFail(RECORD_NOT_FOUND, ErrRecordNotFound.Error())
 			} else if err != nil {
-				beego.Error(err.Error())
+				logs.Error(err.Error())
 				response.HandleError(err)
 			} else {
 				response.HandleSuccess(nil, "address remove success")
@@ -197,7 +198,7 @@ func (addr *AddressController) SetAsDefaultAddress() {
 	reqArgs := make(map[string]interface{})
 	err := json.Unmarshal(addr.Ctx.Input.RequestBody, &reqArgs)
 	if err != nil {
-		beego.Warning(err.Error())
+		logs.Warning(err.Error())
 		response.HandleError(err)
 	} else {
 		userId := reqArgs["userId"].(float64)
@@ -210,7 +211,7 @@ func (addr *AddressController) SetAsDefaultAddress() {
 			if err == gorm.ErrRecordNotFound {
 				response.HandleFail(RECORD_NOT_FOUND, ErrRecordNotFound.Error())
 			} else if err != nil {
-				beego.Error(err.Error())
+				logs.Error(err.Error())
 				response.HandleError(err)
 			} else {
 				response.HandleSuccess(nil, "set default address succeed")

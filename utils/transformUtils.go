@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"math/big"
 	"reflect"
 	"strconv"
@@ -46,7 +47,7 @@ func TransformStructToJSONMap(model interface{}) (map[string]interface{}, error)
 func TransformByteToJSON(str []byte) interface{} {
 	var tsJson interface{}
 	if err := json.Unmarshal(str, &tsJson); err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil
 	} else {
 		beego.Info(tsJson)

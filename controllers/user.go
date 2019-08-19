@@ -6,6 +6,7 @@ import (
 	. "ecommerce-sys/utils"
 	"encoding/json"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"github.com/jinzhu/gorm"
 	"strconv"
 )
@@ -32,12 +33,12 @@ func (u *UserController) Register() {
 	dto := UserRegisterDTO{}
 	err := json.Unmarshal(u.Ctx.Input.RequestBody, &dto)
 	if err != nil {
-		beego.Warning(err.Error())
+		logs.Warning(err.Error())
 		response.HandleError(err, PARAMS_MISSING)
 	} else {
 		err = user.Register(dto)
 		if err != nil {
-			beego.Error(err.Error())
+			logs.Error(err.Error())
 			response.HandleFail(REQUEST_FAIL, err.Error())
 		} else {
 			response.HandleSuccess(nil, "Registration Successful")
@@ -59,7 +60,7 @@ func (u *UserController) LoginByTelephone() {
 	reqParams := make(map[string]string)
 	err := json.Unmarshal(u.Ctx.Input.RequestBody, &reqParams)
 	if err != nil {
-		beego.Warning(err.Error())
+		logs.Warning(err.Error())
 		response.HandleError(err)
 	} else {
 		telephone := reqParams["telephone"]
@@ -72,7 +73,7 @@ func (u *UserController) LoginByTelephone() {
 			// TODO: need to return the notification
 			response.HandleFail(TELEPHONE_NEED_VERIFY, WarnAccountNeedVerify.Error())
 		} else if err != nil {
-			beego.Error(err.Error())
+			logs.Error(err.Error())
 			response.HandleError(err)
 		} else {
 			response.HandleSuccess(user)
@@ -96,7 +97,7 @@ func (u *UserController) LoginByWechat() {
 	reqParams := make(map[string]string)
 	err := json.Unmarshal(u.Ctx.Input.RequestBody, &reqParams)
 	if err != nil {
-		beego.Warning(err.Error())
+		logs.Warning(err.Error())
 		response.HandleError(err)
 	} else {
 		jsCode := reqParams["jsCode"]
@@ -107,7 +108,7 @@ func (u *UserController) LoginByWechat() {
 		} else {
 			user, err := user.LoginByWechat(jsCode, userInfo, invitationCode)
 			if err != nil {
-				beego.Error(err.Error())
+				logs.Error(err.Error())
 				response.HandleError(err, REQUEST_FAIL)
 			} else {
 				response.HandleSuccess(&user, "")
@@ -129,7 +130,7 @@ func (u *UserController) QueryUserTeams() {
 	reqParams := make(map[string]float64)
 	err := json.Unmarshal(u.Ctx.Input.RequestBody, &reqParams)
 	if err != nil {
-		beego.Warning(err.Error())
+		logs.Warning(err.Error())
 		response.HandleFail(REQUEST_FAIL, err.Error())
 	} else {
 		userId := int(reqParams["userId"])
@@ -141,7 +142,7 @@ func (u *UserController) QueryUserTeams() {
 			if err == gorm.ErrRecordNotFound {
 				response.HandleSuccess(nil, WarnUserTeamMissing)
 			} else if err != nil {
-				beego.Error(err)
+				logs.Error(err)
 				response.HandleError(err)
 			} else {
 				response.HandleSuccess(teamProfile)

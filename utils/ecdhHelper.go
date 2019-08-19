@@ -10,7 +10,7 @@ import (
 	"encoding/hex"
 	"encoding/pem"
 	"fmt"
-	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"math/big"
 	"strings"
 )
@@ -60,7 +60,7 @@ var curve = elliptic.P256()
 func (e *EllipticECDH) GenerateECKeyPair() (*EllipticPrivateKey, *EllipticPublicKey, error) {
 	priv, x, y, err := elliptic.GenerateKey(curve, rand.Reader)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, nil, err
 	}
 	privateKey := &EllipticPrivateKey{
@@ -77,7 +77,7 @@ func (e *EllipticECDH) GenerateECKeyPair() (*EllipticPrivateKey, *EllipticPublic
 func (e *EllipticECDH) GenerateECKeyPairToPEM(curve elliptic.Curve) ([]byte, []byte, error) {
 	// priv, x, y, err := elliptic.GenerateKey(curve, rand.Reader)
 	// if err != nil {
-	// 	beego.Error(err.Error())
+	// 	logs.Error(err.Error())
 	// 	return nil, nil, err
 	// }
 	// 	TODO: GEN key
@@ -109,7 +109,7 @@ func (e *EllipticECDH) ParsePKCS8ECPrivateKey(privateKeyDerBytes []byte) (*Ellip
 	// privateKey, err := x509.ParseECPrivateKey(privateKeyDer)
 	key, err := x509.ParsePKCS8PrivateKey(privateKeyDerBytes)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, err
 	}
 	if key == nil {
@@ -138,7 +138,7 @@ func (e *EllipticECDH) ParseECPrivateKeyFromPEM(filePath string) (*EllipticECDH,
 	privDerBytes := e.DecodePEMToDERBytes(privBytes)
 	ellipticECDH, err := e.ParsePKCS8ECPrivateKey(privDerBytes)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, err
 	}
 	return ellipticECDH, nil
@@ -152,7 +152,7 @@ func (e *EllipticECDH) ParseECPublicKeyFromPEM(publicKeyStr string) (*EllipticPu
 	publicKeyDerBytes = e.DecodePEMToDERBytes([]byte(publicKeyStr))
 	ecPubKey, ecdsaPubKey, err := e.ParsePKIXECPublicKey(publicKeyDerBytes)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, nil, err
 	}
 	return ecPubKey, ecdsaPubKey, nil
@@ -161,7 +161,7 @@ func (e *EllipticECDH) ParseECPublicKeyFromPEM(publicKeyStr string) (*EllipticPu
 func (e *EllipticECDH) ParsePKIXECPublicKey(publicKeyDerBytes []byte) (*EllipticPublicKey, *ecdsa.PublicKey, error) {
 	pub, err := x509.ParsePKIXPublicKey(publicKeyDerBytes)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, nil, err
 	}
 	publicKey := pub.(*ecdsa.PublicKey)
@@ -227,7 +227,7 @@ func (e *EllipticECDH) VerifySignature(signatureData *SignatureData, publicKey *
 func HandleSignatureData(data string, signatureBase64 string) (signatureData *SignatureData, err error) {
 	signatureBytes, err := base64.StdEncoding.DecodeString(signatureBase64)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, err
 	}
 	signatureStr := string(signatureBytes)
@@ -236,13 +236,13 @@ func HandleSignatureData(data string, signatureBase64 string) (signatureData *Si
 	br, err = HexToBigInt(rs[0])
 	bs, err = HexToBigInt(rs[1])
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, err
 	}
 	// var bigHr, bigHs *big.Int int64
 	dataBytes, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, err
 	}
 	signatureData = &SignatureData{

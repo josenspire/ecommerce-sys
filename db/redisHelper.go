@@ -2,6 +2,7 @@ package db
 
 import (
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"github.com/go-redis/redis"
 	"log"
 	"os"
@@ -37,7 +38,7 @@ func (r *RedisConnectPool) InitialRedisClient() bool {
 	})
 	_, err := client.Ping().Result()
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		return false
 	}
 	return true

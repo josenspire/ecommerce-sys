@@ -1,9 +1,10 @@
 package models
 
 import (
-	"github.com/astaxie/beego"
+	"database/sql"
+	"ecommerce-sys/db"
 	"github.com/astaxie/beego/logs"
-	"github.com/edwingeng/wuid/mysql"
+	"github.com/edwingeng/wuid/mysql/wuid"
 )
 
 type Wuid struct {
@@ -19,13 +20,13 @@ func init() {
 }
 
 func GetWuid() uint64 {
-	dbUser := beego.AppConfig.String("mysqluser")
-	dbPass := beego.AppConfig.String("mysqlpass")
-	dbURL := beego.AppConfig.String("mysqlurls")
-	dbName := beego.AppConfig.String("mysqldb")
-	dbPort := beego.AppConfig.String("mysqlport")
+	newDB := func() (*sql.DB, bool, error) {
+		mysqlDB := db.GetMySqlConnection().GetMySqlDB()
+		return mysqlDB.DB(), false, nil
+	}
+	// Setup
+	err := g.LoadH28FromMysql(newDB, "wuids")
 
-	err := g.LoadH24FromMysql(dbURL+":"+dbPort, dbUser, dbPass, dbName, "wuids")
 	if err != nil {
 		logs.Error(err)
 		return 0

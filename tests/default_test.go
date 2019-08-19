@@ -2,7 +2,6 @@ package test
 
 import (
 	"github.com/astaxie/beego"
-	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"

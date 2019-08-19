@@ -6,8 +6,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
+	"github.com/astaxie/beego/logs"
 	"log"
 	"net/http"
 )
@@ -39,7 +39,7 @@ func (asp *AspectControl) HandleRequest(ct *context.Context) {
 	if len(inputContent) != 0 {
 		err := json.Unmarshal(ct.Input.RequestBody, requestModel)
 		if err != nil {
-			beego.Error(err.Error())
+			logs.Error(err.Error())
 			asp.HandleResponse(ct)
 		}
 
@@ -71,13 +71,13 @@ func (asp *AspectControl) HandleRequestBody(requestModel *RequestModel) (reqByte
 
 	ellipticECDH, err = ellipticECDH.ParseECPrivateKeyFromPEM("./../pem/ecdh_priv.pem")
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, err
 	}
 	// verify signature
 	signatureData, err = HandleSignatureData(requestModel.Data, requestModel.Signature)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, err
 	}
 	verifyResult = ellipticECDH.VerifySignature(signatureData, ecdsaPublicKey)
@@ -87,17 +87,17 @@ func (asp *AspectControl) HandleRequestBody(requestModel *RequestModel) (reqByte
 	// secret compute and decryption
 	pubKey, ecdsaPublicKey, err = ellipticECDH.ParseECPublicKeyFromPEM(requestModel.SecretKey)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, err
 	}
 	secret, err := ellipticECDH.ComputeSecret(ellipticECDH.PrivateKey, pubKey)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, err
 	}
 	requestData, err := AESDecrypt(requestModel.Data, base64.StdEncoding.EncodeToString(secret))
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, err
 	}
 	return []byte(requestData), nil

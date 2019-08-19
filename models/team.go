@@ -2,7 +2,7 @@ package models
 
 import (
 	"ecommerce-sys/db"
-	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 )
 
 type Team struct {
@@ -40,13 +40,13 @@ func (team *Team) QueryUserTeams(userId uint64) (*TeamVO, error) {
 	// query top agent
 	secondAgentsCount, err := countUsersByUserId("topLevelAgent", userId)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, err
 	}
 	// query supervisor agent
 	thirdAgentsCount, err := countUsersByUserId("superiorAgent", userId)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, err
 	}
 	vo := TeamVO{userTeam, secondAgentsCount, thirdAgentsCount}

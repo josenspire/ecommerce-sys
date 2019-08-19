@@ -2,7 +2,7 @@ package models
 
 import (
 	"ecommerce-sys/db"
-	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"github.com/jinzhu/gorm"
 )
 
@@ -55,14 +55,14 @@ func (addr *Address) CreateAddress(dto *AddressDTO) error {
 	if address.IsDefault == true {
 		err := ts.Model(&Address{}).Where("isDefault = true and status = 'active'").Update("isDefault", false).Error
 		if err != nil && err != gorm.ErrRecordNotFound {
-			beego.Error(err.Error())
+			logs.Error(err.Error())
 			ts.Rollback()
 			return err
 		}
 	}
 	err := ts.Create(&address).Error
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		ts.Rollback()
 	} else {
 		ts.Commit()
@@ -76,7 +76,7 @@ func (addr *Address) QueryAddressByAddressId(userId uint64, addressId uint64) (*
 
 	err := mysqlDB.Where("userId = ? and addressId = ? and status = 'active'", userId, addressId).First(&address).Error
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, err
 	}
 	return &address, nil
@@ -93,7 +93,7 @@ func (addr *Address) DeleteAddressByAddressId(userId uint64, addressId uint64) e
 
 	mdb := mysqlDB.Where("userId = ? and addressId = ? and status = 'active'", userId, addressId).First(&Address{})
 	if mdb.Error == gorm.ErrRecordNotFound {
-		beego.Error(mdb.Error.Error())
+		logs.Error(mdb.Error.Error())
 		return mdb.Error
 	}
 	err := mdb.Delete(&Address{}).Error
@@ -106,13 +106,13 @@ func (addr *Address) SetDefaultAddress(userId uint64, addressId uint64) error {
 	ts := mysqlDB.Begin()
 	err := ts.Model(&Address{}).Where("userId = ? and isDefault = true and status = 'active'", userId).Update("isDefault", false).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		ts.Rollback()
 		return err
 	}
 	err = ts.Model(&Address{}).Where("userId = ? and addressId = ? and status = 'active'", userId, addressId).Update("isDefault", true).Error
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		ts.Rollback()
 	} else {
 		ts.Commit()

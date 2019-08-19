@@ -2,7 +2,7 @@ package models
 
 import (
 	"ecommerce-sys/db"
-	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 )
 
 type Advert struct {
@@ -32,7 +32,7 @@ func (adv *Advert) UpdateAdvertByAdvertId() error {
 
 	err := mysqlDB.Where("advertId = ?", &adv.AdvertId).First(&advert).Error
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return err
 	}
 	err = mysqlDB.Model(&advert).Update(&adv).Error

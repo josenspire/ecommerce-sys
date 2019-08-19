@@ -6,6 +6,7 @@ import (
 	. "ecommerce-sys/utils"
 	"encoding/json"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"github.com/jinzhu/gorm"
 )
 
@@ -26,12 +27,12 @@ func (adv *AdvertController) InsertAdvert() {
 	advert := new(Advert)
 	err := json.Unmarshal(adv.Ctx.Input.RequestBody, &advert)
 	if err != nil {
-		beego.Warning(err.Error())
+		logs.Warning(err.Error())
 		response.HandleError(err, PARAMS_MISSING)
 	} else {
 		err = advert.InsertAdvert()
 		if err != nil {
-			beego.Error(err.Error())
+			logs.Error(err.Error())
 			response.HandleFail(REQUEST_FAIL, err.Error())
 		} else {
 			response.HandleSuccess(nil)
@@ -55,14 +56,14 @@ func (adv *AdvertController) UpdateAdvert() {
 	advert := Advert{}
 	err := json.Unmarshal(adv.Ctx.Input.RequestBody, &advert)
 	if err != nil {
-		beego.Warning(err.Error())
+		logs.Warning(err.Error())
 		response.HandleError(err, PARAMS_MISSING)
 	} else {
 		err = advert.UpdateAdvertByAdvertId()
 		if err == gorm.ErrRecordNotFound {
 			response.HandleFail(RECORD_NOT_FOUND, ErrRecordNotFound.Error())
 		} else if err != nil {
-			beego.Error(err.Error())
+			logs.Error(err.Error())
 			response.HandleFail(REQUEST_FAIL, err.Error())
 		} else {
 			response.HandleSuccess(nil)
@@ -84,7 +85,7 @@ func (adv *AdvertController) GetAdvertList() {
 	if err == gorm.ErrRecordNotFound {
 		response.HandleSuccess([]Advert{})
 	} else if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		response.HandleError(err)
 	} else {
 		response.HandleSuccess(&advertList)

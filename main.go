@@ -31,13 +31,13 @@ func init() {
 	// rotate 是否开启 logrotate，默认是 true
 	err := logs.SetLogger(logs.AdapterFile, `{"filename":"./logs/ecommerce-sys.log","level":6,"maxlines":0,"maxsize":0,"daily":true,"maxdays":30}`)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return
 	}
 
 	connectResult := db.GetMySqlConnection().InitConnectionPool()
 	if !connectResult {
-		beego.Error(utils.ErrMysqlInitFailure)
+		logs.Error(utils.ErrMysqlInitFailure)
 		log.Println("[Error]: Init mysql database pool failure...")
 		os.Exit(1)
 	} else {
@@ -47,7 +47,7 @@ func init() {
 
 	redisInit := db.GetRedisConnection().InitialRedisClient()
 	if !redisInit {
-		beego.Error(utils.ErrRedisInitFailure)
+		logs.Error(utils.ErrRedisInitFailure)
 		log.Println("[Error]: Init redis database pool failure...")
 	} else {
 		log.Println("Redis database pool init succeeded...")
@@ -160,7 +160,7 @@ func _() {
 
 	err := orm.RegisterDriver("mysql", orm.DRMySQL)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return
 	}
 	// 参数4(可选)  设置最大空闲连接
@@ -178,7 +178,7 @@ func _() {
 		maxIdle,
 		maxConn)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return
 	}
 
@@ -190,7 +190,7 @@ func _() {
 	// 自动建表
 	err = orm.RunSyncdb("default", false, true)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return
 	}
 

@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"sync"
@@ -33,7 +34,7 @@ func (m *MysqlConnectionPool) InitConnectionPool() bool {
 	uri := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", dbUser, dbPass, dbURL, dbPort, dbName)
 	db, dbErr = gorm.Open("mysql", uri)
 	if dbErr != nil {
-		beego.Error(dbErr)
+		logs.Error(dbErr)
 		return false
 	}
 	db.Set("gorm:table_options", "ENGINE=InnoDB")

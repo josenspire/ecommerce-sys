@@ -1,0 +1,127 @@
+2019/08/19 13:14:41.671 [E] [redisHelper.go:40]  dial tcp 127.0.0.1:6379: connectex: No connection could be made because the target machine actively refused it.
+2019/08/19 13:14:41.671 [E] [main.go:50]  error, server initial [redis] pool failure, please check it
+2019/08/19 13:14:41.822 [I] [asm_amd64.s:1337]  http server Running on http://127.0.0.1:8088
+2019/08/19 13:14:41.822 [I] [asm_amd64.s:1337]  Admin server Running on 127.0.0.1:8090
+2019/08/19 13:15:47.040 [I] [asm_amd64.s:1337]  Admin server Running on 127.0.0.1:8090
+2019/08/19 13:15:47.040 [I] [asm_amd64.s:1337]  http server Running on http://127.0.0.1:8088
+2019/08/19 13:26:46.853 [I] [asm_amd64.s:1337]  http server Running on http://127.0.0.1:8088
+2019/08/19 13:26:46.853 [I] [asm_amd64.s:1337]  Admin server Running on 127.0.0.1:8090
+2019/08/19 13:26:55.936 [server.go:2774]  127.0.0.1 - - [19/Aug/2019 01:26:55] "GET / HTTP/1.1 200 0" 0.008995  Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36
+2019/08/19 13:41:21.249 [error.go:427]  127.0.0.1 - - [01/Jan/0001 12:00:00] "GET /v1/api/classify/list HTTP/1.1 404 0" 0.000000  Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36
+2019/08/19 13:41:21.261 [server.go:2774]  127.0.0.1 - - [19/Aug/2019 01:41:20] "GET /v1/api/classify/list HTTP/1.1 404 0" 0.352998  Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36
+2019/08/19 13:44:47.773 [error.go:427]  127.0.0.1 - - [01/Jan/0001 12:00:00] "GET /v1/api/classify/list HTTP/1.1 404 0" 0.000000  Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36
+2019/08/19 13:44:47.773 [server.go:2774]  127.0.0.1 - - [19/Aug/2019 01:44:47] "GET /v1/api/classify/list HTTP/1.1 404 0" 0.000000  Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36
+2019/08/19 13:47:38.826 [error.go:427]  127.0.0.1 - - [01/Jan/0001 12:00:00] "GET /api/classify/list HTTP/1.1 404 0" 0.000000  Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36
+2019/08/19 13:47:38.827 [server.go:2774]  127.0.0.1 - - [19/Aug/2019 01:47:38] "GET /api/classify/list HTTP/1.1 404 0" 0.115000  Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36
+2019/08/19 13:48:31.597 [server.go:2774]  127.0.0.1 - - [19/Aug/2019 01:48:31] "POST /v1/api/classify/list HTTP/1.1 200 0" 0.214008  Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36
+2019/08/19 13:48:47.513 [C] [panic.go:522]  the request url is  /v1/api/classify/create
+2019/08/19 13:48:47.515 [C] [panic.go:522]  Handler crashed with error runtime error: invalid memory address or nil pointer dereference
+2019/08/19 13:48:47.515 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/panic.go:522
+2019/08/19 13:48:47.527 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/panic.go:82
+2019/08/19 13:48:47.527 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/signal_windows.go:233
+2019/08/19 13:48:47.528 [C] [panic.go:522]  D:/Application Install Files/Go/src/database/sql/sql.go:758
+2019/08/19 13:48:47.528 [C] [panic.go:522]  D:/Go/src/github.com/edwingeng/wuid/mysql/wuid/wuid.go:62
+2019/08/19 13:48:47.528 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/panic.go:522
+2019/08/19 13:48:47.528 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/panic.go:82
+2019/08/19 13:48:47.528 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/signal_windows.go:233
+2019/08/19 13:48:47.528 [C] [panic.go:522]  D:/Application Install Files/Go/src/database/sql/sql.go:1080
+2019/08/19 13:48:47.528 [C] [panic.go:522]  D:/Application Install Files/Go/src/database/sql/sql.go:1443
+2019/08/19 13:48:47.528 [C] [panic.go:522]  D:/Application Install Files/Go/src/database/sql/sql.go:1425
+2019/08/19 13:48:47.530 [C] [panic.go:522]  D:/Application Install Files/Go/src/database/sql/sql.go:1439
+2019/08/19 13:48:47.530 [C] [panic.go:522]  D:/Go/src/github.com/edwingeng/wuid/mysql/wuid/wuid.go:66
+2019/08/19 13:48:47.530 [C] [panic.go:522]  D:/Go/src/ecommerce-sys/models/wuid.go:39
+2019/08/19 13:48:47.530 [C] [panic.go:522]  D:/Go/src/ecommerce-sys/models/classify.go:48
+2019/08/19 13:48:47.530 [C] [panic.go:522]  D:/Go/src/ecommerce-sys/controllers/classify.go:33
+2019/08/19 13:48:47.531 [C] [panic.go:522]  D:/Application Install Files/Go/src/reflect/value.go:447
+2019/08/19 13:48:47.531 [C] [panic.go:522]  D:/Application Install Files/Go/src/reflect/value.go:308
+2019/08/19 13:48:47.531 [C] [panic.go:522]  D:/Go/src/github.com/astaxie/beego/router.go:853
+2019/08/19 13:48:47.531 [C] [panic.go:522]  D:/Application Install Files/Go/src/net/http/server.go:2774
+2019/08/19 13:48:47.531 [C] [panic.go:522]  D:/Application Install Files/Go/src/net/http/server.go:1878
+2019/08/19 13:48:47.531 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/asm_amd64.s:1337
+2019/08/19 13:48:47.539 [server.go:3010]  [HTTP] http: superfluous response.WriteHeader call from github.com/astaxie/beego/context.(*Response).WriteHeader (context.go:230)
+2019/08/19 14:06:29.210 [I] [asm_amd64.s:1337]  http server Running on http://127.0.0.1:8088
+2019/08/19 14:06:29.210 [I] [asm_amd64.s:1337]  Admin server Running on 127.0.0.1:8090
+2019/08/19 14:06:34.984 [C] [panic.go:522]  the request url is  /v1/api/classify/create
+2019/08/19 14:06:34.984 [C] [panic.go:522]  Handler crashed with error runtime error: invalid memory address or nil pointer dereference
+2019/08/19 14:06:34.984 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/panic.go:522
+2019/08/19 14:06:34.984 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/panic.go:82
+2019/08/19 14:06:34.984 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/signal_windows.go:233
+2019/08/19 14:06:34.984 [C] [panic.go:522]  D:/Application Install Files/Go/src/database/sql/sql.go:758
+2019/08/19 14:06:34.984 [C] [panic.go:522]  D:/Go/src/github.com/edwingeng/wuid/mysql/wuid/wuid.go:62
+2019/08/19 14:06:34.984 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/panic.go:522
+2019/08/19 14:06:34.984 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/panic.go:82
+2019/08/19 14:06:34.984 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/signal_windows.go:233
+2019/08/19 14:06:34.984 [C] [panic.go:522]  D:/Application Install Files/Go/src/database/sql/sql.go:1080
+2019/08/19 14:06:34.984 [C] [panic.go:522]  D:/Application Install Files/Go/src/database/sql/sql.go:1443
+2019/08/19 14:06:34.984 [C] [panic.go:522]  D:/Application Install Files/Go/src/database/sql/sql.go:1425
+2019/08/19 14:06:34.984 [C] [panic.go:522]  D:/Application Install Files/Go/src/database/sql/sql.go:1439
+2019/08/19 14:06:34.984 [C] [panic.go:522]  D:/Go/src/github.com/edwingeng/wuid/mysql/wuid/wuid.go:66
+2019/08/19 14:06:34.984 [C] [panic.go:522]  D:/Go/src/ecommerce-sys/models/wuid.go:41
+2019/08/19 14:06:34.984 [C] [panic.go:522]  D:/Go/src/ecommerce-sys/models/classify.go:48
+2019/08/19 14:06:34.985 [C] [panic.go:522]  D:/Go/src/ecommerce-sys/controllers/classify.go:33
+2019/08/19 14:06:34.985 [C] [panic.go:522]  D:/Application Install Files/Go/src/reflect/value.go:447
+2019/08/19 14:06:34.985 [C] [panic.go:522]  D:/Application Install Files/Go/src/reflect/value.go:308
+2019/08/19 14:06:34.985 [C] [panic.go:522]  D:/Go/src/github.com/astaxie/beego/router.go:853
+2019/08/19 14:06:34.985 [C] [panic.go:522]  D:/Application Install Files/Go/src/net/http/server.go:2774
+2019/08/19 14:06:34.985 [C] [panic.go:522]  D:/Application Install Files/Go/src/net/http/server.go:1878
+2019/08/19 14:06:34.985 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/asm_amd64.s:1337
+2019/08/19 14:06:34.986 [server.go:3010]  [HTTP] http: superfluous response.WriteHeader call from github.com/astaxie/beego/context.(*Response).WriteHeader (context.go:230)
+2019/08/19 14:07:09.536 [C] [panic.go:522]  the request url is  /v1/api/classify/create
+2019/08/19 14:07:09.536 [C] [panic.go:522]  Handler crashed with error runtime error: invalid memory address or nil pointer dereference
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/panic.go:522
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/panic.go:82
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/signal_windows.go:233
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Application Install Files/Go/src/database/sql/sql.go:758
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Go/src/github.com/edwingeng/wuid/mysql/wuid/wuid.go:62
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/panic.go:522
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/panic.go:82
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/signal_windows.go:233
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Application Install Files/Go/src/database/sql/sql.go:1080
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Application Install Files/Go/src/database/sql/sql.go:1443
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Application Install Files/Go/src/database/sql/sql.go:1425
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Application Install Files/Go/src/database/sql/sql.go:1439
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Go/src/github.com/edwingeng/wuid/mysql/wuid/wuid.go:66
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Go/src/ecommerce-sys/models/wuid.go:41
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Go/src/ecommerce-sys/models/classify.go:48
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Go/src/ecommerce-sys/controllers/classify.go:33
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Application Install Files/Go/src/reflect/value.go:447
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Application Install Files/Go/src/reflect/value.go:308
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Go/src/github.com/astaxie/beego/router.go:853
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Application Install Files/Go/src/net/http/server.go:2774
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Application Install Files/Go/src/net/http/server.go:1878
+2019/08/19 14:07:09.536 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/asm_amd64.s:1337
+2019/08/19 14:07:09.536 [server.go:3010]  [HTTP] http: superfluous response.WriteHeader call from github.com/astaxie/beego/context.(*Response).WriteHeader (context.go:230)
+2019/08/19 14:15:00.849 [I] [asm_amd64.s:1337]  http server Running on http://127.0.0.1:8088
+2019/08/19 14:15:00.849 [I] [asm_amd64.s:1337]  Admin server Running on 127.0.0.1:8090
+2019/08/19 14:15:14.290 [E] [value.go:447]  sql: database is closed
+2019/08/19 14:15:14.290 [server.go:2774]  127.0.0.1 - - [19/Aug/2019 02:15:14] "POST /v1/api/classify/create HTTP/1.1 200 0" 0.048017  Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36
+2019/08/19 14:16:25.460 [I] [asm_amd64.s:1337]  http server Running on http://127.0.0.1:8088
+2019/08/19 14:16:25.460 [I] [asm_amd64.s:1337]  Admin server Running on 127.0.0.1:8090
+2019/08/19 14:16:28.016 [server.go:2774]  127.0.0.1 - - [19/Aug/2019 02:16:27] "POST /v1/api/classify/create HTTP/1.1 200 0" 0.119995  Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36
+2019/08/19 14:23:57.230 [server.go:2774]  127.0.0.1 - - [19/Aug/2019 02:23:57] "POST /v1/api/classify/list HTTP/1.1 200 0" 0.002003  Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36
+2019/08/19 14:24:06.164 [server.go:2774]  127.0.0.1 - - [19/Aug/2019 02:24:06] "POST /v1/api/classify/category/create HTTP/1.1 200 0" 0.127998  Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36
+2019/08/19 14:24:16.596 [W] [value.go:447]  unexpected end of JSON input
+2019/08/19 14:24:16.596 [server.go:2774]  127.0.0.1 - - [19/Aug/2019 02:24:16] "POST /v1/api/address/details HTTP/1.1 200 0" 0.001004  Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36
+2019/08/19 14:24:32.937 [C] [panic.go:522]  the request url is  /v1/api/product/details/specification
+2019/08/19 14:24:32.937 [C] [panic.go:522]  Handler crashed with error runtime error: index out of range
+2019/08/19 14:24:32.937 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/panic.go:522
+2019/08/19 14:24:32.937 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/panic.go:44
+2019/08/19 14:24:32.937 [C] [panic.go:522]  D:/Go/src/ecommerce-sys/models/product.go:156
+2019/08/19 14:24:32.937 [C] [panic.go:522]  D:/Go/src/ecommerce-sys/controllers/product.go:162
+2019/08/19 14:24:32.937 [C] [panic.go:522]  D:/Application Install Files/Go/src/reflect/value.go:447
+2019/08/19 14:24:32.937 [C] [panic.go:522]  D:/Application Install Files/Go/src/reflect/value.go:308
+2019/08/19 14:24:32.937 [C] [panic.go:522]  D:/Go/src/github.com/astaxie/beego/router.go:853
+2019/08/19 14:24:32.937 [C] [panic.go:522]  D:/Application Install Files/Go/src/net/http/server.go:2774
+2019/08/19 14:24:32.937 [C] [panic.go:522]  D:/Application Install Files/Go/src/net/http/server.go:1878
+2019/08/19 14:24:32.937 [C] [panic.go:522]  D:/Application Install Files/Go/src/runtime/asm_amd64.s:1337
+2019/08/19 14:24:32.937 [server.go:3010]  [HTTP] http: superfluous response.WriteHeader call from github.com/astaxie/beego/context.(*Response).WriteHeader (context.go:230)
+2019/08/19 14:25:20.822 [I] [asm_amd64.s:1337]  http server Running on http://127.0.0.1:8088
+2019/08/19 14:25:20.822 [I] [asm_amd64.s:1337]  Admin server Running on 127.0.0.1:8090
+2019/08/19 14:32:56.490 [I] [asm_amd64.s:1337]  Admin server Running on 127.0.0.1:8090
+2019/08/19 14:32:56.490 [I] [asm_amd64.s:1337]  http server Running on http://127.0.0.1:8088
+2019/08/19 14:33:07.288 [server.go:2774]  127.0.0.1 - - [19/Aug/2019 02:33:07] "POST /v1/api/product/details/specification HTTP/1.1 200 0" 0.003001  Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36
+2019/08/19 14:33:15.419 [E] [product.go:128]  record not found
+2019/08/19 14:33:15.419 [server.go:2774]  127.0.0.1 - - [19/Aug/2019 02:33:15] "POST /v1/api/product/details HTTP/1.1 200 0" 0.024002  Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36
+2019/08/19 15:38:52.914 [I] [asm_amd64.s:1337]  http server Running on http://127.0.0.1:8088
+2019/08/19 15:38:52.914 [I] [asm_amd64.s:1337]  Admin server Running on 127.0.0.1:8090
+2019/08/19 15:39:07.452 [server.go:2774]  127.0.0.1 - - [19/Aug/2019 03:39:07] "POST /v1/api/classify/list HTTP/1.1 200 0" 0.002998  Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36

@@ -5,7 +5,7 @@ import (
 	. "ecommerce-sys/utils"
 	"encoding/json"
 	"fmt"
-	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"strings"
 	"time"
 )
@@ -24,7 +24,7 @@ func (sms *SMS) ObtainSecurityCode(telephone string, userId uint64, operationMod
 
 	isExist, err := new(User).CheckIsUserExistByTelephone(telephone)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, err
 	}
 
@@ -42,7 +42,7 @@ func (sms *SMS) ObtainSecurityCode(telephone string, userId uint64, operationMod
 	key, value, smsContent := buildSMSContent(telephone, userId, operationMode)
 	err = redisClient.Set(key, value, 15*time.Minute).Err()
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return nil, err
 	}
 	return smsContent, nil
@@ -55,12 +55,12 @@ func (sms *SMS) VerifySecurityCode(telephone string, userId uint64, securityCode
 	key := fmt.Sprintf("%d-%s", userId, operationMode)
 	resultBytes, err := redisClient.Get(key).Bytes()
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return false, err
 	}
 	err = json.Unmarshal(resultBytes, &sms)
 	if err != nil {
-		beego.Error(err.Error())
+		logs.Error(err.Error())
 		return false, err
 	}
 	if securityCode == sms.SecurityCode {
